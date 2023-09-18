@@ -1,0 +1,36 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import type { AssetActionCommand, AssetState } from '@/types/asset-info.type'
+
+const props = defineProps<{ state: AssetState }>()
+defineEmits<{ action: [command: AssetActionCommand] }>()
+
+const canDownload = computed(() => props.state === '转换完成')
+const canTransform = computed(() => props.state === '仅上传' || props.state === '转换失败')
+</script>
+
+<template>
+  <el-dropdown class="component asset-action" trigger="click" popper-class="asset-action-popper" @command="(e:AssetActionCommand) => $emit('action', e)">
+    <icon-park-outline-more class="text-xl" />
+    <template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item command="download">
+          <icon-park-outline-download class="mr-1" />
+          下载MP4文件
+        </el-dropdown-item>
+        <el-dropdown-item :disabled="!canDownload" command="downloadFbx">
+          <icon-park-outline-database-download class="mr-1" />
+          下载FBX文件
+        </el-dropdown-item>
+        <el-dropdown-item :disabled="!canTransform" command="transfrom">
+          <icon-park-outline-effects class="mr-1" />
+          转换文件
+        </el-dropdown-item>
+        <el-dropdown-item command="delete">
+          <icon-park-outline-delete class="mr-1" />
+          删除文件
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </template>
+  </el-dropdown>
+</template>
