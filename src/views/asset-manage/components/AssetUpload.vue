@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import type { UploadFile, UploadFiles, UploadRawFile } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import { ElMessage, genFileId } from 'element-plus'
 
-const showDialog = ref(true)
-const uploadRef = ref()
+const showDialog = ref(false)
+const uploadRef = ref<UploadInstance>()
 const duration = ref(0)
 
 // 获取video文件的时长
@@ -28,21 +28,28 @@ function getVideoDuration(file: UploadRawFile) {
 }
 
 // 文件改变的回调事件
-function onFileChange(file: UploadFile, uploadFiles: UploadFiles) {
+const handleChange: UploadProps['onChange'] = (file) => {
   if (file.status === 'ready') {
     if (/(.mp4)/i.test(file.name)) {
       getVideoDuration(file.raw!).then(d => duration.value = d)
     }
     else {
       ElMessage.error('请选择MP4格式的文件')
-      uploadFiles.pop()
+      uploadRef.value!.handleRemove(file)
     }
   }
 }
 
+// 重新上传文件时删除原来的文件
+const handleExceed: UploadProps['onExceed'] = (files) => {
+  uploadRef.value!.clearFiles()
+  const file = files[0] as UploadRawFile
+  file.uid = genFileId()
+  uploadRef.value!.handleStart(file)
+}
 // 手动删除文件
 function handleRemove(file: UploadFile) {
-  uploadRef.value.handleRemove(file)
+  uploadRef.value!.handleRemove(file)
   duration.value = 0
 }
 
@@ -65,8 +72,8 @@ function uploadWithAnliase() {
       :close-on-click-modal="false"
     >
       <el-upload
-        ref="uploadRef" drag :limit="1" accept=".mp4" :auto-upload="false"
-        :on-change="onFileChange" class="aseet-upload-controller"
+        ref="uploadRef" drag :limit="1" accept=".mp4" :auto-upload="false" :on-change="handleChange"
+        class="aseet-upload-controller" :on-exceed="handleExceed"
       >
         <div class="upload-description">
           <icon-park-outline-upload-one class="text-6xl text-gray-300 inline-block" />
@@ -151,7 +158,7 @@ function uploadWithAnliase() {
     }
 
     &-duration {
-      @apply text-xs text-gray-400 ;
+      @apply text-xs text-gray-400;
     }
 
     &-actions {

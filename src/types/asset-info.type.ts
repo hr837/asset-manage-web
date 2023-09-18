@@ -6,6 +6,7 @@ export interface QueryForm {
   name: string
   /** 创建时间 */
   date: [string, string]
+  state: AssetState | ''
 }
 
 export interface AssetInfo {
@@ -14,4 +15,5 @@ export interface AssetInfo {
   state: AssetState
   uploadDate: string
   trasformDate?: string
+  url?: string
 }

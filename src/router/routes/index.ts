@@ -50,6 +50,14 @@ const routesConfig: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: '/play',
+        name: 'play-video',
+        component: () => import('@/views/asset-manage/AssetPlay.vue'),
+        meta: {
+          title: '资产播放',
+        },
+      },
+      {
         path: '/about',
         name: 'about',
         // route level code-splitting

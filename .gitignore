@@ -28,3 +28,5 @@ package-lock.json
 # auto generated
 /typings/auto-imports.d.ts
 /typings/components.d.ts
+# tmp files
+/public/tmp

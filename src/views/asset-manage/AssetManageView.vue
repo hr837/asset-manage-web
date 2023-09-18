@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import AssetDataList from './components/AssetDataList.vue'
 import AssetQueryForm from './components/AssetQueryForm.vue'
+import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import AssetUpload from './components/AssetUpload.vue'
-import type { AssetInfo } from '@/types/asset-info.type'
+import type { AssetInfo, AssetState } from '@/types/asset-info.type'
 
 const dataSet = ref<AssetInfo[]>([
   {
@@ -53,9 +54,13 @@ const dataSet = ref<AssetInfo[]>([
   },
 ])
 
-const fileList = ref([])
-
 let queryData = {}
+const filterSatate = ref<AssetState | undefined>(undefined)
+
+function onStateChange(val?: AssetState) {
+  filterSatate.value = val
+}
+
 function refreshData(data: any) {
   queryData = data
   // TODO fetch
@@ -66,6 +71,7 @@ function refreshData(data: any) {
   <div class="page asset-manage-view">
     <AssetQueryForm @refresh="refreshData" />
     <div class="asset-manage-action">
+      <AssetQeuryFilter @state-change="onStateChange" />
       <AssetUpload />
     </div>
     <AssetDataList :data="dataSet" />
@@ -74,8 +80,8 @@ function refreshData(data: any) {
 
 <style lang="less" scoped>
 .asset-manage-view {
-  .asset-manage-action{
-    @apply flex justify-end items-center mb-4;
+  .asset-manage-action {
+    @apply flex justify-between items-center mb-4;
   }
 }
 </style>
