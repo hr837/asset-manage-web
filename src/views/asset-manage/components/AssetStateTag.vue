@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type { AssetState } from '@/types/asset-info.type'
 
-const props = defineProps<{ state: AssetState }>()
+const props = defineProps<{ state: number }>()
 
 // [背景，前景]
-const colors: Record<AssetState, [string, string]> = {
-  仅上传: ['#FFF2E5', '#FDC298'],
-  排队中: ['#DBF2FF', '#8ED6FF'],
-  转换中: ['#D6F8DD', '#77E28E'],
-  转换失败: ['#FFE5E5', '#fd9898'],
-  转换完成: ['#EAE5FF', '#AA98FD'],
+const colors: Record<number, [string, string]> = {
+  1: ['#FFF2E5', '#FDC298'],
+  2: ['#DBF2FF', '#8ED6FF'],
+  3: ['#D6F8DD', '#77E28E'],
+  4: ['#FFE5E5', '#fd9898'],
+  5: ['#EAE5FF', '#AA98FD'],
 }
 
 const current = computed(() => colors[props.state])

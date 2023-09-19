@@ -4,66 +4,28 @@ import AssetDataList from './components/AssetDataList.vue'
 import AssetQueryForm from './components/AssetQueryForm.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import AssetUpload from './components/AssetUpload.vue'
-import type { AssetInfo, AssetState } from '@/types/asset-info.type'
+import type { AssetInfo, AssetQueryFormData } from '@/types/asset-info.type'
 
-const dataSet = ref<AssetInfo[]>([
-  {
-    id: '001',
-    state: '仅上传',
-    name: '曹操练兵',
-    uploadDate: '2023-12-23 12:32:45',
-  },
-  {
-    id: '002',
-    state: '排队中',
-    name: '曹操娶妻',
-    uploadDate: '2023-12-23 12:32:45',
-  },
-  {
-    id: '003',
-    state: '转换中',
-    name: '曹操练兵',
-    uploadDate: '2023-12-23 12:32:45',
-  },
-  {
-    id: '004',
-    state: '转换失败',
-    name: '曹操吃席',
-    uploadDate: '2023-12-23 12:32:45',
-  },
-  {
-    id: '005',
-    state: '转换完成',
-    name: '曹操打仗',
-    uploadDate: '2023-12-23 12:32:45',
-    trasformDate: '2023-12-23 13:22:43',
-  },
-  {
-    id: '006',
-    state: '转换失败',
-    name: '曹操输了，输的彻彻底底的',
-    uploadDate: '2023-12-23 12:32:45',
-    trasformDate: '2023-12-23 13:22:43',
-  },
-  {
-    id: '007',
-    state: '转换完成',
-    name: '诸葛笑了',
-    uploadDate: '2023-12-23 12:32:45',
-    trasformDate: '2023-12-23 13:22:43',
-  },
-])
+const dataSet = ref<AssetInfo[]>([])
 
-let queryData = {}
-const filterSatate = ref<AssetState | undefined>(undefined)
-
-function onStateChange(val?: AssetState) {
-  filterSatate.value = val
+// 查询条件
+const queryData: { status?: number } = {
+  status: undefined,
 }
 
-function refreshData(data: any) {
-  queryData = data
+function onStateChange(val?: number) {
+  queryData.status = val
+  fetchData()
+}
+
+function refreshData(data: AssetQueryFormData) {
+  Object.assign(queryData, data)
+  fetchData()
+}
+
+function fetchData() {
   // TODO fetch
+
 }
 </script>
 
@@ -74,7 +36,10 @@ function refreshData(data: any) {
       <AssetQeuryFilter @state-change="onStateChange" />
       <AssetUpload />
     </div>
-    <AssetDataList :data="dataSet" />
+    <el-empty v-if="!dataSet.length" />
+    <div v-else>
+      <AssetDataList v-if="dataSet.length" :data="dataSet" />
+    </div>
   </div>
 </template>
 

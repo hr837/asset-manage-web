@@ -1,19 +1,22 @@
-export type AssetState = '仅上传' | '排队中' | '转换中' | '转换失败' | '转换完成'
-export type AssetActionCommand = 'download' | 'downloadFbx' | 'transfrom' | 'delete'
+import type { AssetQueryInput } from '@/http/models/asset.model'
 
-export interface QueryForm {
-  /** 用户名 */
-  name: string
-  /** 创建时间 */
-  date: [string, string]
-  state: AssetState | ''
-}
+export type AssetActionCommand = 'download' | 'downloadFbx' | 'transfrom' | 'delete'
 
 export interface AssetInfo {
   id: string
   name: string
-  state: AssetState
+  status: number
   uploadDate: string
   trasformDate?: string
   url?: string
 }
+
+/** 资产状态 */
+export interface AssetStateItem {
+  /** 状态值 */
+  key: number
+  /** 状态标签 */
+  label: string
+}
+
+export type AssetQueryFormData = Omit<AssetQueryInput, 'status'>
