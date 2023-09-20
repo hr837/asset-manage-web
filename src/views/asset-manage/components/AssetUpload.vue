@@ -1,37 +1,24 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import type { UploadFile, UploadInstance, UploadProgressEvent, UploadProps, UploadRawFile, UploadRequestOptions } from 'element-plus'
 import { ElMessage, genFileId } from 'element-plus'
+import { calculateMD5, fileSlice, getVideoDuration } from '@/utils/file.util'
 
-const showDialog = ref(false)
+const showDialog = ref(true)
 const uploadRef = ref<UploadInstance>()
 const duration = ref(0)
-
-// 获取video文件的时长
-function getVideoDuration(file: UploadRawFile) {
-  const url = URL.createObjectURL(file)
-  // 内存创建视频对象
-  const video = document.createElement('video')
-  return new Promise<number>((resolve) => {
-    video.src = url
-    video.oncanplay = () => {
-      resolve(Math.round(video.duration))
-    }
-    video.onerror = () => {
-      ElMessage.error('文件时长不可读取')
-      resolve(0)
-    }
-  }).finally(() => {
-    // 始终释放资源
-    URL.revokeObjectURL(url)
-  })
-}
 
 // 文件改变的回调事件
 const handleChange: UploadProps['onChange'] = (file) => {
   if (file.status === 'ready') {
     if (/(.mp4)/i.test(file.name)) {
-      getVideoDuration(file.raw!).then(d => duration.value = d)
+      getVideoDuration(file.raw!)
+        .then((d) => {
+          duration.value = d
+          if (d > 30)
+            ElMessage.warning('选择的文件时长超过30s')
+        })
+        .catch((err: Error) => ElMessage.error(err.message))
     }
     else {
       ElMessage.error('请选择MP4格式的文件')
@@ -54,11 +41,24 @@ function handleRemove(file: UploadFile) {
 }
 
 function upload() {
-
+  uploadRef.value!.submit()
 }
 
 function uploadWithAnliase() {
 
+}
+
+function uploadRequest(options: UploadRequestOptions) {
+  const list = fileSlice(options.file)
+  const partPercent = (1 / list.length) * 100
+  let totalPercent = 0
+  calculateMD5(list.map(x => x.part), (partIndex) => {
+    totalPercent += partPercent
+    options.onProgress({ percent: totalPercent } as UploadProgressEvent)
+  }).then((md5) => {
+    console.log(md5)
+    options.onSuccess({ md5 })
+  })
 }
 </script>
 
@@ -72,20 +72,28 @@ function uploadWithAnliase() {
       :close-on-click-modal="false"
     >
       <el-upload
-        ref="uploadRef" drag :limit="1" accept=".mp4" :auto-upload="false" :on-change="handleChange"
-        class="aseet-upload-controller" :on-exceed="handleExceed"
+        ref="uploadRef"
+        :http-request="uploadRequest" drag :limit="1" accept=".mp4" :auto-upload="false" :on-change="handleChange"
+        class="aseet-upload-controller" :on-exceed="handleExceed" list-type="picture-card"
       >
         <div class="upload-description">
           <icon-park-outline-upload-one class="text-6xl text-gray-300 inline-block" />
           <div class="text-gray-400 text-md">
             点击/拖拽至此处添加视频<br>
-            限定格式:MP4,时长不超过30秒.
+            限定格式:MP4,<br>
+            时长不超过30秒.
           </div>
         </div>
         <template #file="{ file }">
           <div class="upload-file-cover">
             <icon-park-outline-movie class="text-4xl" />
           </div>
+          <el-progress
+            v-if="file.status === 'uploading'"
+            type="circle"
+            :stroke-width="6"
+            :percentage="Number(file.percentage)"
+          />
           <div class="upload-file-bottom">
             <div class="upload-file-info">
               <div class="upload-file-name">
@@ -132,17 +140,24 @@ function uploadWithAnliase() {
   }
 
   :deep(.el-upload-list) {
-    @apply grid grid-cols-3 gap-3;
+    &.el-upload-list--picture-card{
+      --el-upload-list-picture-card-size: 220px;
+
+    }
 
     .el-upload-list__item {
-      @apply border rounded;
+      @apply flex flex-col mr-4 mb-4;
+    }
+    .el-upload--picture-card{
+      --el-upload-picture-card-size: var(--el-upload-list-picture-card-size);
+      border: none;
     }
   }
 
   .upload-file {
 
     &-cover {
-      @apply h-32 bg-gray-200 flex justify-center items-center;
+      @apply h-36 bg-gray-200 flex justify-center items-center;
     }
 
     &-bottom {

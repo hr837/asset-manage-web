@@ -23,3 +23,6 @@ export const AssetStatusDict: AssetStateItem[] = [
     label: '转换完成',
   },
 ]
+
+/** 文件切割大小 2MB */
+export const FileChunkSize = 2097152
