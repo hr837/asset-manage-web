@@ -24,5 +24,5 @@ export const AssetStatusDict: AssetStateItem[] = [
   },
 ]
 
-/** 文件切割大小 2MB */
-export const FileChunkSize = 2097152
+/** 文件切割大小 4MB */
+export const FileChunkSize = 4194304

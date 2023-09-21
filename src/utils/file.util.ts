@@ -1,5 +1,7 @@
 import SparkMD5 from 'spark-md5'
 
+const MIN_CHUNKSIZE = 1024 * 1024
+
 /**
  * 获取video文件的时长
  * @param file video文件
@@ -31,7 +33,7 @@ export interface FilePart {
  * @param file 要切片的文件
  * @param chunkSize 切片大小，默认：1048576字节，1MB
  */
-export function fileSlice(file: File, chunkSize = 1048576) {
+export function fileSlice(file: Blob, chunkSize = 1048576) {
   // 切片起始位置
   let start = 0
   let index = 0
@@ -46,9 +48,6 @@ export function fileSlice(file: File, chunkSize = 1048576) {
       size: end - start,
       part,
     })
-
-    console.log('slice:', index)
-
     start = end
     index++
   }
@@ -83,4 +82,62 @@ export function calculateMD5(fileParts: Blob[], partCalculated: (partIndex: numb
   })
   // 异步返回最终的md5
   return Promise.all(task).then(() => bufferMD5.end()).finally(() => bufferMD5.destroy())
+}
+
+/**
+ * 获取文件MD5
+ * @param file
+ * @returns
+ */
+export function getFileMd5(file: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const fileReader = new FileReader()
+    fileReader.onload = (e) => {
+      const md5 = SparkMD5.hashBinary(e.target?.result as string)
+      resolve(md5)
+    }
+    fileReader.onerror = () => reject(new Error('读取文件流失败'))
+    fileReader.readAsBinaryString(file)
+  })
+}
+
+/**
+ *
+ * @param file 要分片的文件
+ * @param chunkSize 切片大小
+ * @param progressChange 切片进度回调
+ * @returns
+ */
+export function getSliceFileMd5(file: Blob, chunkSize = MIN_CHUNKSIZE, progressChange: (precent: number) => void) {
+  return new Promise<{ md5: string; fileParts: FilePart[] }>((resolve, reject) => {
+    if (chunkSize < MIN_CHUNKSIZE)
+      reject(new Error('切片尺寸太小，需调整参数'))
+    const fileReader = new FileReader()
+    // 使用buffer 缓存叠加读取
+    const sparkBuffer = new SparkMD5.ArrayBuffer()
+    // 分片的文件
+    const fileParts = fileSlice(file, chunkSize)
+
+    let partIndex = 0
+
+    fileReader.onload = (e) => {
+      sparkBuffer.append(e.target?.result as ArrayBuffer)
+      partIndex++
+      // 进度
+      const precent = partIndex / fileParts.length
+      progressChange(precent * 100)
+      if (precent < 1) {
+        fileReader.readAsArrayBuffer(fileParts[partIndex].part)
+      }
+      else {
+        const md5 = sparkBuffer.end()
+        resolve({
+          md5,
+          fileParts,
+        })
+      }
+    }
+    fileReader.onerror = () => reject(new Error('读取文件流失败'))
+    fileReader.readAsArrayBuffer(fileParts[partIndex].part)
+  })
 }
