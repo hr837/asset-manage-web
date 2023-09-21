@@ -29,14 +29,19 @@ export class FileUploadService {
     requestBody: PartUploadInput,
     requestPlugins: RequestPlugin[] = [],
   ): Promise<PartUploadResponse> {
+    const form = new FormData()
+    form.append('uploadFileId', requestBody.uploadFileId)
+    form.append('segmentIndex', requestBody.segmentIndex)
+    form.append('segmentSize', requestBody.segmentSize)
+    form.append('file', requestBody.file)
     // 请求数据
     return this.request.send(
       {
         path: '/api/upload',
         method: RequestMethod.Post,
-        paramsBody: requestBody,
+        paramsBody: form,
         headers: {
-          'content-type': 'application/x-www-form-urlencoded',
+          'content-type': 'multipart/form-data',
         },
       },
       requestPlugins,

@@ -76,8 +76,6 @@ function handleCurrentChange(val: number) {
 
 <style lang="less">
 .data-pagination {
-  @apply flex flex-row-reverse mr-5;
-  margin-top: 16px;
-  margin-bottom: 10px;
+  @apply flex justify-center p-4;
 }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { AssetStatusDict } from '../composable/constant'
 
 const props = defineProps<{ state: number }>()
 
@@ -13,12 +14,13 @@ const colors: Record<number, [string, string]> = {
 }
 
 const current = computed(() => colors[props.state])
+const tagLabel = computed(() => AssetStatusDict.find(x => x.key === props.state)?.label ?? '--')
 </script>
 
 <template>
   <div class="component asset-state-tag" :style="{ backgroundColor: current[0] }">
     <icon-park-solid-tag-one :style="{ color: current[1] }" />
-    <span class="asset-state-tag-text">{{ state }}</span>
+    <span class="asset-state-tag-text">{{ tagLabel }}</span>
   </div>
 </template>
 

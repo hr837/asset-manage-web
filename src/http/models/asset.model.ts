@@ -16,3 +16,27 @@ export interface AssetQueryInput {
    */
   status: number
 }
+
+export interface AssetQueryOutItem {
+  id: string
+  /** 转换已用时长 */
+  convertAlreadyWaitTime?: string
+  /** 转换开始时间 */
+  convertTime?: string
+  /** 转换完成用时 */
+  convertTotalTime?: string
+  extensionName?: string
+  fbxFileUrl?: string
+  /** 排队等待已用时长 */
+  lineAlreadyWaitTime?: string
+  /** 排队总用时 */
+  lineTotalTime?: string
+  /** 文件名 */
+  name?: string
+  /** 源文件地址 */
+  sourceFileUrl?: string
+  /** 当前状态 */
+  status: number
+  /** 上传时间 */
+  uploadTime?: string
+}

@@ -1,21 +1,23 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
+import type { AssetQueryInput, AssetQueryOutItem } from '../models/asset.model'
+import type { PageResonse } from '../models/page.model'
 export class AssetManageService {
   // 请求实例
   private request = RequestService.getInstance()
 
   /**
-   * 获取验证码
+   * 查询资产列表
    */
   getList(
-    requestBody: string,
+    paramsQuery: AssetQueryInput,
     requestPlugins: RequestPlugin[] = [],
-  ): Promise<Blob> {
+  ): Promise<PageResonse<AssetQueryOutItem>> {
     // 请求数据
     return this.request.send(
       {
         path: '/api/file/list',
         method: RequestMethod.Get,
-        paramsBody: requestBody,
+        paramsQuery,
       },
       requestPlugins,
     )

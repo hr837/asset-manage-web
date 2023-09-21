@@ -10,7 +10,7 @@ import type { PartUploadInput } from '@/http/models/upload.model'
 
 const uploadService = new FileUploadService()
 
-const showDialog = ref(true)
+const showDialog = ref(false)
 const uploadRef = ref<UploadInstance>()
 // 文件长度
 const duration = ref(0)
@@ -69,7 +69,7 @@ function uploadRequest(options: UploadRequestOptions) {
   let filePartList: FilePart[] = []
 
   // 文件切片，并获取MD5
-  getSliceFileMd5(file, FileChunkSize, onProgressChange)
+  return getSliceFileMd5(file, FileChunkSize, onProgressChange)
     // 暂存变量
     .then(({ md5, fileParts }) => {
       // 暂存文件片段
@@ -99,18 +99,16 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
   console.log(res)
   const task = res.filePartList.map((item) => {
     const uploadInput: PartUploadInput = {
-      segmentSize: item.size,
+      segmentSize: item.size.toString(),
       uploadFileId: res.uploadFileId,
       file: item.part,
-      segmentIndex: item.index + 1,
+      segmentIndex: (item.index + 1).toString(),
     }
     return uploadService.partUpload(uploadInput)
   })
   Promise.all(task).then((resList) => {
 
-  }).catch((err) => {
-    console.error(err)
-  })
+  }).catch(({ msg }) => ElMessage.error(msg))
 }
 </script>
 

@@ -11,13 +11,13 @@ import { TokenService } from '@/http/extends/token.service'
 import { appConfig } from '@/config/app.config'
 class StatusInterceptors implements ResponseInterceptor {
   exec(respone: AdapterResponse) {
-    return respone.status < 400
+    return respone.status < 400 && respone.data && respone.data.code === '200'
   }
 }
 
 class SuccessInterceptors implements ResponseInterceptor {
   exec(response: AdapterResponse) {
-    return response.data
+    return response.data.data
   }
 }
 

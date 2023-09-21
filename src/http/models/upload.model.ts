@@ -46,13 +46,13 @@ export interface PartUploadInput {
    */
   file: Blob
   /**
-   * 分片序号，从1开始
+   * 分片序号
    */
-  segmentIndex: number
+  segmentIndex: string
   /**
    * 分片大小
    */
-  segmentSize: number
+  segmentSize: string
   /**
    * 上传文件id
    */

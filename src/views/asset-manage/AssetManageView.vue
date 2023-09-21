@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AssetDataList from './components/AssetDataList.vue'
 import AssetQueryForm from './components/AssetQueryForm.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import AssetUpload from './components/AssetUpload.vue'
 import type { AssetInfo, AssetQueryFormData } from '@/types/asset-info.type'
+import { AssetManageService } from '@/http/services/AssetManageService'
+import { PageService } from '@/http/extends/page.service'
 
+const assetService = new AssetManageService()
+const pageService = new PageService()
 const dataSet = ref<AssetInfo[]>([])
 
 // 查询条件
@@ -15,18 +19,21 @@ const queryData: { status?: number } = {
 
 function onStateChange(val?: number) {
   queryData.status = val
+  pageService.pageIndex.value = 0
   fetchData()
 }
 
 function refreshData(data: AssetQueryFormData) {
   Object.assign(queryData, data)
+  pageService.pageIndex.value = 0
   fetchData()
 }
 
 function fetchData() {
-  // TODO fetch
-
+  assetService.getList(queryData as any, [pageService]).then(data => dataSet.value = data.rows)
 }
+
+onMounted(fetchData)
 </script>
 
 <template>
@@ -36,17 +43,22 @@ function fetchData() {
       <AssetQeuryFilter @state-change="onStateChange" />
       <AssetUpload />
     </div>
-    <el-empty v-if="!dataSet.length" />
-    <div v-else>
-      <AssetDataList v-if="dataSet.length" :data="dataSet" />
+    <div class="asset-manage-data-container">
+      <el-empty v-if="!dataSet.length" />
+      <AssetDataList v-else :data="dataSet" />
     </div>
+    <DataPagination :page="pageService" @page-change="fetchData" />
   </div>
 </template>
 
 <style lang="less" scoped>
 .asset-manage-view {
+  @apply h-full flex flex-col;
   .asset-manage-action {
     @apply flex justify-between items-center mb-4;
+  }
+  .asset-manage-data-container{
+    @apply flex-1 overflow-auto;
   }
 }
 </style>

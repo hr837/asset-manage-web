@@ -9,7 +9,7 @@ import { ref } from 'vue'
 export class PageService implements RequestPlugin {
   pageIndex = ref(1)
   pageSize = ref(10)
-  pageSizeOpts: number[] = [5, 10, 20, 30]
+  pageSizeOpts: number[] = [15, 30]
   pageLayouts: (
     | 'PrevJump'
     | 'PrevPage'
@@ -66,7 +66,7 @@ export class PageService implements RequestPlugin {
  * @param response
  */
   after(response: AdapterResponse) {
-    this.total.value = Number(response.data?.data?.total)
+    this.total.value = Number(response.data?.data?.totalRow)
   }
 
   /**

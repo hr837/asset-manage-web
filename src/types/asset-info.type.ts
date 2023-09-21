@@ -1,15 +1,8 @@
-import type { AssetQueryInput } from '@/http/models/asset.model'
+import type { AssetQueryInput, AssetQueryOutItem } from '@/http/models/asset.model'
 
 export type AssetActionCommand = 'download' | 'downloadFbx' | 'transfrom' | 'delete'
 
-export interface AssetInfo {
-  id: string
-  name: string
-  status: number
-  uploadDate: string
-  trasformDate?: string
-  url?: string
-}
+export type AssetInfo = AssetQueryOutItem
 
 /** 资产状态 */
 export interface AssetStateItem {

@@ -22,15 +22,15 @@ function onPlay(url?: string) {
     <template v-for="item of data" :key="item.id">
       <div class="asset-item">
         <div class="asset-item-header">
-          <AssetStateTag :state="item.state" />
+          <AssetStateTag :state="item.status" />
           <div class="asset-item-name">
             {{ item.name }}
           </div>
         </div>
         <AssetTimeInfo />
-        <AssetVideo @play="onPlay(item.url)" />
+        <AssetVideo @play="onPlay(item.sourceFileUrl)" />
         <div class="asset-item-action">
-          <AssetAction :state="item.state" />
+          <AssetAction :state="item.status" />
         </div>
       </div>
     </template>
