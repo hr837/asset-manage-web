@@ -30,7 +30,7 @@ function refreshData(data: AssetQueryFormData) {
 }
 
 function fetchData() {
-  assetService.getList(queryData as any, [pageService]).then(data => dataSet.value = data.rows)
+  assetService.getList(queryData as any, [pageService]).then(data => dataSet.value = data.rows).catch(() => {})
 }
 
 onMounted(fetchData)

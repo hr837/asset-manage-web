@@ -37,7 +37,7 @@ export class FileUploadService {
     // 请求数据
     return this.request.send(
       {
-        path: '/api/upload',
+        path: '/api/file/upload',
         method: RequestMethod.Post,
         paramsBody: form,
         headers: {

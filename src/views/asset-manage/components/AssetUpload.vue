@@ -61,7 +61,7 @@ function uploadWithAnalysis() {
 }
 
 // 自定义上传功能
-function uploadRequest(options: UploadRequestOptions) {
+async function uploadRequest(options: UploadRequestOptions) {
   const file = options.file
   const onProgressChange = (percent: number) => options.onProgress({ percent } as UploadProgressEvent)
 
@@ -69,35 +69,33 @@ function uploadRequest(options: UploadRequestOptions) {
   let filePartList: FilePart[] = []
 
   // 文件切片，并获取MD5
-  return getSliceFileMd5(file, FileChunkSize, onProgressChange)
-    // 暂存变量
-    .then(({ md5, fileParts }) => {
-      // 暂存文件片段
-      filePartList = fileParts
-      return md5
-    })
-    // 预上传
-    .then(md5 => uploadService.preUpload({
+  try {
+    const { md5, fileParts } = await getSliceFileMd5(file, FileChunkSize, onProgressChange)
+    // 暂存文件片段
+    filePartList = fileParts
+    const res = await uploadService.preUpload({
       fileSize: file.size,
       originFileName: file.name,
       md5,
       parentId: 0,
-    }))
-    // 调用上传成功，返回文件ID
-    .then(({ uploadFileId }) => options.onSuccess({
-      uploadFileId,
-      filePartList,
-    }))
-    .catch((err: Error) => {
-      options.onError({ message: err.message } as any)
-      ElMessage.error('文件上传失败，请重新上传')
     })
+    if (res.fileExists)
+      throw new Error('文件已存在')
+    const uploadFileId = res.uploadFileId
+    return ({ uploadFileId, filePartList })
+  }
+  catch (err: any) {
+    const message = err.message ?? '上传出错'
+    options.onError({ message } as any)
+    ElMessage.error(message)
+  }
 }
 
 // 预上传成功处理
 function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[] }) {
-  console.log(res)
+  ElMessage.success('文件秒传成功')
   const task = res.filePartList.map((item) => {
+    console.log(item.index)
     const uploadInput: PartUploadInput = {
       segmentSize: item.size.toString(),
       uploadFileId: res.uploadFileId,
@@ -107,7 +105,7 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
     return uploadService.partUpload(uploadInput)
   })
   Promise.all(task).then((resList) => {
-
+    console.log('uploaded', resList)
   }).catch(({ msg }) => ElMessage.error(msg))
 }
 </script>

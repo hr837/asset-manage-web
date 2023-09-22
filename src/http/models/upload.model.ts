@@ -25,7 +25,7 @@ export interface PreuploadResponse {
   /**
    * 文件名已存在，true表示已存在
    */
-  fileNameExists: boolean
+  fileExists: boolean
   /**
    * 分片数量
    */
