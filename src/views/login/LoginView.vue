@@ -1,21 +1,26 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import LoginForm from './components/LoginForm.vue'
-import type { LoginFormData } from '@/types/login.type'
+import type { LoginInput } from '@/http/models/login.model'
+import { LoginService } from '@/http/services/LoginService'
+import { LoadingService } from '@/http/extends/loading.service'
+import { useUserStore } from '@/store/user.store'
+
 const router = useRouter()
 const appTitle = process.env.VUE_APP_TITLE
+const userStore = useUserStore()
 
-const loading = ref(false)
+const loginLoding = ref(false)
+const logdingService = new LoadingService(loginLoding)
+const service = new LoginService()
 
-const loginReqestData = {
-  patchcaKey: '',
-}
-
-function onValidated(data: LoginFormData) {
-  Object.assign(loginReqestData, data)
-  // TODO LOGIN
-  router.replace('/index')
+function onValidated(formData: LoginInput) {
+  service.passwordLogin(formData, [logdingService]).then(({ token }) => {
+    userStore.updateToken(token)
+    router.replace('/index')
+  }).catch(({ msg }) => msg && ElMessage.error(msg))
 }
 </script>
 
@@ -30,7 +35,7 @@ function onValidated(data: LoginFormData) {
         {{ appTitle }}
       </div>
 
-      <LoginForm :loading="loading" code-url="/images/login/car.png" @validated="onValidated" />
+      <LoginForm :loading="loginLoding" @validated="onValidated" />
     </div>
   </div>
 </template>

@@ -16,3 +16,7 @@ export interface LoginInput {
    */
   patchcaKey: string
 }
+
+export interface LoginOutput {
+  token: string
+}

@@ -1,24 +1,22 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
-import { reactive, ref, watch } from 'vue'
-import type { LoginFormData } from '@/types/login.type'
+import { onMounted, reactive, ref } from 'vue'
+import { nanoid } from 'nanoid'
+import type { LoginInput } from '@/http/models/login.model'
 
-const props = defineProps<{
+defineProps<{
   /** 加载状态，登录的时候可以设置 */
   loading: boolean
-  /** 验证码图片  */
-  codeUrl: string
 }>()
 const emit = defineEmits<{
   /** 登录表单校验成功 */
-  validated: [data: LoginFormData]
-  /** 点击验证码  */
-  codeClick: []
+  validated: [data: LoginInput]
 }>()
-const loginModel = reactive<LoginFormData>({
+const loginModel = reactive<LoginInput>({
   account: '',
   password: '',
   validateCode: '',
+  patchcaKey: '',
 })
 const loginRef = ref<FormInstance>()
 const loginRules = {
@@ -42,9 +40,13 @@ const loginRules = {
   ],
 }
 
-watch(() => props.codeUrl, (_) => {
+// 点击图片 更换新的验证码
+function onCodeClick() {
+  loginModel.patchcaKey = nanoid()
   loginModel.validateCode = ''
-})
+}
+
+onMounted(onCodeClick)
 
 /**
  * 登陆
@@ -83,7 +85,7 @@ function handleLogin() {
             <icon-park-outline-block-six />
           </template>
           <template #suffix>
-            <img :src="codeUrl" alt="code" class="login-img-verifycode" @click="$emit('codeClick')">
+            <img :src="`/api/patchca/${loginModel.patchcaKey}`" alt="code" class="login-img-verifycode" @click="onCodeClick">
           </template>
         </el-input>
       </el-form-item>
@@ -116,7 +118,7 @@ function handleLogin() {
       padding-right: 2px;
 
       .el-input__suffix {
-        @apply w-1/3 cursor-pointer bg-gray-400;
+        @apply w-1/3 cursor-pointer bg-white;
       }
     }
   }
