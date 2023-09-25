@@ -68,6 +68,16 @@ export default defineConfig({
         target: 'http://118.184.171.75',
         pathRewrite: { '^/asset': '' },
       },
+      '/socket': {
+        target: 'ws://118.184.171.75',
+        ws: true,
+        pathRewrite: { '^/socket': '' },
+        changeOrigin: true,
+      },
+      // '/ws': {
+      //   target: 'http://118.184.171.75',
+      //   ws: true,
+      // },
     },
   },
 })
