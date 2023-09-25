@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import type { AssetActionCommand, AssetState } from '@/types/asset-info.type'
+import type { AssetActionCommand } from '@/types/asset-info.type'
 
-const props = defineProps<{ state: AssetState }>()
+const props = defineProps<{ status: number }>()
 defineEmits<{ action: [command: AssetActionCommand] }>()
 
-const canDownload = computed(() => props.state === '转换完成')
-const canTransform = computed(() => props.state === '仅上传' || props.state === '转换失败')
+const canDownload = computed(() => props.status === 5)
+const canTransform = computed(() => props.status === 1 || props.status === 4)
 </script>
 
 <template>

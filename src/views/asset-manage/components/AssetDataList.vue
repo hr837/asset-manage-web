@@ -3,13 +3,13 @@ import AssetAction from './AssetAction.vue'
 import AssetStateTag from './AssetStateTag.vue'
 import AssetVideo from './AssetVideo.vue'
 import AssetTimeInfo from './AssetTimeInfo.vue'
-import type { AssetInfo } from '@/types/asset-info.type'
+import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 
 defineProps<{
   data: AssetInfo[]
 }>()
 
-defineEmits<{ play: [path:string] }>()
+defineEmits<{ play: [path:string]; action: [command:AssetActionCommand, id:string] }>()
 </script>
 
 <template>
@@ -25,7 +25,7 @@ defineEmits<{ play: [path:string] }>()
         <AssetTimeInfo v-bind="item" />
         <AssetVideo @play="() => $emit('play', item.sourceFileUrl)" />
         <div class="asset-item-action">
-          <AssetAction :state="item.status" />
+          <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
       </div>
     </template>

@@ -30,14 +30,14 @@ export class PageService implements RequestPlugin {
       'Total',
     ]
 
-  total: Ref<number> = ref(100)
+  total: Ref<number> = ref(0)
 
   /**
  * 构造函数
  * @param index
  * @param size
  */
-  constructor(index = 1, size = 10) {
+  constructor(index = 1, size = 15) {
     this.pageIndex.value = index
     this.pageSize.value = size
   }

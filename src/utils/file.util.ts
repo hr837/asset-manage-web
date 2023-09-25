@@ -67,7 +67,6 @@ export function calculateMD5(fileParts: Blob[], partCalculated: (partIndex: numb
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader()
       fileReader.onload = (e) => {
-        console.log('read:', index)
         bufferMD5.append(e.target?.result as ArrayBuffer)
         // 向外部传递，第几部分计算完毕
         partCalculated(index)
@@ -140,4 +139,22 @@ export function getSliceFileMd5(file: Blob, chunkSize = MIN_CHUNKSIZE, progressC
     fileReader.onerror = () => reject(new Error('读取文件流失败'))
     fileReader.readAsArrayBuffer(fileParts[partIndex].part)
   })
+}
+
+/**
+ * 下载资源文件
+ * @param path 文件服务器路径
+ * @param fileName 文件名称
+ * @param preFix 文件前缀 /video、/fbx
+ */
+export function downloadFile(path: string, fileName: string, preFix?: '/video' | '/fbx') {
+  const values = [path]
+  if (preFix)
+    values.unshift(preFix)
+  values.unshift('/asset')
+  const url = values.join('')
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.click()
 }

@@ -22,4 +22,45 @@ export class AssetManageService {
       requestPlugins,
     )
   }
+
+  /**
+   * 删除资产
+   */
+  delete(
+    assetId: string,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<PageResonse<AssetQueryOutItem>> {
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/file/delete',
+        method: RequestMethod.Post,
+        paramsBody: {
+          id: assetId,
+        },
+      },
+      requestPlugins,
+    )
+  }
+
+  /**
+   * 资产转换
+   */
+  convertToFbx(
+    assetId: string,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<PageResonse<AssetQueryOutItem>> {
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/file/convert',
+        method: RequestMethod.Post,
+        paramsBody: {
+          id: assetId,
+          targetType: 'FBX',
+        },
+      },
+      requestPlugins,
+    )
+  }
 }
