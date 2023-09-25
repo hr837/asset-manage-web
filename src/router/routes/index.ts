@@ -6,7 +6,7 @@ import BasicLayout from '@/layout/BasicLayout.vue'
 const routesConfig: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home',
+    redirect: '/index',
     component: BlankLayout,
     children: [
       {

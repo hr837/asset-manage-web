@@ -60,15 +60,23 @@ export interface PartUploadInput {
 }
 
 export interface PartUploadResponse {
-  /** 文件上传结果 */
+  /**
+   * 文件上传结果
+   * 如果上传分片后，服务端已校验分片齐全并MD5正确，则返回文件上传成功
+   */
   fileUploadResult: boolean
   /**
-   * 未上传的分片序号数组,如果当前上传的分片为最后一个分片，会检查是否还有未上传的分片，然后返回给前端
+   * 未上传的分片序号数组,如果当前上传的分片为最后一个分片，会检查是否还有未上传的分片，然后返回给前端,
+   *
+   * ！！！序号，不是索引，需要减1.
    */
-  needSegment: string[]
+  needSegment: number[]
   /** 分片上传结果 */
   result: boolean
-  /** 分片索引 */
-  segmentIndex: boolean
-  uploadFileId: number
+  /** 分片ID */
+  segmentFileId: string
+  /** 分片是否上传成功 */
+  segmentFileUploadResult: boolean
+  /** 文件ID */
+  fileId: string
 }

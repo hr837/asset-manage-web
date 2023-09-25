@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useRouter } from 'vue-router'
 import AssetAction from './AssetAction.vue'
 import AssetStateTag from './AssetStateTag.vue'
 import AssetVideo from './AssetVideo.vue'
@@ -10,11 +9,7 @@ defineProps<{
   data: AssetInfo[]
 }>()
 
-const router = useRouter()
-
-function onPlay(url?: string) {
-  router.push('/play')
-}
+defineEmits<{ play: [path:string] }>()
 </script>
 
 <template>
@@ -27,8 +22,8 @@ function onPlay(url?: string) {
             {{ item.name }}
           </div>
         </div>
-        <AssetTimeInfo />
-        <AssetVideo @play="onPlay(item.sourceFileUrl)" />
+        <AssetTimeInfo v-bind="item" />
+        <AssetVideo @play="() => $emit('play', item.sourceFileUrl)" />
         <div class="asset-item-action">
           <AssetAction :state="item.status" />
         </div>

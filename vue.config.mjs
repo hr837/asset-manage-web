@@ -64,6 +64,10 @@ export default defineConfig({
       '/api': {
         target: 'http://118.184.171.75',
       },
+      '/asset': {
+        target: 'http://118.184.171.75',
+        pathRewrite: { '^/asset': '' },
+      },
     },
   },
 })

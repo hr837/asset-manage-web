@@ -13,3 +13,6 @@ export interface AssetStateItem {
 }
 
 export type AssetQueryFormData = Omit<AssetQueryInput, 'status'>
+
+/** 资产时间节点信息 */
+export type AssetTimeInfo = Pick<AssetInfo, 'status' | 'convertAlreadyWaitTime' | 'convertTime' | 'convertTotalTime' | 'lineAlreadyWaitTime' | 'lineTotalTime' | 'uploadTime'>

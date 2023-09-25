@@ -35,7 +35,9 @@ export interface AssetQueryOutItem {
   name?: string
   /** 源文件地址 */
   sourceFileUrl?: string
-  /** 当前状态 */
+  /**
+   * 资产状态,传数字（1.仅上传-2.排队中-3.转换中-4.转换失败-5.转换完成）
+  */
   status: number
   /** 上传时间 */
   uploadTime?: string

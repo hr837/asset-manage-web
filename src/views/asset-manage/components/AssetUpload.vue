@@ -12,6 +12,8 @@ const uploadService = new FileUploadService()
 
 const showDialog = ref(false)
 const uploadRef = ref<UploadInstance>()
+const uploadLoading = ref(false)
+
 // 文件长度
 const duration = ref(0)
 // 是否可以点击提交
@@ -93,9 +95,9 @@ async function uploadRequest(options: UploadRequestOptions) {
 
 // 预上传成功处理
 function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[] }) {
-  ElMessage.success('文件秒传成功')
+  ElMessage.success('文件秒传成功,开始解析')
+  uploadLoading.value = true
   const task = res.filePartList.map((item) => {
-    console.log(item.index)
     const uploadInput: PartUploadInput = {
       segmentSize: item.size.toString(),
       uploadFileId: res.uploadFileId,
@@ -104,9 +106,15 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
     }
     return uploadService.partUpload(uploadInput)
   })
-  Promise.all(task).then((resList) => {
-    console.log('uploaded', resList)
-  }).catch(({ msg }) => ElMessage.error(msg))
+  Promise.all(task)
+    .then(() => {
+      ElMessage.success('文件解析成功')
+      showDialog.value = false
+      // 清除文件列表
+      uploadRef.value!.clearFiles()
+    })
+    .catch(({ msg }) => ElMessage.error(msg))
+    .finally(() => uploadLoading.value = false)
 }
 </script>
 
@@ -132,7 +140,7 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
           </div>
         </div>
         <template #file="{ file }">
-          <div class="upload-file-cover">
+          <div class="upload-file-cover" :class="[duration > 30 ? 'limited' : '']">
             <icon-park-outline-check-correct v-if="file.status === 'success'" class="upload-file-icon--success" />
             <icon-park-outline-movie class="upload-file-icon--tag" />
           </div>
@@ -156,10 +164,10 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
         </template>
       </el-upload>
       <template #footer>
-        <el-button type="primary" plain :disabled="!canSubmit" @click="upload">
+        <!-- <el-button type="primary" plain :disabled="!canSubmit" @click="upload">
           仅上传
-        </el-button>
-        <el-button type="primary" :disabled="!canSubmit" @click="uploadWithAnalysis">
+        </el-button> -->
+        <el-button type="primary" :disabled="!canSubmit" :loading="uploadLoading" @click="uploadWithAnalysis">
           上传并解析
         </el-button>
       </template>
@@ -216,6 +224,9 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
 
     &-cover {
       @apply h-36 bg-gray-200 flex justify-center items-center relative;
+      &.limited {
+        @apply bg-red-100;
+      }
     }
 
     &-bottom {

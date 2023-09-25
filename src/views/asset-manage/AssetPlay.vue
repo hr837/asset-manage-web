@@ -1,12 +1,19 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
 
-const url = ref('/tmp/demo.mp4')
+const url = ref<string | null>(null)
+const hasError = ref(false)
+
+onMounted(() => {
+  url.value = sessionStorage.getItem(SessionKey_Asset_PLAY_PATH)
+})
 </script>
 
 <template>
   <div class="page asset-play">
-    <video class="asset-play-video" :src="url" controls />
+    <video v-if="url && !hasError" class="asset-play-video" :src="`/asset/video/${url}`" controls @error="hasError = true" />
+    <el-empty v-else description="视频资源不见了" />
   </div>
 </template>
 
