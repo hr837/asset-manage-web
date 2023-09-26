@@ -148,7 +148,8 @@ export function getSliceFileMd5(file: Blob, chunkSize = MIN_CHUNKSIZE, progressC
  * @param preFix 文件前缀 /video、/fbx
  */
 export function downloadFile(path: string, fileName: string, preFix?: '/video' | '/fbx') {
-  const values = [path]
+  const fixedPath = /^\//.test(path) ? path : `/${path}`
+  const values = [fixedPath]
   if (preFix)
     values.unshift(preFix)
   values.unshift('/asset')

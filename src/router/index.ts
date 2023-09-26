@@ -3,7 +3,6 @@ import { h } from 'vue'
 import routes from './routes'
 import BlankLayout from '@/layout/BlankLayout.vue'
 import { isAuthenticated } from '@/composables'
-import { useUserStore } from '@/store/user.store'
 import { appConfig } from '@/config/app.config'
 import { useAppStore } from '@/store/app.store'
 const router = createRouter({
@@ -23,8 +22,8 @@ router.beforeEach((to) => {
       return { name: 'login' }
 
     // 已授权，检测用户菜单权限
-    if (!useUserStore().hasMenuRole(to.path))
-      return { name: 'Forbidden' }
+    // if (!useUserStore().hasMenuRole(to.path))
+    // return { name: 'Forbidden' }
   }
 })
 
