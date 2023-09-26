@@ -61,23 +61,19 @@ export default defineConfig({
   },
   devServer: {
     proxy: {
-      '/api': {
+      '/api': { // API代理
         target: 'http://118.184.171.75',
       },
-      '/asset': {
+      '/asset': { // 资源代理
         target: 'http://118.184.171.75',
         pathRewrite: { '^/asset': '' },
       },
-      '/socket': {
+      '/socket': { // SOCKET 代理
         target: 'ws://118.184.171.75',
         ws: true,
-        pathRewrite: { '^/socket': '' },
+        pathRewrite: { '^/socket': '/ws' },
         changeOrigin: true,
       },
-      // '/ws': {
-      //   target: 'http://118.184.171.75',
-      //   ws: true,
-      // },
     },
   },
 })

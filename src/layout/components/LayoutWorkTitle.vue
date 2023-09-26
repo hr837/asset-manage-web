@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { computed, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import MessageNotify from './MessageNotify.vue'
 import { useUserStore } from '@/store/user.store'
 
 const currentRoute = useRoute()
@@ -8,18 +9,26 @@ const title = computed(() => {
   return (currentRoute.meta && currentRoute.meta.title) || '标题'
 })
 
+const hasNew = ref(false)
 const userStore = useUserStore()
 
 watch(() => userStore.token, val => val && initSocket(), { immediate: true })
 let timerId = -1
 
 function initSocket() {
-  const isProd = process.env.NODE_ENV === 'production'
-  const configBaseUrl = process.env.VUE_APP_SOCKET_BASE!
-  const baseUrl = isProd ? configBaseUrl : `ws://${window.location.host}${configBaseUrl}`
+  // websocket 路径, 正式环境使用/ws 开发环境使用 /socket代理
+  const wsPath = process.env.NODE_ENV === 'development' ? '/socket' : '/ws'
+  // socket 主机
+  const host = window.location.host
+  // socket 协议
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+  // socket 连接地址
+  const baseUrl = `${protocol}//${host}${wsPath}`
+  // 编码后的连接地址
   const wsUrl = encodeURI(`${baseUrl}?authorization=token ` + 'b8f5d9e1-eb47-4f80-a066-c64356b1d066')
   const socket = new WebSocket(wsUrl)
   socket.onopen = () => {
+    // eslint-disable-next-line no-console
     console.log('socket connected!')
     socket.send('heartbeat')
   }
@@ -29,24 +38,19 @@ function initSocket() {
       timerId = window.setTimeout(() => socket.send('heartbeat'), 30 * 1000)
     }
     else {
-      onSocketMessage(data)
+      if (typeof data === 'string')
+        hasNew.value = true
     }
   }
 }
 
-function onSocketMessage(data: any) {
-  console.log(data)
-}
+onBeforeUnmount(() => window.clearTimeout(timerId))
 </script>
 
 <template>
   <el-header>
     <h1>{{ title }}</h1>
-    <div>
-      <el-badge is-dot class="item">
-        <icon-park-solid-remind />
-      </el-badge>
-    </div>
+    <MessageNotify v-model="hasNew" />
   </el-header>
 </template>
 
