@@ -13,7 +13,6 @@ const uploadService = new FileUploadService()
 const showDialog = ref(false)
 const uploadRef = ref<UploadInstance>()
 const uploadLoading = ref(false)
-
 // 文件长度
 const duration = ref(0)
 // 是否可以点击提交

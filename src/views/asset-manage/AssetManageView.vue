@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import AssetDataList from './components/AssetDataList.vue'
 import AssetQueryForm from './components/AssetQueryForm.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
@@ -11,6 +11,7 @@ import type { AssetActionCommand, AssetInfo, AssetQueryFormData } from '@/types/
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { PageService } from '@/http/extends/page.service'
 import { downloadFile } from '@/utils/file.util'
+import type { AssetQueryInput } from '@/http/models/asset.model'
 
 const assetService = new AssetManageService()
 const pageService = new PageService()
@@ -18,20 +19,24 @@ const dataSet = ref<AssetInfo[]>([])
 const router = useRouter()
 
 // 查询条件
-const queryData: { status?: number } = {
+const queryData = reactive<AssetQueryInput>({
   status: undefined,
-}
+  id: undefined,
+})
 
-function onStateChange(val?: number) {
-  queryData.status = val
-  pageService.pageIndex.value = 0
+function onStateChange() {
+  pageService.reset()
   fetchData()
 }
 
 function refreshData(data: AssetQueryFormData) {
+  if (queryData.id) {
+    router.push({ query: undefined })
+    queryData.id = undefined
+  }
+  queryData.status = undefined
   Object.assign(queryData, data)
-  pageService.pageIndex.value = 0
-  fetchData()
+  onStateChange()
 }
 
 function fetchData() {
@@ -51,17 +56,19 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
   let task: Promise<unknown> | undefined
   switch (cmd) {
     case 'delete':
-      task = assetService.delete(id).then(() => {
+      task = ElMessageBox.confirm(`是否删除资源文件【${item.name}】`, '删除提示', {
+        type: 'warning',
+      }).then(() => assetService.delete(id).then(() => {
         ElMessage.success('资源已删除')
         pageService.reset()
         fetchData()
-      })
+      })).catch(() => {})
       break
     case 'download':
       downloadFile(item.sourceFileUrl!, item.name ?? '资源文件', '/video')
       break
     case 'downloadFbx':
-      downloadFile(item.fbxFileUrl!, `${item.name ?? '资源文件'}-FBX`, '/fbx')
+      downloadFile(item.fbxFileUrl!, item.fbxFileUrl!, '/fbx')
       break
     case 'transfrom':
       task = assetService.convertToFbx(id).then(() => {
@@ -72,19 +79,22 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
     default:
       break
   }
-  task?.catch(() => {
-    ElMessage.error('命令执行失败,请重试')
+  task?.catch(({ msg }) => {
+    ElMessage.error(msg ?? '命令执行失败,请重试')
   })
 }
 
-onMounted(fetchData)
+onMounted(() => {
+  queryData.id = router.currentRoute.value.query.id as string
+  fetchData()
+})
 </script>
 
 <template>
   <div class="page asset-manage-view">
     <AssetQueryForm @refresh="refreshData" />
     <div class="asset-manage-action">
-      <AssetQeuryFilter @state-change="onStateChange" />
+      <AssetQeuryFilter v-model="queryData.status" @update:model-value="onStateChange" />
       <AssetUpload />
     </div>
     <div class="asset-manage-data-container">

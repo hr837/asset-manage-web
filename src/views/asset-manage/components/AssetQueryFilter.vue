@@ -2,17 +2,19 @@
 import { computed, ref } from 'vue'
 import { AssetStatusDict } from '../composable/constant'
 
-const emit = defineEmits<{ stateChange: [cmd?: number] }>()
+const props = defineProps<{ modelValue?: number }>()
+
+const emit = defineEmits<{ 'update:modelValue': [cmd?: number] }>()
 
 const state = ref<number | undefined>(undefined)
 
 function onCommand(cmd: number) {
   state.value = cmd
-  emit('stateChange', cmd || undefined)
+  emit('update:modelValue', cmd || undefined)
 }
 
 const stateLabel = computed(() => {
-  const item = AssetStatusDict.find(x => x.key === state.value)
+  const item = AssetStatusDict.find(x => x.key === props.modelValue)
   return item?.label ?? '全部'
 })
 </script>

@@ -9,7 +9,7 @@ const props = defineProps<{
   modelValue: boolean
 }>()
 
-const emit = defineEmits<{ 'update:modelValue': [value:boolean] }>()
+defineEmits<{ 'update:modelValue': [value:boolean] }>()
 
 const dataSet = ref<MessageQueryOutItem[]>([])
 const service = new MessageService()
@@ -21,11 +21,10 @@ const total = ref(0)
 const hiddenPager = computed(() => total.value <= pageServce.pageSize.value)
 
 function fetchData() {
+  pageServce.reset()
   service.getUnreadList([pageServce]).then((data) => {
     dataSet.value = data.rows
     total.value = data.totalRow
-    if (total.value === 0)
-      emit('update:modelValue', false)
   }).catch(() => {})
 }
 
@@ -36,14 +35,14 @@ watch(() => props.modelValue, v => v && fetchData())
 const router = useRouter()
 
 function onMessageClick(id: string) {
-  router.push({ name: 'assets-manage' })
+  router.push({ name: 'assets-manage', query: { id } })
   service.setRead([id]).then(() => fetchData()).catch(() => {})
 }
 </script>
 
 <template>
   <div class="component message-notify">
-    <el-popover placement="bottom-start" :width="400" trigger="click" popper-class="message-notify-popover">
+    <el-popover placement="bottom-start" :width="400" trigger="click" popper-class="message-notify-popover" @show="() => $emit('update:modelValue', false)">
       <template #reference>
         <el-badge :is-dot="modelValue">
           <icon-park-solid-remind class="text-gray-500 cursor-pointer" />
@@ -55,7 +54,7 @@ function onMessageClick(id: string) {
           <div class="message-item-info" :class="{ error: item.fileStatus === 4 }">
             {{ item.message }}
           </div>
-          <el-button type="text" class="message-item-btn" @click="() => onMessageClick(item.id)">
+          <el-button type="text" class="message-item-btn" @click="() => onMessageClick(item.fileId)">
             查看
           </el-button>
         </li>

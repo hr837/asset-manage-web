@@ -67,6 +67,8 @@ const setupHttp = () =>
       allowDots: true,
       encodeValuesOnly: true,
       encode: true,
+      // 格式化空字符串
+      filter: (_, val) => (typeof val === 'string' && val === '') ? undefined : val,
     },
     interceptors: {
       status: new StatusInterceptors(),

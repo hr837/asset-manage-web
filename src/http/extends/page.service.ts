@@ -56,7 +56,7 @@ export class PageService implements RequestPlugin {
   before(options: RequestSendOptions) {
     options.paramsQuery = {
       ...options.paramsQuery,
-      pageNum: this.pageIndex.value - 1,
+      pageNo: this.pageIndex.value,
       pageSize: this.pageSize.value,
     }
   }

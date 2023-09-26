@@ -23,7 +23,7 @@ defineEmits<{ play: [path:string]; action: [command:AssetActionCommand, id:strin
           </div>
         </div>
         <AssetTimeInfo v-bind="item" />
-        <AssetVideo @play="() => $emit('play', item.sourceFileUrl)" />
+        <AssetVideo @play="() => $emit('play', item.sourceFileUrl!)" />
         <div class="asset-item-action">
           <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
