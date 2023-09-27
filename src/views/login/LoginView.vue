@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { nanoid } from 'nanoid'
 import LoginForm from './components/LoginForm.vue'
 import type { LoginInput } from '@/http/models/login.model'
 import { LoginService } from '@/http/services/LoginService'
@@ -16,11 +17,21 @@ const loginLoding = ref(false)
 const logdingService = new LoadingService(loginLoding)
 const service = new LoginService()
 
+const patchcaKey = ref(nanoid())
+
+function updatePatchKey() {
+  patchcaKey.value = nanoid()
+}
+
 function onValidated(formData: LoginInput) {
+  formData.patchcaKey = patchcaKey.value
   service.passwordLogin(formData, [logdingService]).then(({ token }) => {
     userStore.updateToken(token)
     router.replace('/index')
-  }).catch(({ msg }) => msg && ElMessage.error(msg))
+  }).catch(({ msg }) => {
+    ElMessage.error(msg ?? '登录失败')
+    updatePatchKey()
+  })
 }
 </script>
 
@@ -35,7 +46,7 @@ function onValidated(formData: LoginInput) {
         {{ appTitle }}
       </div>
 
-      <LoginForm :loading="loginLoding" @validated="onValidated" />
+      <LoginForm :loading="loginLoding" :patchca-key="patchcaKey" @validated="onValidated" @chage-code="updatePatchKey" />
     </div>
   </div>
 </template>

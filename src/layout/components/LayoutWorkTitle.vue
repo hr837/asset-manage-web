@@ -25,7 +25,7 @@ function initSocket() {
   // socket 连接地址
   const baseUrl = `${protocol}//${host}${wsPath}`
   // 编码后的连接地址
-  const wsUrl = encodeURI(`${baseUrl}?authorization=token ` + 'b8f5d9e1-eb47-4f80-a066-c64356b1d066')
+  const wsUrl = encodeURI(`${baseUrl}?authorization=token ${userStore.token}`)
   const socket = new WebSocket(wsUrl)
   socket.onopen = () => {
     // eslint-disable-next-line no-console

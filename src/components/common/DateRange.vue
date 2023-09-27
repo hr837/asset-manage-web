@@ -3,6 +3,7 @@ import { computed, defineEmits, defineProps, withDefaults } from 'vue'
 import dayjs from 'dayjs'
 interface PropType {
   modelValue: string[]
+  disabledDate?: (pickDate: Date) => boolean
 }
 const props = withDefaults(defineProps<PropType>(), {
   modelValue: () => ['', ''],
@@ -42,10 +43,12 @@ const model = computed({
     <el-date-picker
       v-model="model"
       type="daterange"
-      format="YYYY-MM-DD"
+      :format="FORMAT_STR"
       range-separator="~"
-      start-placeholder="开始时日期"
+      start-placeholder="开始日期"
       end-placeholder="结束日期"
+      :disabled-date="disabledDate"
+      clearable
     />
   </div>
 </template>

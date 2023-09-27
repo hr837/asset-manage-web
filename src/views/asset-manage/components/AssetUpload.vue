@@ -8,6 +8,8 @@ import { getSliceFileMd5, getVideoDuration } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import type { PartUploadInput } from '@/http/models/upload.model'
 
+const emit = defineEmits<{ uploaded: [fileId: string] }>()
+
 const uploadService = new FileUploadService()
 
 const showDialog = ref(false)
@@ -53,11 +55,16 @@ function handleRemove(file: UploadFile) {
   duration.value = 0
 }
 
+/** 是否需要转换 */
+let needConvert = false
+
 function upload() {
+  needConvert = false
   uploadRef.value!.submit()
 }
 
 function uploadWithAnalysis() {
+  needConvert = true
   uploadRef.value!.submit()
 }
 
@@ -80,7 +87,7 @@ async function uploadRequest(options: UploadRequestOptions) {
       md5,
       parentId: 0,
     })
-    if (res.fileExists)
+    if (res.fileExists || res.fastUpload)
       throw new Error('文件已存在')
     const uploadFileId = res.uploadFileId
     return ({ uploadFileId, filePartList })
@@ -94,7 +101,7 @@ async function uploadRequest(options: UploadRequestOptions) {
 
 // 预上传成功处理
 function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[] }) {
-  ElMessage.success('文件秒传成功,开始解析')
+  ElMessage.success('文件秒传成功,开始校验完整性')
   uploadLoading.value = true
   const task = res.filePartList.map((item) => {
     const uploadInput: PartUploadInput = {
@@ -107,13 +114,15 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
   })
   Promise.all(task)
     .then(() => {
-      ElMessage.success('文件解析成功')
+      ElMessage.success('校验完成')
       showDialog.value = false
-      // 清除文件列表
-      uploadRef.value!.clearFiles()
+      emit('uploaded', needConvert ? res.uploadFileId : '')
     })
     .catch(({ msg }) => ElMessage.error(msg))
-    .finally(() => uploadLoading.value = false)
+    .finally(() => {
+      uploadLoading.value = false
+      uploadRef.value!.clearFiles()
+    })
 }
 </script>
 
@@ -163,11 +172,11 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
         </template>
       </el-upload>
       <template #footer>
-        <!-- <el-button type="primary" plain :disabled="!canSubmit" @click="upload">
+        <el-button type="primary" plain :disabled="!canSubmit" :loading="uploadLoading" @click="upload">
           仅上传
-        </el-button> -->
+        </el-button>
         <el-button type="primary" :disabled="!canSubmit" :loading="uploadLoading" @click="uploadWithAnalysis">
-          上传并解析
+          上传并转换
         </el-button>
       </template>
     </el-dialog>

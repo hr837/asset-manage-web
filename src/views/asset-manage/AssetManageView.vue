@@ -2,52 +2,70 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import dayjs from 'dayjs'
 import AssetDataList from './components/AssetDataList.vue'
-import AssetQueryForm from './components/AssetQueryForm.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import AssetUpload from './components/AssetUpload.vue'
 import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
-import type { AssetActionCommand, AssetInfo, AssetQueryFormData } from '@/types/asset-info.type'
+import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { PageService } from '@/http/extends/page.service'
 import { downloadFile } from '@/utils/file.util'
 import type { AssetQueryInput } from '@/http/models/asset.model'
-
+import type { DateFormInstance } from '@/types/common-components.type'
 const assetService = new AssetManageService()
 const pageService = new PageService()
 const dataSet = ref<AssetInfo[]>([])
 const router = useRouter()
+const formRef = ref<DateFormInstance>()
 
 // 查询条件
-const queryData = reactive<AssetQueryInput>({
+const queryModel = reactive<AssetQueryInput & { date?: string[] }>({
   status: undefined,
-  id: undefined,
+  id: '',
+  name: '',
+  startDate: '',
+  endDate: '',
+  get date() {
+    return [this.startDate!, this.endDate!]
+  },
+  set date(val: string[]) {
+    this.startDate = val[0]
+    this.endDate = val[1]
+  },
 })
 
+// 过滤器发生改变，刷新页面数据
 function onStateChange() {
   pageService.reset()
   fetchData()
 }
 
-function refreshData(data: AssetQueryFormData) {
-  if (queryData.id) {
+// 使用表单查询条件，重置过滤器状态并刷新页面数据
+function refreshData() {
+  if (queryModel.id) {
     router.push({ query: undefined })
-    queryData.id = undefined
+    queryModel.id = ''
   }
-  queryData.status = undefined
-  Object.assign(queryData, data)
+  queryModel.status = undefined
   onStateChange()
 }
 
+// 从服务器获取页面数据
 function fetchData() {
   sessionStorage.removeItem(SessionKey_Asset_PLAY_PATH)
-  assetService.getList(queryData as any, [pageService]).then(data => dataSet.value = data.rows).catch(() => {})
+  const queryData = { ...queryModel }
+  delete queryData.date
+  assetService.getList(queryData, [pageService]).then(data => dataSet.value = data.rows).catch(() => {})
 }
 
+// 播放控制器，跳转播放页面
 function onPlayClick(path: string) {
   sessionStorage.setItem(SessionKey_Asset_PLAY_PATH, path)
   router.push('/play')
 }
+
+// 数据过滤器回调，发起请求刷新页面数据
 function onItemAction(cmd: AssetActionCommand, id: string) {
   const item = dataSet.value.find(x => x.id === id)
   if (!item)
@@ -84,18 +102,44 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
   })
 }
 
+// 页面加载获取路由参数，是否需要根据ID搜索
 onMounted(() => {
-  queryData.id = router.currentRoute.value.query.id as string
+  queryModel.id = router.currentRoute.value.query.id as string
   fetchData()
 })
+
+// 上传完毕，处理后续操作和刷新页面数据
+function onUploaded(id: string) {
+  const task = Promise.resolve()
+  if (id) {
+    task.then(() => assetService.convertToFbx(id))
+      .then(() => { ElMessage.success('已发起转换指令') })
+  }
+  task.then(refreshData).catch(() => {})
+}
+
+// 日期组件禁用部分
+const today = dayjs().startOf('day').toDate()
+const beforDay = dayjs(today).subtract(2, 'month').toDate()
+// 禁止选择2月前和今天之后
+function disabledDate(pickDate: Date) {
+  return pickDate < beforDay || pickDate > today
+}
 </script>
 
 <template>
   <div class="page asset-manage-view">
-    <AssetQueryForm @refresh="refreshData" />
+    <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="refreshData" @reset="refreshData">
+      <el-form-item prop="name">
+        <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
+      </el-form-item>
+      <el-form-item prop="date">
+        <DateRange v-model="queryModel.date" :disabled-date="disabledDate" />
+      </el-form-item>
+    </DataForm>
     <div class="asset-manage-action">
-      <AssetQeuryFilter v-model="queryData.status" @update:model-value="onStateChange" />
-      <AssetUpload />
+      <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
+      <AssetUpload @uploaded="onUploaded" />
     </div>
     <div class="asset-manage-data-container">
       <el-empty v-if="!dataSet.length" />

@@ -89,7 +89,7 @@ function onExpand() {
   emits('update:hiddenFlag', true)
 }
 
-function emitSet() {
+function emitReset() {
   form.value?.resetFields()
   emits('reset')
 }
@@ -103,6 +103,10 @@ onMounted(() => {
     onExpand()
   else if (isShowExtend.value && !props.hiddenFlag)
     onCollapse()
+})
+
+defineExpose({
+  reset: emitReset,
 })
 </script>
 
@@ -124,7 +128,7 @@ onMounted(() => {
         >
           <icon-park-outline-search class="mr-1" />查询
         </el-button>
-        <el-button @click="emitSet">
+        <el-button @click="emitReset">
           <icon-park-outline-refresh class="mr-1" />重置
         </el-button>
         <template v-if="isShowExtend">

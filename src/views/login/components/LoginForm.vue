@@ -1,16 +1,17 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
-import { nanoid } from 'nanoid'
+import { reactive, ref, watch } from 'vue'
 import type { LoginInput } from '@/http/models/login.model'
 
-defineProps<{
+const props = defineProps<{
   /** 加载状态，登录的时候可以设置 */
   loading: boolean
+  patchcaKey: string
 }>()
 const emit = defineEmits<{
   /** 登录表单校验成功 */
   validated: [data: LoginInput]
+  chageCode: []
 }>()
 const loginModel = reactive<LoginInput>({
   account: '',
@@ -40,13 +41,7 @@ const loginRules = {
   ],
 }
 
-// 点击图片 更换新的验证码
-function onCodeClick() {
-  loginModel.patchcaKey = nanoid()
-  loginModel.validateCode = ''
-}
-
-onMounted(onCodeClick)
+watch(() => props.patchcaKey, () => loginModel.validateCode = '')
 
 /**
  * 登陆
@@ -85,7 +80,7 @@ function handleLogin() {
             <icon-park-outline-block-six />
           </template>
           <template #suffix>
-            <img :src="`/api/patchca/${loginModel.patchcaKey}`" alt="code" class="login-img-verifycode" @click="onCodeClick">
+            <img :src="`/api/patchca/${patchcaKey}`" alt="code" class="login-img-verifycode" @click="$emit('chageCode')">
           </template>
         </el-input>
       </el-form-item>

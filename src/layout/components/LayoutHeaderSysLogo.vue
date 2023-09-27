@@ -11,7 +11,7 @@ withDefaults(defineProps<PropType>(), {
 
 <template>
   <div class="layout-header-logo" :class="{ 'layout-header-logo--collapse': collapse }">
-    <icon-park-outline-brain style="transform: rotateY(180deg);scale: 1.5;" />
+    <icon-park-outline-brain class="sys-log" />
     <span v-show="!collapse">特赛发</span>
   </div>
 </template>
@@ -19,18 +19,18 @@ withDefaults(defineProps<PropType>(), {
 <style lang="less" scoped>
 .layout-header-logo {
   @apply w-full flex items-center overflow-hidden whitespace-nowrap bg-white;
-  height: 50px;
-  padding-left: 20px;
+  height: 70px;
   width: 258px;
 
-  svg {
+  .sys-log{
+    transform: rotateY(180deg);
     color: var(--el-color-primary-light-3);
-    margin-right: 9px;
+    width: 64px;
+    @apply block text-4xl;
   }
 
   span {
-    font-size: 16px;
-    @apply font-bold;
+    @apply text-2xl font-bold px-2;
   }
 
 }

@@ -32,8 +32,11 @@ withDefaults(defineProps<PropType>(), {
   --el-menu-item-height: 40px;
 
   .el-menu-item {
-    .iconify {
-      margin-right: 5px;
+    :deep(.el-menu-tooltip__trigger){
+      justify-content: center;
+    }
+    span{
+      padding-left: 5px;
     }
 
     &.is-active {

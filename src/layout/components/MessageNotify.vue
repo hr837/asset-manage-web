@@ -34,9 +34,9 @@ watch(() => props.modelValue, v => v && fetchData())
 
 const router = useRouter()
 
-function onMessageClick(id: string) {
-  router.push({ name: 'assets-manage', query: { id } })
-  service.setRead([id]).then(() => fetchData()).catch(() => {})
+function onMessageClick(data: MessageQueryOutItem) {
+  router.push({ name: 'assets-manage', query: { id: data.fileId } })
+  service.setRead([data.id]).then(() => fetchData()).catch(() => {})
 }
 </script>
 
@@ -54,7 +54,7 @@ function onMessageClick(id: string) {
           <div class="message-item-info" :class="{ error: item.fileStatus === 4 }">
             {{ item.message }}
           </div>
-          <el-button type="text" class="message-item-btn" @click="() => onMessageClick(item.fileId)">
+          <el-button type="primary" link class="message-item-btn" @click="() => onMessageClick(item)">
             查看
           </el-button>
         </li>
@@ -71,7 +71,7 @@ function onMessageClick(id: string) {
   .message-item{
     @apply flex items-center rounded hover:bg-gray-100 ;
     &-info{
-      @apply flex-1 px-1 ;
+      @apply flex-1 px-1 truncate;
       &.error{
         @apply text-red-500;
       }
