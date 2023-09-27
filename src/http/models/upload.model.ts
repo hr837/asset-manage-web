@@ -15,6 +15,9 @@ export interface PreuploadInput {
    * 父目录id,根目录给0
    */
   parentId: number
+
+  /** 是否自动转换 */
+  auto: 0 | 1
 }
 
 export interface PreuploadResponse {

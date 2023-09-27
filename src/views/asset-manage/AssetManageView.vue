@@ -109,16 +109,6 @@ onMounted(() => {
   fetchData()
 })
 
-// 上传完毕，处理后续操作和刷新页面数据
-function onUploaded(id: string) {
-  const task = Promise.resolve()
-  if (id) {
-    task.then(() => assetService.convertToFbx(id))
-      .then(() => { ElMessage.success('已发起转换指令') })
-  }
-  task.then(refreshData).catch(() => {})
-}
-
 // 日期组件禁用部分
 const today = dayjs().startOf('day').toDate()
 const beforDay = dayjs(today).subtract(2, 'month').toDate()
@@ -151,7 +141,7 @@ watch(() => route.query, (query) => {
     </DataForm>
     <div class="asset-manage-action">
       <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
-      <AssetUpload @uploaded="onUploaded" />
+      <AssetUpload @uploaded="refreshData" />
     </div>
     <div class="asset-manage-data-container">
       <el-empty v-if="!dataSet.length" />

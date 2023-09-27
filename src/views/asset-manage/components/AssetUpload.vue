@@ -8,7 +8,7 @@ import { getSliceFileMd5, getVideoDuration } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import type { PartUploadInput } from '@/http/models/upload.model'
 
-const emit = defineEmits<{ uploaded: [fileId: string] }>()
+const emit = defineEmits<{ uploaded: [] }>()
 
 const uploadService = new FileUploadService()
 
@@ -28,10 +28,7 @@ const handleChange: UploadProps['onChange'] = (file) => {
       getVideoDuration(file.raw!)
         .then((d) => {
           duration.value = d
-          if (d > 30)
-            ElMessage.warning('选择的文件时长超过30s')
-          else
-            canSubmit.value = true
+          canSubmit.value = true
         })
         .catch((err: Error) => ElMessage.error(err.message))
     }
@@ -53,19 +50,19 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 function handleRemove(file: UploadFile) {
   uploadRef.value!.handleRemove(file)
   duration.value = 0
+  canSubmit.value = false
 }
 
 /** 是否需要转换 */
-let needConvert = false
+const needConvert = ref(false)
 
-function upload() {
-  needConvert = false
-  uploadRef.value!.submit()
-}
-
-function uploadWithAnalysis() {
-  needConvert = true
-  uploadRef.value!.submit()
+function upload(convert = false) {
+  needConvert.value = convert
+  // 如果没有读取到视频时长，则不能进行上传
+  if (duration.value === 0)
+    ElMessage.error('视频资源不可读，请重新上传')
+  else
+    uploadRef.value!.submit()
 }
 
 // 自定义上传功能
@@ -86,11 +83,11 @@ async function uploadRequest(options: UploadRequestOptions) {
       originFileName: file.name,
       md5,
       parentId: 0,
+      auto: needConvert.value ? 1 : 0,
     })
-    if (res.fileExists || res.fastUpload)
+    if (res.fileExists)
       throw new Error('文件已存在')
-    const uploadFileId = res.uploadFileId
-    return ({ uploadFileId, filePartList })
+    return { uploadFileId: res.uploadFileId, filePartList: res.fastUpload ? [] : filePartList }
   }
   catch (err: any) {
     const message = err.message ?? '上传出错'
@@ -101,8 +98,10 @@ async function uploadRequest(options: UploadRequestOptions) {
 
 // 预上传成功处理
 function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[] }) {
-  ElMessage.success('文件秒传成功,开始校验完整性')
   uploadLoading.value = true
+  // 开始处理分片上传
+  if (res.filePartList.length)
+    ElMessage.success('文件秒传成功,开始校验完整性')
   const task = res.filePartList.map((item) => {
     const uploadInput: PartUploadInput = {
       segmentSize: item.size.toString(),
@@ -113,10 +112,10 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
     return uploadService.partUpload(uploadInput)
   })
   Promise.all(task)
-    .then(() => {
-      ElMessage.success('校验完成')
+    .then((tR) => {
+      ElMessage.success(tR.length ? '校验完成' : '文件秒传成功')
       showDialog.value = false
-      emit('uploaded', needConvert ? res.uploadFileId : '')
+      emit('uploaded')
     })
     .catch(({ msg }) => ElMessage.error(msg))
     .finally(() => {
@@ -143,12 +142,11 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
           <icon-park-outline-upload-one class="text-6xl text-gray-300 inline-block" />
           <div class="text-gray-400 text-md">
             点击/拖拽至此处添加视频<br>
-            限定格式:MP4,<br>
-            时长不超过30秒.
+            限定格式:MP4
           </div>
         </div>
         <template #file="{ file }">
-          <div class="upload-file-cover" :class="[duration > 30 ? 'limited' : '']">
+          <div class="upload-file-cover">
             <icon-park-outline-check-correct v-if="file.status === 'success'" class="upload-file-icon--success" />
             <icon-park-outline-movie class="upload-file-icon--tag" />
           </div>
@@ -172,10 +170,10 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
         </template>
       </el-upload>
       <template #footer>
-        <el-button type="primary" plain :disabled="!canSubmit" :loading="uploadLoading" @click="upload">
+        <el-button type="primary" plain :disabled="!canSubmit" :loading="uploadLoading && !needConvert" @click="() => upload()">
           仅上传
         </el-button>
-        <el-button type="primary" :disabled="!canSubmit" :loading="uploadLoading" @click="uploadWithAnalysis">
+        <el-button type="primary" :disabled="!canSubmit" :loading="uploadLoading && needConvert" @click="() => upload(true)">
           上传并转换
         </el-button>
       </template>
@@ -211,6 +209,9 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
     .el-upload--picture-card {
       --el-upload-picture-card-size: var(--el-upload-list-picture-card-size);
       border: none;
+      .el-upload-dragger{
+        height: var(--el-upload-list-picture-card-size);
+      }
     }
   }
 
@@ -232,9 +233,6 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
 
     &-cover {
       @apply h-36 bg-gray-200 flex justify-center items-center relative;
-      &.limited {
-        @apply bg-red-100;
-      }
     }
 
     &-bottom {
