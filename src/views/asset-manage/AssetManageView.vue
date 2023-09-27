@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import AssetDataList from './components/AssetDataList.vue'
@@ -18,6 +18,7 @@ const pageService = new PageService()
 const dataSet = ref<AssetInfo[]>([])
 const router = useRouter()
 const formRef = ref<DateFormInstance>()
+const route = useRoute()
 
 // 查询条件
 const queryModel = reactive<AssetQueryInput & { date?: string[] }>({
@@ -104,7 +105,7 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
 
 // 页面加载获取路由参数，是否需要根据ID搜索
 onMounted(() => {
-  queryModel.id = router.currentRoute.value.query.id as string
+  queryModel.id = route.query.id as string
   fetchData()
 })
 
@@ -125,6 +126,17 @@ const beforDay = dayjs(today).subtract(2, 'month').toDate()
 function disabledDate(pickDate: Date) {
   return pickDate < beforDay || pickDate > today
 }
+
+// 处理已经再当前页面的时候修改的路由参数
+watch(() => route.query, (query) => {
+  if (query && query.id) {
+    queryModel.date = ['', '']
+    queryModel.name = ''
+    queryModel.status = undefined
+    queryModel.id = query.id as string
+    fetchData()
+  }
+})
 </script>
 
 <template>
