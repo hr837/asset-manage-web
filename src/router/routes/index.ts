@@ -55,6 +55,15 @@ const routesConfig: Array<RouteRecordRaw> = [
           title: '资产播放',
         },
       },
+      {
+        path: '/fbx-player',
+        name: 'fbx-player',
+        component: () => import('@/views/fbx-player/FbxPlayerView.vue'),
+        meta: {
+          title: 'FBX播放器',
+          ignoreAuth: true,
+        },
+      },
     ],
   },
   {
