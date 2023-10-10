@@ -64,6 +64,7 @@
     "unplugin-auto-import": "^0.12.2",
     "unplugin-icons": "^0.15.3",
     "unplugin-vue-components": "^0.22.12",
+    "video.js": "^8.5.2",
     "vue-cli-plugin-tailwind": "^3.0.0"
   },
   "lint-staged": {

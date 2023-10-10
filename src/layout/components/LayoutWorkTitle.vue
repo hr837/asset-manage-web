@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import MessageNotify from './MessageNotify.vue'
 import { useUserStore } from '@/store/user.store'
@@ -12,7 +12,7 @@ const title = computed(() => {
 const hasNew = ref(false)
 const userStore = useUserStore()
 
-watch(() => userStore.token, val => val && initSocket(), { immediate: true })
+// watch(() => userStore.token, val => val && initSocket(), { immediate: true })
 let timerId = -1
 
 function initSocket() {

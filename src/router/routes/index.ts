@@ -64,6 +64,15 @@ const routesConfig: Array<RouteRecordRaw> = [
           ignoreAuth: true,
         },
       },
+      {
+        path: '/test',
+        name: 'test',
+        component: () => import('@/views/test/test.vue'),
+        meta: {
+          title: '测试页面',
+          ignoreAuth: true,
+        },
+      },
     ],
   },
   {
