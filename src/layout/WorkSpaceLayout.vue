@@ -34,7 +34,9 @@ export default defineComponent({
       <el-main class="layout-work-container-main">
         <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
           <transition name="fade-transform" mode="out-in">
-            <component :is="Component" :key="route.path" />
+            <KeepAlive :max="5">
+              <component :is="Component" :key="route.path" />
+            </KeepAlive>
           </transition>
         </router-view>
       </el-main>

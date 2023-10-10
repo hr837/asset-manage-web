@@ -159,3 +159,14 @@ export function downloadFile(path: string, fileName: string, preFix?: '/video' |
   link.download = fileName
   link.click()
 }
+
+const KB = 1024
+const MB = KB * 1024
+
+/** 获取文件尺寸大小 */
+export function getFileSizeStr(file: File) {
+  const size = file.size
+  const kb = Math.round(size / KB)
+  const mb = Math.round(size / MB)
+  return kb > 1024 ? `${mb}MB` : `${kb}KB`
+}
