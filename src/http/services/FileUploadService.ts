@@ -31,8 +31,8 @@ export class FileUploadService {
   ): Promise<PartUploadResponse> {
     const form = new FormData()
     form.append('uploadFileId', requestBody.uploadFileId)
-    form.append('segmentIndex', requestBody.segmentIndex)
-    form.append('segmentSize', requestBody.segmentSize)
+    form.append('segmentIndex', `${requestBody.segmentIndex}`)
+    form.append('segmentSize', `${requestBody.segmentSize}`)
     form.append('file', requestBody.file)
     // 请求数据
     return this.request.send(

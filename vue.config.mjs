@@ -62,14 +62,14 @@ export default defineConfig({
   devServer: {
     proxy: {
       '/api': { // API代理
-        target: 'http://118.184.171.75',
+        target: 'http://118.184.171.75:8300',
       },
       '/asset': { // 资源代理
-        target: 'http://118.184.171.75',
+        target: 'http://118.184.171.75:8300',
         pathRewrite: { '^/asset': '' },
       },
       '/socket': { // SOCKET 代理
-        target: 'ws://118.184.171.75',
+        target: 'http://118.184.171.75:8300',
         ws: true,
         pathRewrite: { '^/socket': '/ws' },
         changeOrigin: true,

@@ -124,7 +124,7 @@ export function getSliceFileMd5(file: Blob, chunkSize = MIN_CHUNKSIZE, progressC
       partIndex++
       // 进度
       const precent = partIndex / fileParts.length
-      progressChange(precent * 100)
+      progressChange(Math.round(precent * 100))
       if (precent < 1) {
         fileReader.readAsArrayBuffer(fileParts[partIndex].part)
       }
@@ -160,13 +160,26 @@ export function downloadFile(path: string, fileName: string, preFix?: '/video' |
   link.click()
 }
 
-const KB = 1024
-const MB = KB * 1024
-
-/** 获取文件尺寸大小 */
-export function getFileSizeStr(file: File) {
-  const size = file.size
-  const kb = Math.round(size / KB)
-  const mb = Math.round(size / MB)
-  return kb > 1024 ? `${mb}MB` : `${kb}KB`
+/** 计算视频长度 */
+export function getDuration(duration: number) {
+  if (duration < 60) {
+    return `${Math.round(duration)}s`
+  }
+  else {
+    const m = Math.round(duration / 60)
+    const seconds = duration - m * 60
+    const s = Math.round(seconds)
+    return `${m}min${s}s`
+  }
+}
+// 计算文件大小
+export function getVideoSize(size: number) {
+  const kb = Math.round(size / 1024)
+  if (kb < 1024) {
+    return `${kb}KB`
+  }
+  else {
+    const mb = Math.round(size / 1024 / 1024)
+    return `${mb}MB`
+  }
 }

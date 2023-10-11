@@ -84,6 +84,7 @@ async function uploadRequest(options: UploadRequestOptions) {
       md5,
       parentId: 0,
       auto: needConvert.value ? 1 : 0,
+      duration: 0,
     })
     if (res.fileExists)
       throw new Error('文件已存在')
@@ -104,10 +105,10 @@ function onPreUploadSuccess(res: { uploadFileId: string; filePartList: FilePart[
     ElMessage.success('文件秒传成功,开始校验完整性')
   const task = res.filePartList.map((item) => {
     const uploadInput: PartUploadInput = {
-      segmentSize: item.size.toString(),
+      segmentSize: item.size,
       uploadFileId: res.uploadFileId,
       file: item.part,
-      segmentIndex: (item.index + 1).toString(),
+      segmentIndex: item.index + 1,
     }
     return uploadService.partUpload(uploadInput)
   })

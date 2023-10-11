@@ -18,6 +18,8 @@ export interface PreuploadInput {
 
   /** 是否自动转换 */
   auto: 0 | 1
+  /** 视频时长 */
+  duration: number
 }
 
 export interface PreuploadResponse {
@@ -51,11 +53,11 @@ export interface PartUploadInput {
   /**
    * 分片序号
    */
-  segmentIndex: string
+  segmentIndex: number
   /**
    * 分片大小
    */
-  segmentSize: string
+  segmentSize: number
   /**
    * 上传文件id
    */
