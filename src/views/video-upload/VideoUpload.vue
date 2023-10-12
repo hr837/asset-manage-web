@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
-import type { UploadFile, UploadInstance } from 'element-plus'
+import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
 import UploadDescription from './components/UploadDescription.vue'
 import UploadVideoItem from './components/UploadVideoItem.vue'
 
@@ -34,32 +34,25 @@ function onUploadClick(trans = false) {
   transfrom.value = trans
 }
 
-// 单个文件上传成功
-function onFileuploadSuccess(file: UploadFile) {
-  ElMessage.success(`${file.name}上传成功`)
-  uploadRef.value?.handleRemove(file)
-}
-
 interface FileListItem {
   uid: number
-  canSubmit: boolean
   uploaded: boolean
 }
 const fileList = ref<FileListItem[]>([])
+
+// 单个文件上传成功
+function onFileuploadSuccess(file: UploadFile) {
+  ElMessage.success(`${file.name}上传成功`)
+  const fileInfo = fileList.value.find(x => x.uid === file.uid)
+  fileInfo!.uploaded = true
+}
 
 /** 选择的文件发生改变 */
 function onUploadFileChange(file: UploadFile) {
   fileList.value.push({
     uid: file.uid,
-    canSubmit: /(.mp4)/i.test(file.name),
     uploaded: false,
   })
-}
-
-/** 选择的文件发生错误 */
-function onFileError(file: UploadFile) {
-  const fileInfo = fileList.value.find(x => x.uid === file.uid)
-  fileInfo!.canSubmit = false
 }
 
 /** 删除一个文件 */
@@ -67,12 +60,14 @@ function onRemoveClick(file: UploadFile) {
   const fileIndex = fileList.value.findIndex(x => x.uid === file.uid)
   fileList.value.splice(fileIndex)
   uploadRef.value!.handleRemove(file)
+  if (fileList.value.length === 0)
+    uploadStart.value = false
 }
 
 const canSubmit = computed(() => {
   const hasFile = fileList.value.length > 0
-  const hasError = fileList.value.some(x => !x.canSubmit)
-  return hasFile && !hasError
+  const ready = fileList.value.every(x => !x.uploaded)
+  return hasFile && ready
 })
 </script>
 
@@ -96,7 +91,7 @@ const canSubmit = computed(() => {
           <UploadVideoItem
             :start="uploadStart" :transfrom="transfrom" :raw="file.raw"
             @play="src => onPlay(src, file.name)" @success="() => onFileuploadSuccess(file)"
-            @remove="() => onRemoveClick(file)" @error="() => onFileError(file)"
+            @remove="() => onRemoveClick(file)"
           />
         </template>
       </el-upload>

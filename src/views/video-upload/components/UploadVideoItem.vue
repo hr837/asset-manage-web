@@ -16,8 +16,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 文件播放 */
   play: [src: string]
-  /** 发生错误 */
-  error: []
   /** 移除文件 */
   remove: []
   /** 文件上传成功 */
@@ -64,8 +62,9 @@ onMounted(() => {
     const img = document.createElement('img')
     img.src = '/images/sorry.jpg'
     img.onload = () => ctx.drawImage(img, 0, 0, dw, dh)
-    ElMessage.error('文件信息不可读取')
-    emit('error')
+    ElMessage.error('文件信息不可读取，请重新选择')
+    // 强制移除文件
+    emit('remove')
   }
 })
 
@@ -130,7 +129,7 @@ async function upload() {
 /** 对未上传的分片进行上传 */
 function partUpload() {
   // 每份上传进度百分比
-  const partPrecent = partList.value.length ** -1 * 100
+  const partPrecent = Math.round(partList.value.length ** -1 * 100)
   // 对未上传的分片进行过滤，并返回分片上传结果
   const uploadTask = partList.value.filter(x => !x.uploaded).map((item) => {
     return uploadService.partUpload({
