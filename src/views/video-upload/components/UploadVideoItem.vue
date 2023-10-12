@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import type { FilePart } from '../composable/file.help'
-import { getDuration, getVideoSize } from '../composable/file.help'
+import { type FilePart, getDuration, getVideoSize } from '../composable/file.help'
 import { getSliceFileMd5 } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import { FileChunkSize } from '@/views/asset-manage/composable/constant'
@@ -16,6 +15,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 文件播放 */
   play: [src: string]
+  /** 发生错误 */
+  error: []
   /** 移除文件 */
   remove: []
   /** 文件上传成功 */
@@ -24,12 +25,6 @@ const emit = defineEmits<{
 defineComponent({
   name: 'UploadVideoItem',
 })
-
-const canvasRef = ref<HTMLCanvasElement>()
-// 显示重新上传
-const showRefresh = ref(false)
-// 是否能播放
-const canPlay = ref(false)
 
 const videoInfo = reactive({
   src: '',
@@ -40,32 +35,7 @@ const videoInfo = reactive({
 })
 
 onMounted(() => {
-  const ctx = canvasRef.value?.getContext('2d')
-  if (!ctx)
-    return
-  const videoEl = document.createElement('video')
-  videoEl.src = URL.createObjectURL(props.raw)
-  videoEl.preload = 'auto'
-  const { width: dw, height: dh } = canvasRef.value!
-  // 加载成功，绘制封面
-  videoEl.onloadeddata = () => {
-    ctx.drawImage(videoEl, 0, 0, dw, dh)
-    // set value
-    videoInfo.src = videoEl.src
-    videoInfo.size = getVideoSize(props.raw.size)
-    videoInfo.duration = videoEl.duration
-    videoInfo.durationStr = getDuration(videoEl.duration)
-    canPlay.value = true
-  }
-  // 加载失败，绘制错误
-  videoEl.onerror = () => {
-    const img = document.createElement('img')
-    img.src = '/images/sorry.jpg'
-    img.onload = () => ctx.drawImage(img, 0, 0, dw, dh)
-    ElMessage.error('文件信息不可读取，请重新选择')
-    // 强制移除文件
-    emit('remove')
-  }
+  videoInfo.src = URL.createObjectURL(props.raw)
 })
 
 // 组件卸载清除文件URL资源
@@ -73,6 +43,18 @@ onUnmounted(() => {
   if (videoInfo.src)
     URL.revokeObjectURL(videoInfo.src)
 })
+
+function onVideoLoad(e: Event) {
+  const el = e.target as HTMLVideoElement
+  videoInfo.duration = el.duration
+  videoInfo.durationStr = getDuration(el.duration)
+  videoInfo.size = getVideoSize(props.raw.size)
+}
+
+function onLoadError() {
+  ElMessage.error('文件不能播放，请重新选择')
+  emit('remove')
+}
 
 // 文件上传计算百分比
 const calcPrecent = ref(0)
@@ -93,13 +75,15 @@ watch(() => props.start, (val) => {
 })
 
 const partList = ref<FilePartUpload[]>([])
-
 const uploadService = new FileUploadService()
+// 文件上传状态
+const uploadStatus = ref<'await' | 'calc' | 'part' | 'success' | 'fail'>('await')
 
 /** 开始上传文件 */
 async function upload() {
   try {
     // 对文件切片并计算MD5
+    uploadStatus.value = 'calc'
     const { md5, fileParts } = await getSliceFileMd5(props.raw, FileChunkSize, precent => calcPrecent.value = precent)
     // 开始预上传
     const res = await uploadService.preUpload({
@@ -122,14 +106,16 @@ async function upload() {
     partUpload()
   }
   catch (error) {
+    uploadStatus.value = 'fail'
     ElMessage.error('上传异常')
   }
 }
 
 /** 对未上传的分片进行上传 */
 function partUpload() {
+  uploadStatus.value = 'part'
   // 每份上传进度百分比
-  const partPrecent = Math.round(partList.value.length ** -1 * 100)
+  const partPrecent = partList.value.length ** -1 * 100
   // 对未上传的分片进行过滤，并返回分片上传结果
   const uploadTask = partList.value.filter(x => !x.uploaded).map((item) => {
     return uploadService.partUpload({
@@ -148,88 +134,158 @@ function partUpload() {
   // 分片批量上传
   Promise.all(uploadTask)
     .then(emitSuccess)
-    .catch(() => showRefresh.value = true)
+    .catch(() => uploadStatus.value = 'fail')
 }
 
 /** 向父组件通知，文件上传成功 */
 function emitSuccess() {
   uploaded.value = true
-  showRefresh.value = false
+  uploadStatus.value = 'success'
   emit('success', videoInfo.fileId)
 }
 
-const partUploading = computed(() => partList.value.length > 0)
+/** 重新尝试上传 */
+function onRetryClick() {
+  if (!videoInfo.fileId)
+    upload()
+
+  else
+    partUpload()
+}
+
+function progressTextFormat(precent: number) {
+  let statusName = ''
+  const precentage = `${precent.toFixed(0)}%`
+  switch (uploadStatus.value) {
+    case 'fail':
+      return '上传失败'
+    case 'success':
+      return '上传成功'
+    case 'calc':
+      statusName = '切片计算中'
+      break
+    case 'part':
+      statusName = '分片上传中'
+      break
+    default:
+      break
+  }
+  return statusName + precentage
+}
+
+const showPlayIcon = computed(() => uploadStatus.value === 'await' || uploadStatus.value === 'success')
+const showDeleteIcon = computed(() => showPlayIcon.value || uploadStatus.value === 'fail')
+const showRefresh = computed(() => uploadStatus.value === 'fail')
+const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 </script>
 
 <template>
   <div class="component upload-video-item">
-    <div class="video-cover">
-      <canvas ref="canvasRef" class="video-cover-canvas" />
-      <icon-park-solid-play v-if="canPlay" class="video-cover-icon" @click="$emit('play', videoInfo.src)" />
+    <div class="video-container">
+      <video class="video-cover" :src="videoInfo.src" @loadeddata="onVideoLoad" @error="onLoadError" />
+      <div v-if="showSuccessIcon" class="video-upload-succss">
+        <icon-park-outline-check class="-rotate-45" />
+      </div>
+      <div class="video-info-duration">
+        {{ videoInfo.durationStr }}
+      </div>
+      <!-- 开始上传，不允许播放 -->
+      <icon-park-solid-play v-if="showPlayIcon" class="video-aciton-play" @click="$emit('play', videoInfo.src)" />
+      <div v-else class="video-mask">
+        <el-progress
+          v-if="calcPrecent > 0" class="video-upload-progress" :percentage="calcPrecent"
+          :class="showRefresh ? 'error' : ''" :format="progressTextFormat"
+        />
+        <el-button v-if="showRefresh" type="primary" class="video-action-continue" @click="onRetryClick">
+          重新上传
+        </el-button>
+      </div>
     </div>
     <div class="video-info">
-      <div class="video-info-name">
-        {{ raw.name }}
-      </div>
       <div class="video-info-inline">
-        <div class="video-info-duration">
-          视频时长：{{ videoInfo.durationStr }}
+        <div class="video-info-name" :title="raw.name">
+          {{ raw.name }}
         </div>
-        <div class="video-info-size">
-          文件大小：{{ videoInfo.size }}
-        </div>
+        <icon-park-outline-delete v-if="showDeleteIcon" class="video-action-delete " @click="$emit('remove')" />
       </div>
-      <div v-if="start" class="video-info-progress">
-        <el-progress :percentage="calcPrecent" :color="partUploading ? '#8A2BE2' : '#9370DB'" />
+      <div class="video-info-size">
+        {{ videoInfo.size }}
       </div>
-    </div>
-    <div class="video-action">
-      <icon-park-outline-delete class="video-action-icon text-red-500" @click="$emit('remove')" />
-      <icon-park-outline-refresh v-if="showRefresh" class="video-action-icon text-blue-500" @click="partUpload" />
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
 .upload-video-item {
-  @apply flex gap-4 rounded shadow;
+  @apply w-80;
 }
 
-.video-cover {
+.video-container {
 
-  @apply bg-gray-200 relative rounded-sm overflow-hidden;
+  @apply bg-gray-50 relative rounded overflow-hidden;
 
-  &-canvas {
-    @apply w-20 h-20;
+  .video-upload-succss {
+    @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
   }
 
-  &-icon {
-    @apply text-3xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-gray-300 hover:text-gray-500;
+  .video-cover {
+    @apply w-80 h-44 bg-gray-50;
+    border-radius: 4px;
   }
+
+  .video-mask {
+    @apply absolute top-0 left-0 right-0 bottom-0 bg-black/50;
+  }
+
+  .video-aciton-play {
+    @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-gray-300 hover:text-gray-500;
+  }
+
+  .video-action-continue {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2;
+  }
+
+  .video-upload-progress {
+    @apply top-1/3 px-10;
+
+    &.error {
+      :deep(.el-progress-bar__inner) {
+        background-color: var(--el-color-error);
+      }
+
+      :deep(.el-progress__text) {
+        color: var(--el-color-error);
+      }
+    }
+
+    :deep(.el-progress__text) {
+      @apply w-full text-center -top-6 text-white;
+    }
+  }
+
+  .video-info-duration {
+    @apply absolute text-right bottom-0 right-0 text-xs p-1 px-2 text-white bg-gray-900/30;
+  }
+
 }
 
 .video-info {
-  @apply flex-1 text-sm overflow-hidden;
+  @apply flex-1 overflow-hidden p-1;
 
   &-inline {
-    @apply flex gap-4 text-gray-500 text-xs py-1;
+    @apply flex justify-between items-center;
+
+    .video-action-delete {
+      @apply cursor-pointer text-lg text-red-300 hover:text-red-500;
+    }
   }
 
   &-name {
-    @apply truncate;
+    @apply truncate text-base text-gray-700 flex-1;
   }
 
-  &-progress {
-    @apply relative;
+  &-size {
+    @apply text-xs text-gray-400;
   }
-}
-
-.video-action {
-  @apply p-2;
-
-  &-icon {
-    @apply mt-2 cursor-pointer;
-  }
-
 }
 </style>

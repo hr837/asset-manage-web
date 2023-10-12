@@ -5,7 +5,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import AssetDataList from './components/AssetDataList.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
-import AssetUpload from './components/AssetUpload.vue'
 import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
 import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 import { AssetManageService } from '@/http/services/AssetManageService'
@@ -57,7 +56,7 @@ function fetchData() {
   sessionStorage.removeItem(SessionKey_Asset_PLAY_PATH)
   const queryData = { ...queryModel }
   delete queryData.date
-  assetService.getList(queryData, [pageService]).then(data => dataSet.value = data.rows).catch(() => {})
+  assetService.getList(queryData, [pageService]).then(data => dataSet.value = data.rows).catch(() => { })
 }
 
 // 播放控制器，跳转播放页面
@@ -81,7 +80,7 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
         ElMessage.success('资源已删除')
         pageService.reset()
         fetchData()
-      })).catch(() => {})
+      })).catch(() => { })
       break
     case 'download':
       downloadFile(item.sourceFileUrl!, `${item.name ?? '资源文件'}.mp4`, '/video')
@@ -141,7 +140,6 @@ watch(() => route.query, (query) => {
     </DataForm>
     <div class="asset-manage-action">
       <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
-      <AssetUpload @uploaded="refreshData" />
     </div>
     <div class="asset-manage-data-container">
       <el-empty v-if="!dataSet.length" />
@@ -154,10 +152,12 @@ watch(() => route.query, (query) => {
 <style lang="less" scoped>
 .asset-manage-view {
   @apply h-full flex flex-col;
+
   .asset-manage-action {
     @apply flex justify-between items-center mb-4;
   }
-  .asset-manage-data-container{
+
+  .asset-manage-data-container {
     @apply flex-1 overflow-auto;
   }
 }

@@ -25,7 +25,7 @@ interface PropType {
     <el-menu-item index="/upload">
       <icon-park-outline-upload />
       <template #title>
-        <span>视频上传</span>
+        <span>上传视频</span>
       </template>
     </el-menu-item>
   </el-menu>

@@ -18,7 +18,7 @@ defineEmits<{ play: [path:string]; action: [command:AssetActionCommand, id:strin
       <div class="asset-item">
         <div class="asset-item-header">
           <AssetStateTag :state="item.status" />
-          <div class="asset-item-name">
+          <div class="asset-item-name" :title="item.name">
             {{ item.name }}
           </div>
         </div>
