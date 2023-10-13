@@ -264,7 +264,7 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
   }
 
   .video-info-duration {
-    @apply absolute text-right bottom-0 right-0 text-xs p-1 px-2 text-white bg-gray-900/30;
+    @apply absolute bottom-0 right-0 w-full p-1 pt-4 text-right text-xs text-white bg-gradient-to-t from-gray-800/40;
   }
 
 }
