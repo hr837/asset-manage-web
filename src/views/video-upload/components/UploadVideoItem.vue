@@ -216,10 +216,6 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 </template>
 
 <style lang="less" scoped>
-.upload-video-item {
-  @apply w-80;
-}
-
 .video-container {
 
   @apply bg-gray-50 relative rounded overflow-hidden;
@@ -229,7 +225,9 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
   }
 
   .video-cover {
-    @apply w-80 h-44 bg-gray-50;
+    width: 270px;
+    height: 150px;
+    @apply bg-gray-50;
     border-radius: 4px;
   }
 
@@ -264,7 +262,7 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
   }
 
   .video-info-duration {
-    @apply absolute bottom-0 right-0 w-full p-1 pt-4 text-right text-xs text-white bg-gradient-to-t from-gray-800/40;
+    @apply absolute bottom-0 right-0 w-full p-2 pt-4 text-right text-white bg-gradient-to-t from-gray-800/40;
   }
 
 }

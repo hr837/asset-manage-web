@@ -78,43 +78,47 @@ const canSubmit = computed(() => {
 
 <template>
   <div class="page video-upload">
-    <!-- control -->
-    <el-upload
-      ref="uploadRef" class="video-upload-control" :auto-upload="false" drag :limit="5" accept=".mp4"
-      :disabled="uploadStart" :on-change="onUploadFileChange"
-    >
-      <el-button type="primary" class="action-button px-6">
-        上传视频
-      </el-button>
-      <div class="action-split-line mx-6 h-8 w-0.5 bg-gray-200" />
-      <icon-park-outline-upload-one class="action-icon text-gray-300 text-5xl" />
-      <div class="action-description text-left ml-4">
-        <div class="text-base">
-          拖动至此处也可上传
+    <div class="page-container">
+      <!-- control -->
+      <el-upload
+        ref="uploadRef" class="video-upload-control" :auto-upload="false" drag :limit="5" accept=".mp4"
+        :disabled="uploadStart" :on-change="onUploadFileChange"
+      >
+        <el-button type="primary" class="action-button px-6">
+          上传视频
+        </el-button>
+        <div class="action-split-line mx-6 h-8 w-0.5 bg-gray-200" />
+        <icon-park-outline-upload-one class="action-icon text-gray-300 text-5xl" />
+        <div class="action-description text-left ml-4">
+          <div class="text-base">
+            拖动至此处也可上传
+          </div>
+          <div class="text-xs text-gray-400 leading-5">
+            限定格式:.mp4
+          </div>
         </div>
-        <div class="text-xs text-gray-400 leading-5">
-          限定格式:.mp4
-        </div>
-      </div>
 
-      <template #file="{ file }">
-        <UploadVideoItem
-          :start="uploadStart" :transfrom="transfrom" :raw="file.raw" @play="src => onPlay(src, file.name)"
-          @success="() => onFileuploadSuccess(file)" @remove="() => onRemoveClick(file)"
-        />
-      </template>
-    </el-upload>
-    <!-- right -->
-    <UploadDescription class="video-upload-description" />
-    <!-- bottom -->
-    <div class="video-upload-action">
-      <el-button type="primary" plain :disabled="!canSubmit" @click="() => onUploadClick()">
-        仅上传
-      </el-button>
-      <el-button type="primary" :disabled="!canSubmit" @click="() => onUploadClick(true)">
-        上传并转换
-      </el-button>
+        <template #file="{ file }">
+          <UploadVideoItem
+            :start="uploadStart" :transfrom="transfrom" :raw="file.raw"
+            @play="src => onPlay(src, file.name)" @success="() => onFileuploadSuccess(file)"
+            @remove="() => onRemoveClick(file)"
+          />
+        </template>
+      </el-upload>
+      <!-- right -->
+      <UploadDescription class="video-upload-description" />
+      <!-- bottom -->
+      <div class="video-upload-action">
+        <el-button type="primary" plain :disabled="!canSubmit" @click="() => onUploadClick()">
+          仅上传
+        </el-button>
+        <el-button type="primary" :disabled="!canSubmit" @click="() => onUploadClick(true)">
+          上传并转换
+        </el-button>
+      </div>
     </div>
+
     <!-- video player -->
     <el-dialog
       v-model="playInfo.show" :title="playInfo.title" :close-on-click-modal="false"
@@ -130,33 +134,34 @@ const canSubmit = computed(() => {
 
 <style lang="less" scoped>
 .video-upload {
-  @apply grid p-0;
-  grid-template: 1fr auto / 1fr auto;
+  @apply p-0;
 
-  &-control {
-    @apply p-3 pr-0;
+  .page-container {
+    width: 1150px;
+    @apply mx-auto grid p-3;
+    grid-template: 1fr auto / 1fr auto;
   }
 
-  &-description {
-    @apply m-3;
+  &-control{
+    width: 827px;
+  }
+
+  &-description{
+    @apply ml-3;
   }
 
   &-action {
-    @apply col-span-2 text-right p-3 border-t;
+    @apply col-span-2 text-right mt-3 pt-3 border-t;
   }
 
   // 上传控制器描述
   :deep(.el-upload-dragger) {
-    @apply flex justify-center items-center;
+    @apply flex justify-center items-center mb-6;
     background-color: #FBFAFF;
   }
 
   :deep(.el-upload-list) {
-    @apply flex flex-wrap gap-4 mt-6;
-
-    &__item {
-      @apply w-auto;
-    }
+    @apply grid grid-cols-3 gap-4;
   }
 
   :deep(.el-dialog) {
