@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
 import UploadDescription from './components/UploadDescription.vue'
 import UploadVideoItem from './components/UploadVideoItem.vue'
@@ -60,6 +60,11 @@ function onUploadFileChange(file: UploadFile) {
   })
 }
 
+onMounted(() => {
+  const el = uploadRef.value!.$el.querySelector('.el-upload') as HTMLDivElement
+  el && el.addEventListener('click', checkFileExceed)
+})
+
 /** 删除一个文件 */
 function onRemoveClick(file: UploadFile) {
   const fileIndex = fileList.value.findIndex(x => x.uid === file.uid)
@@ -69,22 +74,36 @@ function onRemoveClick(file: UploadFile) {
     uploadStart.value = false
 }
 
+// 检测文件数量
+function checkFileExceed() {
+  const fileLength = fileList.value.length
+  if (uploadStart.value && fileLength) {
+    ElMessage.info('请先移除上传过的视频')
+    return
+  }
+
+  if (fileList.value.length >= 5)
+    ElMessage.info('最多上传5个视频')
+}
+
 const canSubmit = computed(() => {
   const hasFile = fileList.value.length > 0
   const ready = fileList.value.every(x => !x.uploaded)
   return hasFile && ready
 })
+
+const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.value)
 </script>
 
 <template>
   <div class="page video-upload">
-    <div class="page-container">
+    <div class="page-content">
       <!-- control -->
       <el-upload
         ref="uploadRef" class="video-upload-control" :auto-upload="false" drag :limit="5" accept=".mp4"
-        :disabled="uploadStart" :on-change="onUploadFileChange"
+        :disabled="disableUpload" :on-change="onUploadFileChange"
       >
-        <el-button type="primary" class="action-button px-6">
+        <el-button type="primary" :disabled="disableUpload" class="action-button px-6">
           上传视频
         </el-button>
         <div class="action-split-line mx-6 h-8 w-0.5 bg-gray-200" />
@@ -134,24 +153,14 @@ const canSubmit = computed(() => {
 
 <style lang="less" scoped>
 .video-upload {
-  @apply p-0;
-
-  .page-container {
-    width: 1150px;
-    @apply mx-auto grid p-3;
-    grid-template: 1fr auto / 1fr auto;
-  }
-
-  &-control{
-    width: 827px;
-  }
-
-  &-description{
-    @apply ml-3;
+  .page-content {
+    width: 1200px;
+    @apply mx-auto grid gap-4;
+    grid-template: 1fr auto / 880px 1fr;
   }
 
   &-action {
-    @apply col-span-2 text-right mt-3 pt-3 border-t;
+    @apply col-span-2 text-right pt-3 border-t;
   }
 
   // 上传控制器描述
@@ -161,7 +170,7 @@ const canSubmit = computed(() => {
   }
 
   :deep(.el-upload-list) {
-    @apply grid grid-cols-3 gap-4;
+    @apply grid grid-cols-3 gap-3;
   }
 
   :deep(.el-dialog) {

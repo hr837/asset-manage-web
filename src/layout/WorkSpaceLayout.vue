@@ -34,7 +34,7 @@ export default defineComponent({
       <el-main class="layout-work-container-main">
         <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
           <transition name="fade-transform" mode="out-in">
-            <KeepAlive :max="5">
+            <KeepAlive include="VideoUploadView">
               <component :is="Component" :key="route.path" />
             </KeepAlive>
           </transition>

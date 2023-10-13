@@ -15,7 +15,10 @@ interface PropType {
 </script>
 
 <template>
-  <el-menu :default-active="route.path" class="component layout-work-menu" router :collapse="collapse">
+  <el-menu
+    :default-active="route.meta.menuPath || route.path" class="component layout-work-menu" router
+    :collapse="collapse"
+  >
     <el-menu-item index="/index">
       <icon-park-outline-cylinder />
       <template #title>
@@ -42,10 +45,11 @@ interface PropType {
   --el-menu-item-height: 40px;
 
   .el-menu-item {
-    :deep(.el-menu-tooltip__trigger){
+    :deep(.el-menu-tooltip__trigger) {
       justify-content: center;
     }
-    span{
+
+    span {
       padding-left: 5px;
     }
 

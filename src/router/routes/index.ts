@@ -50,17 +50,18 @@ const routesConfig: Array<RouteRecordRaw> = [
       {
         path: '/upload',
         name: 'video-upload',
-        component: () => import('@/views/video-upload/VideoUpload.vue'),
+        component: () => import('@/views/video-upload/VideoUploadView.vue'),
         meta: {
           title: '上传视频',
         },
       },
       {
-        path: '/play',
-        name: 'play-video',
-        component: () => import('@/views/asset-manage/AssetPlay.vue'),
+        path: '/detail',
+        name: 'asset-detail',
+        component: () => import('@/views/asset-detail/AssetDetailView.vue'),
         meta: {
-          title: '资产播放',
+          title: '资产详情',
+          menuPath: '/index',
         },
       },
     ],

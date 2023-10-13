@@ -62,7 +62,7 @@ function fetchData() {
 // 播放控制器，跳转播放页面
 function onPlayClick(path: string) {
   sessionStorage.setItem(SessionKey_Asset_PLAY_PATH, path)
-  router.push('/play')
+  router.push('/detail')
 }
 
 // 数据过滤器回调，发起请求刷新页面数据
@@ -126,6 +126,10 @@ watch(() => route.query, (query) => {
     fetchData()
   }
 })
+
+function onUploadClick() {
+  router.push('/upload')
+}
 </script>
 
 <template>
@@ -140,6 +144,9 @@ watch(() => route.query, (query) => {
     </DataForm>
     <div class="asset-manage-action">
       <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
+      <el-button type="primary" plain @click="onUploadClick">
+        上传视频
+      </el-button>
     </div>
     <div class="asset-manage-data-container">
       <el-empty v-if="!dataSet.length" />

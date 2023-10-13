@@ -39,7 +39,7 @@ const nameSetting = [
 
 <style lang="less" scoped>
 .upload-description {
-  @apply w-72 rounded-lg bg-violet-50 p-4 px-6;
+  @apply rounded-lg bg-violet-50 p-4 px-6;
 
 }
 
@@ -75,7 +75,7 @@ const nameSetting = [
   &-sample {
     @apply text-white relative rounded overflow-hidden;
 
-    &--img{
+    &--img {
       @apply w-full h-36 object-cover;
     }
 

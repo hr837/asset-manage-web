@@ -217,18 +217,14 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 
 <style lang="less" scoped>
 .video-container {
-
-  @apply bg-gray-50 relative rounded overflow-hidden;
+  @apply h-44 bg-gray-50 relative rounded overflow-hidden;
 
   .video-upload-succss {
     @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
   }
 
   .video-cover {
-    width: 270px;
-    height: 150px;
-    @apply bg-gray-50;
-    border-radius: 4px;
+    @apply bg-gray-50 h-full w-full rounded;
   }
 
   .video-mask {
