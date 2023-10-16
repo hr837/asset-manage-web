@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
+import { computed } from 'vue'
 import type { AssetTimeInfo } from '@/types/asset-info.type'
+import { TagColors } from '@/config/constant'
 
-defineProps<AssetTimeInfo>()
+const props = defineProps<AssetTimeInfo>()
 
 function formatTimeSpan(times?: string) {
   if (!times)
@@ -12,6 +14,10 @@ function formatTimeSpan(times?: string) {
     return ''
   return d.format('mm分ss秒')
 }
+
+const current = computed(() => TagColors[props.status])
+const textColor = computed(() => current.value[1])
+const bgColor = computed(() => current.value[0])
 </script>
 
 <template>
@@ -21,12 +27,12 @@ function formatTimeSpan(times?: string) {
       <span class="info-content">{{ uploadTime }}</span>
     </li>
     <li v-if="status === 2">
-      <span class="info-title"> 已排队时长：</span>
-      <span class="info-content">{{ formatTimeSpan(lineAlreadyWaitTime) }}</span>
+      <span class="info-title"> 预计排队耗时：</span>
+      <span class="info-content tag">{{ formatTimeSpan(lineAlreadyWaitTime) }}</span>
     </li>
     <li v-if="status === 3">
-      <span class="info-title">转换已耗时：</span>
-      <span class="info-content">{{ formatTimeSpan(convertAlreadyWaitTime) }}</span>
+      <span class="info-title">转换进度：</span>
+      <span class="info-content tag">{{ processStage }}</span>
     </li>
     <li v-if="status === 4">
       <span class="info-title">失败时间：</span>
@@ -49,6 +55,12 @@ function formatTimeSpan(times?: string) {
 
   .info-content {
     color: #C0C4CC;
+
+    &.tag {
+      @apply rounded px-2;
+      color: v-bind(textColor);
+      background-color: v-bind(bgColor);
+    }
   }
 }
 </style>

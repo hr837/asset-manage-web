@@ -7,13 +7,13 @@ defineProps<{
   data: AssetInfo[]
 }>()
 
-defineEmits<{ play: [path: string]; action: [command: AssetActionCommand, id: string] }>()
+defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: string] }>()
 </script>
 
 <template>
   <div class="component asset-data-list">
     <template v-for="item of data" :key="item.id">
-      <div class="asset-item">
+      <div class="asset-item" @click="$emit('detail', item.id)">
         <div class="asset-item-header">
           <div class="asset-item-name" :title="item.name">
             {{ item.name }}
@@ -21,7 +21,7 @@ defineEmits<{ play: [path: string]; action: [command: AssetActionCommand, id: st
           <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
         <div class="asset-item-center">
-          <VideoCover src="blob:http://localhost:8080/97af0213-dd57-4ea1-b46f-8a8251c9fcc3" />
+          <VideoCover disabled src="blob:http://localhost:8080/97af0213-dd57-4ea1-b46f-8a8251c9fcc3" />
           <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
         </div>
 
@@ -39,7 +39,7 @@ defineEmits<{ play: [path: string]; action: [command: AssetActionCommand, id: st
 
   .asset-item {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.25);
-    @apply overflow-hidden rounded select-none;
+    @apply overflow-hidden rounded;
 
     &-header {
       @apply flex items-center p-2;

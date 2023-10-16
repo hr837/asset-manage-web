@@ -1,39 +1,30 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { AssetStatusDict } from '@/config/constant'
+import { AssetStatusDict, TagColors } from '@/config/constant'
 
 const props = defineProps<{
   state: number
   reason?: string
 }>()
 
-// [背景，前景]
-const colors: Record<number, [string, string]> = {
-  1: ['#fff9e3', '#CB9F02'],
-  2: ['#DBF2FF', '#8ED6FF'],
-  3: ['#D6F8DD', '#77E28E'],
-  4: ['#ffecec', '#E55151'],
-  5: ['#e6ffe5', '#51AA32'],
-}
-
-const current = computed(() => colors[props.state])
+const current = computed(() => TagColors[props.state])
 const tagLabel = computed(() => AssetStatusDict.find(x => x.key === props.state)?.label ?? '--')
 </script>
 
 <template>
   <div class="component asset-state-tag" :style="{ backgroundColor: current[0], color: current[1] }">
     <div class="asset-state-tag-text" :title="reason">
-      {{ tagLabel }}  {{ reason }}
+      {{ tagLabel }} {{ reason }}
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
 .asset-state-tag {
-  @apply flex items-center rounded p-1 overflow-hidden;
+  @apply flex items-center p-1 rounded-tr rounded-br overflow-hidden;
 
   &-text {
-    @apply truncate text-sm block mx-2;
+    @apply truncate text-sm block mr-2;
   }
 }
 </style>

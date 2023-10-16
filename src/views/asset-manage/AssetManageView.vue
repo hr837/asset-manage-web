@@ -61,9 +61,11 @@ function fetchData() {
 }
 
 // 播放控制器，跳转播放页面
-function onPlayClick(path: string) {
-  sessionStorage.setItem(SessionKey_Asset_PLAY_PATH, path)
-  router.push('/detail')
+function onDetail(id: string) {
+  router.push({
+    name: 'asset-detail',
+    query: { id },
+  })
 }
 
 // 数据过滤器回调，发起请求刷新页面数据
@@ -152,7 +154,7 @@ function onUploadClick() {
       </div>
       <div class="asset-manage-data-container">
         <el-empty v-if="!dataSet.length" />
-        <AssetDataList v-else :data="dataSet" @play="onPlayClick" @action="onItemAction" />
+        <AssetDataList v-else :data="dataSet" @detail="onDetail" @action="onItemAction" />
       </div>
       <DataPagination :page="pageService" @page-change="fetchData" />
     </div>
@@ -160,9 +162,10 @@ function onUploadClick() {
 </template>
 
 <style lang="less" scoped>
-.asset-manage-view{
+.asset-manage-view {
   @apply p-0;
 }
+
 .page-content {
   width: 1150px;
   @apply mx-auto p-4 h-full flex flex-col;
