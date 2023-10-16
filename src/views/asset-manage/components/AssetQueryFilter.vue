@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { AssetStatusDict } from '../composable/constant'
+import { AssetStatusDict } from '@/config/constant'
 
 const props = defineProps<{ modelValue?: number }>()
 

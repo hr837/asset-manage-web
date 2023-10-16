@@ -3,9 +3,9 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
-import AssetDataList from './components/AssetDataList.vue'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
+import AssetDataList from './components/AssetDataList.vue'
 import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { PageService } from '@/http/extends/page.service'
@@ -13,7 +13,8 @@ import { downloadFile } from '@/utils/file.util'
 import type { AssetQueryInput } from '@/http/models/asset.model'
 import type { DateFormInstance } from '@/types/common-components.type'
 const assetService = new AssetManageService()
-const pageService = new PageService()
+const pageService = new PageService(1, 12)
+pageService.pageSizeOpts = [12, 24]
 const dataSet = ref<AssetInfo[]>([])
 const router = useRouter()
 const formRef = ref<DateFormInstance>()
@@ -134,38 +135,56 @@ function onUploadClick() {
 
 <template>
   <div class="page asset-manage-view">
-    <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="refreshData" @reset="refreshData">
-      <el-form-item prop="name">
-        <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
-      </el-form-item>
-      <el-form-item prop="date">
-        <DateRange v-model="queryModel.date" :disabled-date="disabledDate" />
-      </el-form-item>
-    </DataForm>
-    <div class="asset-manage-action">
-      <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
-      <el-button type="primary" plain @click="onUploadClick">
-        上传视频
-      </el-button>
+    <div class="page-content">
+      <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="refreshData" @reset="refreshData">
+        <el-form-item prop="name">
+          <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
+        </el-form-item>
+        <el-form-item prop="date">
+          <DateRange v-model="queryModel.date" :disabled-date="disabledDate" />
+        </el-form-item>
+      </DataForm>
+      <div class="asset-manage-action">
+        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
+        <el-button type="primary" plain @click="onUploadClick">
+          上传视频
+        </el-button>
+      </div>
+      <div class="asset-manage-data-container">
+        <el-empty v-if="!dataSet.length" />
+        <AssetDataList v-else :data="dataSet" @play="onPlayClick" @action="onItemAction" />
+      </div>
+      <DataPagination :page="pageService" @page-change="fetchData" />
     </div>
-    <div class="asset-manage-data-container">
-      <el-empty v-if="!dataSet.length" />
-      <AssetDataList v-else :data="dataSet" @play="onPlayClick" @action="onItemAction" />
-    </div>
-    <DataPagination :page="pageService" @page-change="fetchData" />
   </div>
 </template>
 
 <style lang="less" scoped>
-.asset-manage-view {
-  @apply h-full flex flex-col;
-
-  .asset-manage-action {
-    @apply flex justify-between items-center mb-4;
-  }
-
-  .asset-manage-data-container {
-    @apply flex-1 overflow-auto;
-  }
+.asset-manage-view{
+  @apply p-0;
 }
+.page-content {
+  width: 1150px;
+  @apply mx-auto p-4 h-full flex flex-col;
+}
+
+.asset-manage-action {
+  @apply flex justify-between items-center mb-4;
+}
+
+.asset-manage-data-container {
+  @apply flex-1;
+}
+
+// .asset-manage-view {
+//   @apply h-full flex flex-col;
+
+//   .asset-manage-action {
+//     @apply flex justify-between items-center mb-4;
+//   }
+
+//   .asset-manage-data-container {
+//     @apply flex-1 overflow-auto;
+//   }
+// }
 </style>

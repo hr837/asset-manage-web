@@ -153,14 +153,20 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
 <style lang="less" scoped>
 .video-upload {
+  @apply p-0;
+
   .page-content {
-    width: 1200px;
-    @apply mx-auto grid gap-4;
-    grid-template: 1fr auto / 880px 1fr;
+    width: 1150px;
+    @apply p-4 mx-auto grid;
+    grid-template: 1fr auto / 830px 1fr;
+  }
+
+  &-description {
+    margin-left: 20px;
   }
 
   &-action {
-    @apply col-span-2 text-right pt-3 border-t;
+    @apply col-span-2 text-right mt-3 pt-3 border-t;
   }
 
   // 上传控制器描述
@@ -170,7 +176,14 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
   }
 
   :deep(.el-upload-list) {
-    @apply grid grid-cols-3 gap-3;
+    column-gap: 10px;
+    row-gap: 14px;
+    @apply grid grid-cols-3;
+
+    &__item {
+      width: 270px;
+      overflow: hidden;
+    }
   }
 
   :deep(.el-dialog) {

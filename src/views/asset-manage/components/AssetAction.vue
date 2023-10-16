@@ -11,7 +11,7 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
 
 <template>
   <el-dropdown class="component asset-action" trigger="click" popper-class="asset-action-popper" @command="(e:AssetActionCommand) => $emit('action', e)">
-    <icon-park-outline-more class="text-xl" />
+    <icon-park-outline-more class="text-xl text-gray-400" />
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="download">

@@ -164,6 +164,7 @@ defineExpose({
       .el-form-item {
         grid-column: span 1 / span 1;
         margin-left: unset;
+        margin-bottom: 12px;
 
         .el-form-item__content>*{
           width: 100%;

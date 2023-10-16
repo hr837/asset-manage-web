@@ -44,4 +44,8 @@ export interface AssetQueryOutItem {
   status: number
   /** 上传时间 */
   uploadTime?: string
+  /** 当前转换进度 */
+  processStage?: string
+  /** 失败原因 */
+  message?: string
 }

@@ -1,18 +1,6 @@
 import SparkMD5 from 'spark-md5'
 import { fileSlice } from '@/utils/file.util'
 
-/** 计算视频长度 */
-export function getDuration(duration: number) {
-  if (duration < 60) {
-    return `${Math.round(duration)}s`
-  }
-  else {
-    const m = Math.round(duration / 60)
-    const seconds = duration - m * 60
-    const s = Math.round(seconds)
-    return `${m}min${s}s`
-  }
-}
 // 计算文件大小
 export function getVideoSize(size: number) {
   const kb = Math.round(size / 1024)
