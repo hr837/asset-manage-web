@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { type FilePart, getDuration, getVideoSize } from '../composable/file.help'
-import { getSliceFileMd5 } from '@/utils/file.util'
+import { type FilePart, getDuration, getSliceFileMd5, getVideoSize } from '../composable/file.help'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import { FileChunkSize } from '@/views/asset-manage/composable/constant'
 const props = defineProps<{

@@ -1,4 +1,5 @@
 import SparkMD5 from 'spark-md5'
+import { fileSlice } from '@/utils/file.util'
 
 /** 计算视频长度 */
 export function getDuration(duration: number) {
@@ -34,32 +35,6 @@ export interface FilePart {
   size: number
   /** 切片二进制数据 */
   part: Blob
-}
-
-/**
- * 将文件切片
- * @param file 要切片的文件
- * @param chunkSize 切片大小，默认：1048576字节，1MB
- */
-export function fileSlice(file: Blob, chunkSize = 1048576) {
-  // 切片起始位置
-  let start = 0
-  let index = 0
-  const result: FilePart[] = []
-  while (start < file.size) {
-    // 取最小的截断数值
-    const end = Math.min(start + chunkSize, file.size)
-    // 文件截断部分
-    const part = file.slice(start, end)
-    result.push({
-      index,
-      size: end - start,
-      part,
-    })
-    start = end
-    index++
-  }
-  return result
 }
 
 /**
