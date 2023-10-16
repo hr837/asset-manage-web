@@ -62,7 +62,8 @@ function fetchData() {
 // 播放控制器，跳转播放页面
 function onPlayClick(path: string) {
   sessionStorage.setItem(SessionKey_Asset_PLAY_PATH, path)
-  router.push('/detail')
+  // router.push('/detail')
+  router.push('/play')
 }
 
 // 数据过滤器回调，发起请求刷新页面数据
