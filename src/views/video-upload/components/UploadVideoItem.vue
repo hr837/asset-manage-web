@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { type FilePart, getDuration, getVideoSize } from '../composable/file.help'
 import { getSliceFileMd5 } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
@@ -101,8 +101,8 @@ async function upload() {
 
     // 分片数据设置
     partList.value = fileParts.map(item => Object.assign(item, { uploaded: false }))
-    // 分片上传
-    calcPrecent.value = 0
+    // 分片上传,进度设置为1，否则不显示描述文字
+    calcPrecent.value = 1
     partUpload()
   }
   catch (error) {
@@ -141,7 +141,7 @@ function partUpload() {
 function emitSuccess() {
   uploaded.value = true
   uploadStatus.value = 'success'
-  emit('success', videoInfo.fileId)
+  nextTick(() => emit('success', videoInfo.fileId))
 }
 
 /** 重新尝试上传 */
@@ -162,10 +162,10 @@ function progressTextFormat(precent: number) {
     case 'success':
       return '上传成功'
     case 'calc':
-      statusName = '切片计算中'
+      statusName = '视频切片中'
       break
     case 'part':
-      statusName = '分片上传中'
+      statusName = '视频处理中'
       break
     default:
       break
@@ -203,9 +203,12 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     </div>
     <div class="video-info">
       <div class="video-info-inline">
-        <div class="video-info-name" :title="raw.name">
-          {{ raw.name }}
-        </div>
+        <el-tooltip effect="dark" :content="raw.name" placement="bottom" popper-class="file-name-popper">
+          <div class="video-info-name">
+            {{ raw.name }}
+          </div>
+        </el-tooltip>
+
         <icon-park-outline-delete v-if="showDeleteIcon" class="video-action-delete " @click="$emit('remove')" />
       </div>
       <div class="video-info-size">
@@ -217,7 +220,9 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 
 <style lang="less" scoped>
 .video-container {
-  @apply h-44 bg-gray-50 relative rounded overflow-hidden;
+  width: 269px;
+  height: 151px;
+  @apply bg-gray-50 relative rounded overflow-hidden;
 
   .video-upload-succss {
     @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
@@ -270,7 +275,7 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     @apply flex justify-between items-center;
 
     .video-action-delete {
-      @apply cursor-pointer text-lg text-red-300 hover:text-red-500;
+      @apply cursor-pointer text-lg text-red-500;
     }
   }
 

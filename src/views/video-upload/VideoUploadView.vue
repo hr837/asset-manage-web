@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { nextTick } from 'process'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
+import { useRouter } from 'vue-router'
 import UploadDescription from './components/UploadDescription.vue'
 import UploadVideoItem from './components/UploadVideoItem.vue'
 
@@ -40,11 +42,23 @@ interface FileListItem {
 }
 const fileList = ref<FileListItem[]>([])
 
+const router = useRouter()
+
 // 单个文件上传成功
 function onFileuploadSuccess(file: UploadFile) {
   ElMessage.success(`${file.name}上传成功`)
   const fileInfo = fileList.value.find(x => x.uid === file.uid)
   fileInfo!.uploaded = true
+  nextTick(() => {
+    const index = fileList.value.indexOf(fileInfo!)
+    fileList.value.splice(index, 1)
+    uploadRef.value!.handleRemove(file)
+    if (fileList.value.length === 0) {
+      // 全部上传完毕 跳转到列表页面
+      router.push('/index')
+      uploadStart.value = false
+    }
+  })
 }
 
 /** 选择的文件发生改变 */
@@ -154,9 +168,9 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 <style lang="less" scoped>
 .video-upload {
   .page-content {
-    width: 1200px;
-    @apply mx-auto grid gap-4;
-    grid-template: 1fr auto / 880px 1fr;
+    width: 1150px;
+    @apply mx-auto grid gap-4 justify-center;
+    grid-template: 1fr auto / 827px 272px;
   }
 
   &-action {
@@ -171,6 +185,10 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
   :deep(.el-upload-list) {
     @apply grid grid-cols-3 gap-3;
+
+    &__item {
+      width: 269px;
+    }
   }
 
   :deep(.el-dialog) {

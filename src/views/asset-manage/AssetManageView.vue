@@ -145,7 +145,7 @@ function onUploadClick() {
     </DataForm>
     <div class="asset-manage-action">
       <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
-      <el-button type="primary" plain @click="onUploadClick">
+      <el-button type="primary" @click="onUploadClick">
         上传视频
       </el-button>
     </div>

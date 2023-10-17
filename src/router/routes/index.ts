@@ -70,6 +70,7 @@ const routesConfig: Array<RouteRecordRaw> = [
         component: () => import('@/views/asset-manage/AssetPlay.vue'),
         meta: {
           title: '资产播放',
+          menuPath: '/index',
         },
       },
     ],
