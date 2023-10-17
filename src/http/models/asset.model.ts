@@ -35,9 +35,9 @@ export interface AssetQueryOutItem {
   /** 排队总用时 */
   lineTotalTime?: string
   /** 文件名 */
-  name?: string
+  name: string
   /** 源文件地址 */
-  sourceFileUrl?: string
+  sourceFileUrl: string
   /**
    * 资产状态,传数字（1.仅上传-2.排队中-3.转换中-4.转换失败-5.转换完成）
   */
@@ -50,4 +50,6 @@ export interface AssetQueryOutItem {
   message?: string
   /** 预估排队时长 */
   predictLineTime?: string
+  size: number
+  duration: number
 }

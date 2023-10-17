@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AssetProgress from './components/AssetProgress.vue'
 import AssetDetailTag from './components/AssetDetailTag.vue'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import type { AssetQueryOutItem } from '@/http/models/asset.model'
 import { AssetVideoPrefix } from '@/config/app.config'
 const route = useRoute()
+const router = useRouter()
 
 const service = new AssetManageService()
 
@@ -24,6 +25,8 @@ const assetData = reactive<AssetQueryOutItem>({
   convertAlreadyWaitTime: '',
   convertTime: '',
   message: '',
+  size: 0,
+  duration: 0,
 })
 
 let id = ''
@@ -41,37 +44,35 @@ const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
   <div class="page asset-detail">
     <div class="page-action ">
       <AssetDetailTag :status="assetData.status" />
-      <el-button type="primary">
+      <el-button type="primary" @click="() => router.push('/index')">
         返回
       </el-button>
     </div>
-    <div class="detail-content">
+    <div class="page-content">
       <AssetProgress v-bind="assetData" class="content-left" />
       <div class="content-right">
-        <div class="video-detail">
-          <div class="video-name">
-            {{ assetData.name }}
-          </div>
-          <div class="file-info">
-            <div class="video-druation">
-              视频时长：14s
-            </div>
-            <div class="video-size">
-              视频大小：2.09MB
-            </div>
-          </div>
+        <div class="info-name">
+          {{ assetData.name }}
         </div>
-        <div class="video-aciton">
-          <el-button>下载MP4文件</el-button>
-          <el-button>下载FBX文件</el-button>
-          <el-button>转换文件</el-button>
-          <el-button>删除文件</el-button>
+        <div class="info-extra">
+          <div class="file-info">
+            <span> 视频时长：{{ assetData.duration }}</span>
+            <span> 视频大小：{{ assetData.size }}</span>
+          </div>
+          <div class="info-aciton">
+            <el-button>下载MP4文件</el-button>
+            <el-button>下载FBX文件</el-button>
+            <el-button>转换文件</el-button>
+            <el-button>删除文件</el-button>
+          </div>
         </div>
 
-        <video
-          class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
-          disablePictureInPicture
-        />
+        <div class="video-wrap">
+          <video
+            class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
+            disablePictureInPicture
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -79,39 +80,41 @@ const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
 
 <style lang="less" scoped>
 .asset-detail {
-  @apply p-0 flex flex-col;
+  min-width: 1150px;
+  @apply flex flex-col;
 }
 
 .page-action {
-  @apply py-2 pr-4 border-b flex justify-between items-center;
+  @apply col-span-2 py-2 pr-4 border-b flex justify-between items-center;
 }
 
-.detail-content {
-  @apply flex-1 flex;
+.page-content {
+  @apply flex;
+}
 
-  .content-left {
-    @apply w-72;
+.content-right {
+  background-color: #EFEFEF;
+  @apply flex-1 p-6 pb-0 flex flex-col;
+
+  .info-name {
+    @apply text-2xl text-gray-700 font-semibold;
   }
 
-  .content-right {
-    background-color: #FAFAFA;
-    @apply flex-1 p-6;
-
-    .video-name {
-      @apply text-2xl text-gray-700 font-semibold;
-    }
-
-    .file-info {
-      @apply flex gap-8 text-sm text-gray-500 my-4;
-    }
-
-    .video-aciton {
-      @apply text-right my-5;
-    }
-
-    .video-player {
-      @apply w-full;
-    }
+  .info-extra {
+    @apply my-4 flex justify-between;
   }
+
+  .file-info {
+    @apply flex gap-8 text-sm text-gray-500;
+  }
+
+  .info-aciton {
+    @apply text-right;
+  }
+
+  .video-player {
+    max-height: 100%;
+  }
+
 }
 </style>
