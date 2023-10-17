@@ -3,6 +3,8 @@ import AssetAction from './AssetAction.vue'
 import AssetTimeInfo from './AssetTimeInfo.vue'
 import AssetStateTag from './AssetStateTag.vue'
 import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
+
+import { getFilePath } from '@/utils/file.util'
 defineProps<{
   data: AssetInfo[]
 }>()
@@ -13,15 +15,15 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
 <template>
   <div class="component asset-data-list">
     <template v-for="item of data" :key="item.id">
-      <div class="asset-item" @click="$emit('detail', item.id)">
+      <div class="asset-item">
         <div class="asset-item-header">
           <div class="asset-item-name" :title="item.name">
             {{ item.name }}
           </div>
           <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
-        <div class="asset-item-center">
-          <VideoCover disabled src="blob:http://localhost:8080/97af0213-dd57-4ea1-b46f-8a8251c9fcc3" />
+        <div class="asset-item-center" @click="$emit('detail', item.id)">
+          <VideoCover disabled :src="getFilePath(item.sourceFileUrl!, 'video')" />
           <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
         </div>
 
@@ -46,7 +48,7 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
     }
 
     &-center {
-      @apply relative h-36 bg-gray-100;
+      @apply relative h-36 overflow-hidden bg-gray-100;
     }
 
     &-name {

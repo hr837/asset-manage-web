@@ -63,4 +63,19 @@ export class AssetManageService {
       requestPlugins,
     )
   }
+
+  /** 获取资产信息 */
+  getAssetInfo(assetId: string, requestPlugins: RequestPlugin[] = []): Promise<AssetQueryOutItem> {
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/file/query',
+        method: RequestMethod.Post,
+        paramsBody: {
+          id: assetId,
+        },
+      },
+      requestPlugins,
+    )
+  }
 }

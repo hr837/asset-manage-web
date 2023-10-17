@@ -66,7 +66,7 @@ export default defineConfig({
       },
       '/asset': { // 资源代理
         target: 'http://118.184.171.75:8300',
-        pathRewrite: { '^/asset': '' },
+        // pathRewrite: { '^/asset': '' },
       },
       '/socket': { // SOCKET 代理
         target: 'http://118.184.171.75:8300',

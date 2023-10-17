@@ -13,4 +13,4 @@ export interface AssetStateItem {
 }
 
 /** 资产时间节点信息 */
-export type AssetTimeInfo = Pick<AssetInfo, 'status' | 'convertAlreadyWaitTime' | 'convertTime' | 'convertTotalTime' | 'lineAlreadyWaitTime' | 'lineTotalTime' | 'uploadTime' | 'processStage'>
+export type AssetTimeInfo = Pick<AssetInfo, 'status' | 'convertAlreadyWaitTime' | 'convertTime' | 'convertTotalTime' | 'lineAlreadyWaitTime' | 'lineTotalTime' | 'uploadTime' | 'processStage' | 'predictLineTime'>

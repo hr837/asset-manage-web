@@ -48,4 +48,6 @@ export interface AssetQueryOutItem {
   processStage?: string
   /** 失败原因 */
   message?: string
+  /** 预估排队时长 */
+  predictLineTime?: string
 }

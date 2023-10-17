@@ -50,7 +50,7 @@ function getDuration(duration: number) {
 <template>
   <div class="component video-cover" :class="{ fail: showError }">
     <template v-if="!showError">
-      <video class="video-player" :src="src" @loadeddata="onLoaded" @error="onLoadError" />
+      <video class="video-player" preload="metadata" :src="src" @loadeddata="onLoaded" @error="onLoadError" />
       <div class="video-cover-mask">
         <icon-park-solid-play v-if="!disabled" class="video-play-icon" @click="$emit('play')" />
         <div class="video-info">
@@ -65,7 +65,7 @@ function getDuration(duration: number) {
 
 <style lang="less" scoped>
 .video-cover {
-  @apply relative h-full w-full bg-gray-50;
+  @apply relative h-full w-full bg-gray-50 flex justify-center items-center;
 
   &.fail {
     background: url('/public/images/sorry.jpg') no-repeat center;

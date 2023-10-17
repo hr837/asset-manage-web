@@ -23,3 +23,8 @@ export interface AppConfig {
   /** 路由是否忽略鉴权 */
   ignoreAuth?: boolean
 }
+
+/** 视频资源所在服务器目录 */
+export const AssetVideoPrefix = '/asset/video/'
+/** FBX模型资源所在服务器目录 */
+export const AssetFBXPrefix = '/assset/fbx/'

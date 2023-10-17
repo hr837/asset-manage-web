@@ -1,19 +1,9 @@
 <script lang="ts" setup>
-import dayjs from 'dayjs'
 import { computed } from 'vue'
 import type { AssetTimeInfo } from '@/types/asset-info.type'
 import { TagColors } from '@/config/constant'
-
+import { formatTimeSpan } from '@/utils/date.util'
 const props = defineProps<AssetTimeInfo>()
-
-function formatTimeSpan(times?: string) {
-  if (!times)
-    return ''
-  const d = dayjs(Number.parseInt(times))
-  if (!d.isValid())
-    return ''
-  return d.format('mm分ss秒')
-}
 
 const current = computed(() => TagColors[props.status])
 const textColor = computed(() => current.value[1])

@@ -52,3 +52,20 @@ export function downloadFile(path: string, fileName: string, preFix?: '/video' |
   link.download = fileName
   link.click()
 }
+
+const AssetPrefix = '/asset/'
+type FileType = 'video' | 'fbx'
+/**
+ * 获取资源文件在服务器的位置
+ * @param relativePath 资源相对路径
+ * @param type  资源类型
+ * @returns
+ */
+export function getFilePath(relativePath: string, type: FileType) {
+  if (relativePath.startsWith(AssetPrefix))
+    return relativePath
+  const arr = [AssetPrefix, type, relativePath]
+  if (!/^\//.test(relativePath))
+    arr.splice(2, 0, '/')
+  return arr.join('')
+}
