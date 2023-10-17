@@ -102,8 +102,7 @@ function checkFileExceed() {
 
 const canSubmit = computed(() => {
   const hasFile = fileList.value.length > 0
-  const ready = fileList.value.every(x => !x.uploaded)
-  return hasFile && ready
+  return hasFile && !uploadStart.value
 })
 
 function onVideoClick(e: Event) {
