@@ -106,6 +106,15 @@ const canSubmit = computed(() => {
   return hasFile && ready
 })
 
+function onVideoClick(e: Event) {
+  const videoEl = e.target as HTMLVideoElement
+  if (videoEl.paused)
+    videoEl.play()
+
+  else
+    videoEl.pause()
+}
+
 const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.value)
 </script>
 
@@ -153,13 +162,11 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
     </div>
 
     <!-- video player -->
-    <el-dialog
-      v-model="playInfo.show" :title="playInfo.title" :close-on-click-modal="false"
-      :close-on-press-escape="false" @closed="onPlayerClose"
-    >
+    <el-dialog v-model="playInfo.show" :title="playInfo.title" @closed="onPlayerClose">
       <video
         :src="playInfo.src" class="video-player" autoplay controls
         controlslist="nodownload noremoteplayback nofullscreen noplaybackrate " disablepictureinpicture
+        @click="onVideoClick"
       />
     </el-dialog>
   </div>

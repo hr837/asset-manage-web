@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { type FilePart, getDuration, getVideoSize } from '../composable/file.help'
 import { getSliceFileMd5 } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
@@ -101,8 +101,8 @@ async function upload() {
 
     // 分片数据设置
     partList.value = fileParts.map(item => Object.assign(item, { uploaded: false }))
-    // 分片上传,进度设置为1，否则不显示描述文字
-    calcPrecent.value = 1
+    // 分片上传
+    calcPrecent.value = 0
     partUpload()
   }
   catch (error) {
@@ -141,7 +141,7 @@ function partUpload() {
 function emitSuccess() {
   uploaded.value = true
   uploadStatus.value = 'success'
-  nextTick(() => emit('success', videoInfo.fileId))
+  emit('success', videoInfo.fileId)
 }
 
 /** 重新尝试上传 */
@@ -170,7 +170,7 @@ function progressTextFormat(precent: number) {
     default:
       break
   }
-  return statusName + precentage
+  return precent > 0 ? statusName + precentage : statusName
 }
 
 const showPlayIcon = computed(() => uploadStatus.value === 'await' || uploadStatus.value === 'success')
@@ -193,8 +193,8 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
       <icon-park-solid-play v-if="showPlayIcon" class="video-aciton-play" @click="$emit('play', videoInfo.src)" />
       <div v-else class="video-mask">
         <el-progress
-          v-if="calcPrecent > 0" class="video-upload-progress" :percentage="calcPrecent"
-          :class="showRefresh ? 'error' : ''" :format="progressTextFormat"
+          class="video-upload-progress" :percentage="calcPrecent" :class="showRefresh ? 'error' : ''"
+          :format="progressTextFormat"
         />
         <el-button v-if="showRefresh" type="primary" class="video-action-continue" @click="onRetryClick">
           重新上传
