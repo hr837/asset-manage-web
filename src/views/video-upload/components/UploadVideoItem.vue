@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { type FilePart, getSliceFileMd5, getVideoSize } from '../composable/file.help'
+import { ElMessage } from 'element-plus'
+import { type FilePart, getDuration, getSliceFileMd5, getVideoSize } from '../composable/file.help'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import { FileChunkSize } from '@/views/asset-manage/composable/constant'
 const props = defineProps<{
@@ -35,7 +36,6 @@ const videoInfo = reactive({
 
 onMounted(() => {
   videoInfo.src = URL.createObjectURL(props.raw)
-  videoInfo.size = getVideoSize(props.raw.size)
 })
 
 // 组件卸载清除文件URL资源
@@ -43,6 +43,13 @@ onUnmounted(() => {
   if (videoInfo.src)
     URL.revokeObjectURL(videoInfo.src)
 })
+
+function onVideoLoad(e: Event) {
+  const el = e.target as HTMLVideoElement
+  videoInfo.duration = el.duration
+  videoInfo.durationStr = getDuration(el.duration)
+  videoInfo.size = getVideoSize(props.raw.size)
+}
 
 function onLoadError() {
   ElMessage.error('文件不能播放，请重新选择')
@@ -77,7 +84,7 @@ async function upload() {
   try {
     // 对文件切片并计算MD5
     uploadStatus.value = 'calc'
-    const { md5, fileParts } = await getSliceFileMd5(props.raw, FileChunkSize, precent => calcPrecent.value = precent)
+    const { md5, fileParts } = await getSliceFileMd5(props.raw, FileChunkSize, (precent: number) => calcPrecent.value = precent)
     // 开始预上传
     const res = await uploadService.preUpload({
       originFileName: props.raw.name,
@@ -109,7 +116,6 @@ function partUpload() {
   uploadStatus.value = 'part'
   // 每份上传进度百分比
   const partPrecent = partList.value.length ** -1 * 100
-
   // 对未上传的分片进行过滤，并返回分片上传结果
   const uploadTask = partList.value.filter(x => !x.uploaded).map((item) => {
     return uploadService.partUpload({
@@ -176,16 +182,16 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 <template>
   <div class="component upload-video-item">
     <div class="video-container">
-      <VideoCover
-        :disabled="!showPlayIcon" :src="videoInfo.src" @duration="val => videoInfo.duration = val"
-        @error="onLoadError" @play="$emit('play', videoInfo.src)"
-      />
-      <!-- successful icon -->
+      <video class="video-cover" :src="videoInfo.src" @loadeddata="onVideoLoad" @error="onLoadError" />
       <div v-if="showSuccessIcon" class="video-upload-succss">
         <icon-park-outline-check class="-rotate-45" />
       </div>
-      <!-- working -->
-      <div v-if="!showPlayIcon" class="video-mask">
+      <div class="video-info-duration">
+        {{ videoInfo.durationStr }}
+      </div>
+      <!-- 开始上传，不允许播放 -->
+      <icon-park-solid-play v-if="showPlayIcon" class="video-aciton-play" @click="$emit('play', videoInfo.src)" />
+      <div v-else class="video-mask">
         <el-progress
           class="video-upload-progress" :percentage="calcPrecent" :class="showRefresh ? 'error' : ''"
           :format="progressTextFormat"
@@ -195,7 +201,6 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
         </el-button>
       </div>
     </div>
-    <!-- bottom info -->
     <div class="video-info">
       <div class="video-info-inline">
         <el-tooltip effect="dark" :content="raw.name" placement="bottom" popper-class="file-name-popper">
@@ -223,8 +228,16 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
   }
 
+  .video-cover {
+    @apply bg-gray-50 h-full w-full rounded;
+  }
+
   .video-mask {
     @apply absolute top-0 left-0 right-0 bottom-0 bg-black/50;
+  }
+
+  .video-aciton-play {
+    @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-gray-300 hover:text-gray-500;
   }
 
   .video-action-continue {
@@ -247,6 +260,10 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     :deep(.el-progress__text) {
       @apply w-full text-center -top-6 text-white;
     }
+  }
+
+  .video-info-duration {
+    @apply absolute bottom-0 right-0 w-full p-2 pt-4 text-right text-white bg-gradient-to-t from-gray-800/40;
   }
 
 }

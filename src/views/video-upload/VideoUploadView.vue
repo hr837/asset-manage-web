@@ -173,8 +173,6 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
 <style lang="less" scoped>
 .video-upload {
-  @apply p-0;
-
   .page-content {
     width: 1150px;
     @apply mx-auto grid gap-4 justify-center;
@@ -182,7 +180,7 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
   }
 
   &-action {
-    @apply col-span-2 text-right mt-3 pt-3 border-t;
+    @apply col-span-2 text-right pt-3 border-t;
   }
 
   // 上传控制器描述
