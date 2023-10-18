@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import type { AssetInfo } from '@/types/asset-info.type'
-import { formatTimeSpan } from '@/utils/date.util'
+import { getDuration } from '@/utils/date.util'
 
 const props = defineProps<AssetInfo>()
 
@@ -12,6 +12,8 @@ const currentStep = computed(() => {
     return 5
   return props.status
 })
+
+const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTime))
 </script>
 
 <template>
@@ -25,19 +27,18 @@ const currentStep = computed(() => {
       <el-step title="排队中">
         <template #description>
           <div>预计耗时：{{ predictLineTime }}</div>
-          <div>实际耗时：{{ formatTimeSpan(lineAlreadyWaitTime) }}</div>
+          <div>实际耗时：{{ getDuration(lineAlreadyWaitTime) }}</div>
         </template>
       </el-step>
       <el-step title="排队完成">
         <template #description>
-          <div>3333</div>
+          <div>{{ convertStartTime }}</div>
         </template>
       </el-step>
       <el-step title="转换中">
         <template #description>
           <div>预计耗时：{{ predictLineTime }}</div>
-          <div>实际耗时：{{ formatTimeSpan(lineAlreadyWaitTime) }}</div>
-          <div>转换进度：{{ processStage }}</div>
+          <div>实际耗时：{{ convertElapsedTime }}</div>
         </template>
       </el-step>
       <el-step v-if="props.status === 4" title="转换失败" status="error">
@@ -58,6 +59,7 @@ const currentStep = computed(() => {
 <style lang="less" scoped>
 .asset-progress {
   min-height: 600px;
+  width: 277px;
   @apply p-6;
 }
 

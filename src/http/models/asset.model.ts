@@ -52,4 +52,6 @@ export interface AssetQueryOutItem {
   predictLineTime?: string
   size: number
   duration: number
+  /** 转换开始时间 */
+  convertStartTime?: string
 }

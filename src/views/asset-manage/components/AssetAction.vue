@@ -18,15 +18,15 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
           <icon-park-outline-download class="mr-1" />
           下载MP4文件
         </el-dropdown-item>
-        <el-dropdown-item :disabled="!canDownload" command="downloadFbx">
+        <el-dropdown-item :disabled="!canDownload" divided command="downloadFbx">
           <icon-park-outline-database-download class="mr-1" />
           下载FBX文件
         </el-dropdown-item>
-        <el-dropdown-item :disabled="!canTransform" command="transfrom">
+        <el-dropdown-item :disabled="!canTransform" divided command="transfrom">
           <icon-park-outline-effects class="mr-1" />
           转换文件
         </el-dropdown-item>
-        <el-dropdown-item command="delete">
+        <el-dropdown-item divided command="delete">
           <icon-park-outline-delete class="mr-1" />
           删除文件
         </el-dropdown-item>
@@ -34,3 +34,11 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
     </template>
   </el-dropdown>
 </template>
+
+<style lang="less">
+.asset-action-popper{
+  .el-dropdown-menu__item--divided{
+    @apply m-0;
+  }
+}
+</style>

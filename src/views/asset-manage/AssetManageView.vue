@@ -86,10 +86,10 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
       })).catch(() => { })
       break
     case 'download':
-      downloadFile(item.sourceFileUrl!, `${item.name ?? '资源文件'}.mp4`, '/video')
+      downloadFile(item.sourceFileUrl!, `${item.name ?? '资源文件'}.mp4`, 'video')
       break
     case 'downloadFbx':
-      downloadFile(item.fbxFileUrl!, `${item.name ?? '资源文件-FBX'}.fbx`, '/fbx')
+      downloadFile(item.fbxFileUrl!, `${item.name ?? '资源文件-FBX'}.fbx`, 'fbx')
       break
     case 'transfrom':
       task = assetService.convertToFbx(id).then(() => {

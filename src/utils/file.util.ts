@@ -1,4 +1,6 @@
 /** 切片信息 */
+import SparkMD5 from 'spark-md5'
+
 export interface FilePart {
   /** 切片索引 */
   index: number
@@ -34,27 +36,23 @@ export function fileSlice(file: Blob, chunkSize = 1048576) {
   return result
 }
 
+const AssetPrefix = '/asset/'
+type FileType = 'video' | 'fbx'
+
 /**
  * 下载资源文件
  * @param path 文件服务器路径
  * @param fileName 文件名称
- * @param preFix 文件前缀 /video、/fbx
+ * @param type 文件类型 video、fbx
  */
-export function downloadFile(path: string, fileName: string, preFix?: '/video' | '/fbx') {
-  const fixedPath = /^\//.test(path) ? path : `/${path}`
-  const values = [fixedPath]
-  if (preFix)
-    values.unshift(preFix)
-  values.unshift('/asset')
-  const url = values.join('')
+export function downloadFile(path: string, fileName: string, type: FileType) {
+  const url = getFilePath(path, type)
   const link = document.createElement('a')
   link.href = url
   link.download = fileName
   link.click()
 }
 
-const AssetPrefix = '/asset/'
-type FileType = 'video' | 'fbx'
 /**
  * 获取资源文件在服务器的位置
  * @param relativePath 资源相对路径
@@ -68,4 +66,72 @@ export function getFilePath(relativePath: string, type: FileType) {
   if (!/^\//.test(relativePath))
     arr.splice(2, 0, '/')
   return arr.join('')
+}
+
+/** 计算视频长度 */
+export function getDuration(duration: number) {
+  if (duration < 60) {
+    return `${Math.round(duration)}s`
+  }
+  else {
+    const m = Math.round(duration / 60)
+    const seconds = duration - m * 60
+    const s = Math.ceil(seconds)
+    return `${m}min${s}s`
+  }
+}
+
+// 计算文件大小
+export function getVideoSize(size: number) {
+  const kb = Math.round(size / 1024)
+  if (kb < 1024) {
+    return `${kb}KB`
+  }
+  else {
+    const mb = Math.round(size / 1024 / 1024)
+    return `${mb}MB`
+  }
+}
+
+const MIN_CHUNKSIZE = 1024 * 1024
+
+/**
+ *
+ * @param file 要分片的文件
+ * @param chunkSize 切片大小
+ * @param progressChange 切片进度回调
+ * @returns
+ */
+export function getSliceFileMd5(file: Blob, chunkSize = MIN_CHUNKSIZE, progressChange: (precent: number) => void) {
+  return new Promise<{ md5: string; fileParts: FilePart[] }>((resolve, reject) => {
+    if (chunkSize < MIN_CHUNKSIZE)
+      reject(new Error('切片尺寸太小，需调整参数'))
+    const fileReader = new FileReader()
+    // 使用buffer 缓存叠加读取
+    const sparkBuffer = new SparkMD5.ArrayBuffer()
+    // 分片的文件
+    const fileParts = fileSlice(file, chunkSize)
+
+    let partIndex = 0
+
+    fileReader.onload = (e) => {
+      sparkBuffer.append(e.target?.result as ArrayBuffer)
+      partIndex++
+      // 进度
+      const precent = partIndex / fileParts.length
+      progressChange(precent * 100)
+      if (precent < 1) {
+        fileReader.readAsArrayBuffer(fileParts[partIndex].part)
+      }
+      else {
+        const md5 = sparkBuffer.end()
+        resolve({
+          md5,
+          fileParts,
+        })
+      }
+    }
+    fileReader.onerror = () => reject(new Error('读取文件流失败'))
+    fileReader.readAsArrayBuffer(fileParts[partIndex].part)
+  })
 }
