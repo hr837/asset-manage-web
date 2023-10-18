@@ -91,13 +91,18 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 <template>
   <div class="page asset-detail">
     <div class="page-action ">
-      <AssetDetailTag :status="assetData.status" />
+      <div class="page-title">
+        资产详情
+      </div>
       <el-button type="primary" @click="() => router.push('/index')">
         返回
       </el-button>
     </div>
     <div class="page-content">
-      <AssetProgress v-bind="assetData" class="content-left" />
+      <div class="content-left">
+        <AssetDetailTag :status="assetData.status" />
+        <AssetProgress v-bind="assetData" />
+      </div>
       <div class="content-right">
         <div class="info-name">
           {{ assetData.name }}
@@ -139,11 +144,20 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 }
 
 .page-action {
-  @apply py-2 pr-4 border-b flex justify-between items-center;
+  height: 50px;
+  @apply px-4 border-b flex justify-between items-center;
+
+  .page-title {
+    @apply text-base text-black font-semibold;
+  }
 }
 
 .page-content {
   @apply flex-1 flex;
+}
+
+.content-left {
+  @apply pt-5;
 }
 
 .content-right {
