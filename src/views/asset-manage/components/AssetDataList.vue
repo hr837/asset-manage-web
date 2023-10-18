@@ -4,7 +4,6 @@ import AssetTimeInfo from './AssetTimeInfo.vue'
 import AssetStateTag from './AssetStateTag.vue'
 import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 
-import { getFilePath } from '@/utils/file.util'
 defineProps<{
   data: AssetInfo[]
 }>()
@@ -17,13 +16,15 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
     <template v-for="item of data" :key="item.id">
       <div class="asset-item">
         <div class="asset-item-header">
-          <div class="asset-item-name" :title="item.name">
-            {{ item.name }}
-          </div>
+          <el-tooltip effect="dark" :content="item.name" placement="bottom" popper-class="file-name-popper">
+            <div class="asset-item-name" :title="item.name">
+              {{ item.name }}
+            </div>
+          </el-tooltip>
           <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
         <div class="asset-item-center" @click="$emit('detail', item.id)">
-          <VideoCover disabled :src="getFilePath(item.sourceFileUrl!, 'video')" />
+          <icon-park-solid-play class="asset-play-icon" />
           <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
         </div>
 
@@ -48,7 +49,11 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
     }
 
     &-center {
-      @apply relative h-36 overflow-hidden bg-gray-100;
+      @apply relative h-36 overflow-hidden bg-gray-100 flex justify-center items-center cursor-pointer;
+
+      &:hover .asset-play-icon {
+        @apply text-gray-400;
+      }
     }
 
     &-name {
@@ -67,6 +72,10 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
 
   .asset-time-info {
     height: 60px;
+  }
+
+  .asset-play-icon {
+    @apply text-gray-300 text-4xl;
   }
 }
 </style>
