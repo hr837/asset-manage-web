@@ -1,13 +1,21 @@
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import MessageNotify from './MessageNotify.vue'
 import { useUserStore } from '@/store/user.store'
+import workspaceRoutes from '@/router/routes/workspace.routes'
 
 const currentRoute = useRoute()
-const title = computed(() => {
-  return (currentRoute.meta && currentRoute.meta.title) || '标题'
-})
+
+const title = ref('')
+
+watch(() => currentRoute.path, () => {
+  const menuPath = currentRoute.meta?.menuPath
+  if (menuPath)
+    title.value = workspaceRoutes.find(x => x.path === menuPath)?.meta?.title ?? ''
+  else
+    title.value = currentRoute.meta?.title ?? ''
+}, { immediate: true })
 
 const hasNew = ref(false)
 const userStore = useUserStore()

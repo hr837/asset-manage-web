@@ -8,7 +8,7 @@ declare module "vue-router" {
      */
     ignoreAuth?: boolean;
     /** 页面标题 */
-    title?: String
+    title?: string
     /** 对应菜单的路由 */
     menuPath?: string
   }
