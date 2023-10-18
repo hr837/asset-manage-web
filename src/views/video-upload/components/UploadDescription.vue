@@ -80,7 +80,7 @@ const nameSetting = [
     }
 
     &--name {
-      @apply absolute left-0 bottom-0 w-full py-1 text-sm text-center bg-black/40;
+      @apply absolute left-0 bottom-0 w-full py-1 text-sm text-center bg-red-500/40;
     }
   }
 }

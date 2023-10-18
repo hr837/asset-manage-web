@@ -56,6 +56,6 @@ onBeforeUnmount(() => window.clearTimeout(timerId))
 
 <style lang="less" scoped>
 header {
-  @apply font-bold flex justify-between items-center bg-white;
+  @apply text-lg font-bold flex justify-between items-center bg-white;
 }
 </style>

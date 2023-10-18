@@ -156,15 +156,15 @@ function progressTextFormat(precent: number) {
     case 'success':
       return '上传成功'
     case 'calc':
-      statusName = '切片计算中'
+      statusName = '视频切片中'
       break
     case 'part':
-      statusName = '分片上传中'
+      statusName = '视频处理中'
       break
     default:
       break
   }
-  return statusName + precentage
+  return precent > 0 ? statusName + precentage : statusName
 }
 
 const showPlayIcon = computed(() => uploadStatus.value === 'await' || uploadStatus.value === 'success')
@@ -187,8 +187,8 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
       <!-- working -->
       <div v-if="!showPlayIcon" class="video-mask">
         <el-progress
-          v-if="calcPrecent > 0" class="video-upload-progress" :percentage="calcPrecent"
-          :class="showRefresh ? 'error' : ''" :format="progressTextFormat"
+          class="video-upload-progress" :percentage="calcPrecent" :class="showRefresh ? 'error' : ''"
+          :format="progressTextFormat"
         />
         <el-button v-if="showRefresh" type="primary" class="video-action-continue" @click="onRetryClick">
           重新上传
@@ -198,9 +198,12 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     <!-- bottom info -->
     <div class="video-info">
       <div class="video-info-inline">
-        <div class="video-info-name" :title="raw.name">
-          {{ raw.name }}
-        </div>
+        <el-tooltip effect="dark" :content="raw.name" placement="bottom" popper-class="file-name-popper">
+          <div class="video-info-name">
+            {{ raw.name }}
+          </div>
+        </el-tooltip>
+
         <icon-park-outline-delete v-if="showDeleteIcon" class="video-action-delete " @click="$emit('remove')" />
       </div>
       <div class="video-info-size">
@@ -212,8 +215,9 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 
 <style lang="less" scoped>
 .video-container {
-  height: 150px;
-  @apply w-full bg-gray-50 relative rounded overflow-hidden;
+  width: 269px;
+  height: 151px;
+  @apply bg-gray-50 relative rounded overflow-hidden;
 
   .video-upload-succss {
     @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
@@ -254,7 +258,7 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
     @apply flex justify-between items-center;
 
     .video-action-delete {
-      @apply cursor-pointer text-lg text-red-300 hover:text-red-500;
+      @apply cursor-pointer text-lg text-red-500;
     }
   }
 

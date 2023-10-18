@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { nextTick } from 'process'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
+import { useRouter } from 'vue-router'
 import UploadDescription from './components/UploadDescription.vue'
 import UploadVideoItem from './components/UploadVideoItem.vue'
 
@@ -40,11 +42,23 @@ interface FileListItem {
 }
 const fileList = ref<FileListItem[]>([])
 
+const router = useRouter()
+
 // 单个文件上传成功
 function onFileuploadSuccess(file: UploadFile) {
   ElMessage.success(`${file.name}上传成功`)
   const fileInfo = fileList.value.find(x => x.uid === file.uid)
   fileInfo!.uploaded = true
+  nextTick(() => {
+    const index = fileList.value.indexOf(fileInfo!)
+    fileList.value.splice(index, 1)
+    uploadRef.value!.handleRemove(file)
+    if (fileList.value.length === 0) {
+      // 全部上传完毕 跳转到列表页面
+      router.push('/index')
+      uploadStart.value = false
+    }
+  })
 }
 
 /** 选择的文件发生改变 */
@@ -88,9 +102,17 @@ function checkFileExceed() {
 
 const canSubmit = computed(() => {
   const hasFile = fileList.value.length > 0
-  const ready = fileList.value.every(x => !x.uploaded)
-  return hasFile && ready
+  return hasFile && !uploadStart.value
 })
+
+function onVideoClick(e: Event) {
+  const videoEl = e.target as HTMLVideoElement
+  if (videoEl.paused)
+    videoEl.play()
+
+  else
+    videoEl.pause()
+}
 
 const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.value)
 </script>
@@ -139,13 +161,11 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
     </div>
 
     <!-- video player -->
-    <el-dialog
-      v-model="playInfo.show" :title="playInfo.title" :close-on-click-modal="false"
-      :close-on-press-escape="false" @closed="onPlayerClose"
-    >
+    <el-dialog v-model="playInfo.show" :title="playInfo.title" @closed="onPlayerClose">
       <video
         :src="playInfo.src" class="video-player" autoplay controls
         controlslist="nodownload noremoteplayback nofullscreen noplaybackrate " disablepictureinpicture
+        @click="onVideoClick"
       />
     </el-dialog>
   </div>
@@ -157,12 +177,8 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
   .page-content {
     width: 1150px;
-    @apply p-4 mx-auto grid;
-    grid-template: 1fr auto / 830px 1fr;
-  }
-
-  &-description {
-    margin-left: 20px;
+    @apply mx-auto grid gap-4 justify-center;
+    grid-template: 1fr auto / 827px 272px;
   }
 
   &-action {
@@ -176,13 +192,10 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
   }
 
   :deep(.el-upload-list) {
-    column-gap: 10px;
-    row-gap: 14px;
-    @apply grid grid-cols-3;
+    @apply grid grid-cols-3 gap-3;
 
     &__item {
-      width: 270px;
-      overflow: hidden;
+      width: 269px;
     }
   }
 
