@@ -82,7 +82,7 @@ onMounted(() => {
 /** 删除一个文件 */
 function onRemoveClick(file: UploadFile) {
   const fileIndex = fileList.value.findIndex(x => x.uid === file.uid)
-  fileList.value.splice(fileIndex)
+  fileList.value.splice(fileIndex, 1)
   uploadRef.value!.handleRemove(file)
   if (fileList.value.length === 0)
     uploadStart.value = false
@@ -100,11 +100,6 @@ function checkFileExceed() {
     ElMessage.info('最多上传5个视频')
 }
 
-const canSubmit = computed(() => {
-  const hasFile = fileList.value.length > 0
-  return hasFile && !uploadStart.value
-})
-
 function onVideoClick(e: Event) {
   const videoEl = e.target as HTMLVideoElement
   if (videoEl.paused)
@@ -114,6 +109,10 @@ function onVideoClick(e: Event) {
     videoEl.pause()
 }
 
+const canSubmit = computed(() => {
+  const hasFile = fileList.value.length > 0
+  return hasFile && !uploadStart.value
+})
 const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.value)
 </script>
 
