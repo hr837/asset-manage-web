@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { nextTick } from 'process'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
 import { useRouter } from 'vue-router'
 import UploadDescription from './components/UploadDescription.vue'

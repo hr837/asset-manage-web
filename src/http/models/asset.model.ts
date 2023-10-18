@@ -54,4 +54,8 @@ export interface AssetQueryOutItem {
   duration: number
   /** 转换开始时间 */
   convertStartTime?: string
+  /** 当前队列位置 */
+  lineIndex?: string
+  /** 队列长度 */
+  lineTotal?: string
 }

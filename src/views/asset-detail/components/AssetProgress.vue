@@ -12,6 +12,11 @@ const currentStep = computed(() => {
 })
 
 const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTime))
+const queueInfo = computed(() => {
+  if (!props.lineIndex || !props.lineTotal)
+    return ''
+  return `第${props.lineIndex}位 / 共${props.lineTotal}位`
+})
 </script>
 
 <template>
@@ -34,7 +39,7 @@ const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTi
         </template>
         <template #description>
           <template v-if="status === 2">
-            <div>第2位/共3位置</div>
+            <div>{{ queueInfo }}</div>
             <div>预计等待时长：{{ predictLineTime }}</div>
           </template>
           <div v-if="status > 2">
@@ -72,7 +77,9 @@ const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTi
         </template>
         <template #description>
           <div>{{ convertTime }}</div>
-          <div>{{ message }}</div>
+          <div>
+            {{ message }}
+          </div>
         </template>
       </el-step>
       <el-step v-else title="转换完成" class="icon-large">
@@ -89,7 +96,6 @@ const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTi
 
 <style lang="less" scoped>
 .asset-progress {
-  min-height: 600px;
   width: 277px;
   @apply p-6;
 }
@@ -179,7 +185,7 @@ const convertElapsedTime = computed(() => getDuration(props.convertAlreadyWaitTi
     }
 
     &__main {
-      @apply pl-4;
+      @apply pl-4 overflow-hidden;
     }
 
     &__title {

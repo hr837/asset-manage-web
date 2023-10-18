@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AssetProgress from './components/AssetProgress.vue'
@@ -32,6 +32,8 @@ const assetData = reactive<Required<AssetInfo>>({
   convertStartTime: '',
   extensionName: '',
   predictLineTime: '',
+  lineIndex: '',
+  lineTotal: '',
 })
 
 let id = ''
@@ -81,6 +83,17 @@ function onTransformClick() {
   })
 }
 
+const videoWrap = ref<HTMLDivElement>()
+
+const videoHeight = ref('600px')
+let observer: ResizeObserver
+
+onMounted(() => {
+  observer = new ResizeObserver(([e]) => videoHeight.value = `${e.contentRect.height}px`)
+  observer.observe(videoWrap.value!)
+})
+onUnmounted(() => observer.disconnect())
+
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
 const duration = computed(() => getDuration(assetData.duration))
 const fileSize = computed(() => getVideoSize(assetData.size))
@@ -94,7 +107,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
       <div class="page-title">
         资产详情
       </div>
-      <el-button type="primary" @click="() => router.push('/index')">
+      <el-button type="primary" @click="router.back">
         返回
       </el-button>
     </div>
@@ -128,10 +141,12 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
           </div>
         </div>
 
-        <video
-          class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
-          disablePictureInPicture
-        />
+        <div ref="videoWrap" class="flex-1">
+          <video
+            class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
+            disablePictureInPicture
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -139,7 +154,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 <style lang="less" scoped>
 .asset-detail {
-  min-width: 1150px;
+
   @apply p-0 flex flex-col;
 }
 
@@ -153,7 +168,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 }
 
 .page-content {
-  @apply flex-1 flex;
+  min-width: 1150px;
+  @apply flex-1 flex overflow-auto;
 }
 
 .content-left {
@@ -161,8 +177,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 }
 
 .content-right {
-  background-color: #EFEFEF;
-  @apply flex-1 p-6 pb-0;
+  background-color: #FAFAFA;
+  @apply flex-1 p-6 pb-0 flex flex-col;
 
   .info-name {
     @apply h-12 text-2xl text-gray-700 font-semibold;
@@ -182,7 +198,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
   .video-player {
     width: 100%;
-    height: 600px;
+    height: v-bind(videoHeight);
   }
 
 }

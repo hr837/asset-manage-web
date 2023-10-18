@@ -35,7 +35,7 @@ watch(() => props.modelValue, v => v && fetchData())
 const router = useRouter()
 
 function onMessageClick(data: MessageQueryOutItem) {
-  router.push({ name: 'assets-manage', query: { id: data.fileId } })
+  router.push({ name: 'assets-detail', query: { id: data.fileId } })
   service.setRead([data.id]).then(() => fetchData()).catch(() => {})
 }
 </script>

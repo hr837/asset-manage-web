@@ -1,34 +1,29 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from 'vue'
-import type { RouteLocationNormalized } from 'vue-router'
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
 import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
 import AssetDataList from './components/AssetDataList.vue'
-import type { AssetActionCommand, AssetInfo, RouteQeuryInfo } from '@/types/asset-info.type'
+import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { PageService } from '@/http/extends/page.service'
 import { downloadFile } from '@/utils/file.util'
 import type { AssetQueryInput } from '@/http/models/asset.model'
 import type { DateFormInstance } from '@/types/common-components.type'
-import { LoadingService } from '@/http/extends/loading.service'
 const assetService = new AssetManageService()
+const pageService = new PageService(1, 12)
+pageService.pageSizeOpts = [12, 24]
 const dataSet = ref<AssetInfo[]>([])
 const router = useRouter()
 const formRef = ref<DateFormInstance>()
 const route = useRoute()
-const listLoading = ref(false)
-const loadingService = new LoadingService(listLoading)
 
-// 查询控制器
-const pageService = new PageService(1, 12)
-pageService.pageSizeOpts = [12, 24]
-
-// 表单查询条件
+// 查询条件
 const queryModel = reactive<AssetQueryInput & { date?: string[] }>({
   status: undefined,
+  id: '',
   name: '',
   startDate: '',
   endDate: '',
@@ -41,34 +36,37 @@ const queryModel = reactive<AssetQueryInput & { date?: string[] }>({
   },
 })
 
+// 过滤器发生改变，刷新页面数据
+function onStateChange() {
+  pageService.reset()
+  fetchData()
+}
+
+// 使用表单查询条件，重置过滤器状态并刷新页面数据
+function refreshData() {
+  if (queryModel.id) {
+    router.push({ query: undefined })
+    queryModel.id = ''
+  }
+  queryModel.status = undefined
+  onStateChange()
+}
+
 // 从服务器获取页面数据
 function fetchData() {
   sessionStorage.removeItem(SessionKey_Asset_PLAY_PATH)
   const queryData = { ...queryModel }
   delete queryData.date
-  assetService.getList(queryData, [pageService, loadingService]).then(data => dataSet.value = data.rows).catch(() => { })
+  assetService.getList(queryData, [pageService]).then(data => dataSet.value = data.rows).catch(() => { })
 }
-
-function revertQueryData(to: RouteLocationNormalized) {
-  const query: Partial<RouteQeuryInfo> = to.query
-  queryModel.name = query.n ?? ''
-  queryModel.startDate = query.ts ?? ''
-  queryModel.endDate = query.te ?? ''
-  queryModel.status = query.s ? Number.parseInt(query.s) : undefined
-  pageService.pageIndex.value = Number.parseInt(query.pi ?? '1')
-  pageService.pageSize.value = Number.parseInt(query.pz ?? '12')
-  fetchData()
-}
-
-onMounted(() => {
-  // 默认查询
-  revertQueryData(route)
-})
-
-onBeforeRouteUpdate(to => revertQueryData(to))
 
 // 播放控制器，跳转播放页面
-const asesetCardClick = (id: string) => router.push({ name: 'asset-detail', query: { id } })
+function onDetail(id: string) {
+  router.push({
+    name: 'asset-detail',
+    query: { id },
+  })
+}
 
 // 数据过滤器回调，发起请求刷新页面数据
 function onItemAction(cmd: AssetActionCommand, id: string) {
@@ -84,7 +82,7 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
       }).then(() => assetService.delete(id).then(() => {
         ElMessage.success('资源已删除')
         pageService.reset()
-        updatePageQuery()
+        fetchData()
       })).catch(() => { })
       break
     case 'download':
@@ -107,6 +105,12 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
   })
 }
 
+// 页面加载获取路由参数，是否需要根据ID搜索
+onMounted(() => {
+  queryModel.id = route.query.id as string
+  fetchData()
+})
+
 // 日期组件禁用部分
 const today = dayjs().startOf('day').toDate()
 const beforDay = dayjs(today).subtract(2, 'month').toDate()
@@ -115,29 +119,26 @@ function disabledDate(pickDate: Date) {
   return pickDate < beforDay || pickDate > today
 }
 
-function onFormSearch() {
-  pageService.reset()
-  updatePageQuery()
-}
-
-// 更改路由查询参数
-function updatePageQuery() {
-  const query: Partial<RouteQeuryInfo> = {
-    pi: pageService.pageIndex.value.toString(),
-    pz: pageService.pageSize.value.toString(),
-    n: queryModel.name,
-    ts: queryModel.startDate,
-    te: queryModel.endDate,
-    s: queryModel.status?.toString(),
+// 处理已经再当前页面的时候修改的路由参数
+watch(() => route.query, (query) => {
+  if (query && query.id) {
+    queryModel.date = ['', '']
+    queryModel.name = ''
+    queryModel.status = undefined
+    queryModel.id = query.id as string
+    fetchData()
   }
-  router.push({ query: Object.assign({}, route.query, query) })
+})
+
+function onUploadClick() {
+  router.push('/upload')
 }
 </script>
 
 <template>
   <div class="page asset-manage-view">
-    <div v-loading="listLoading" class="page-content">
-      <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="onFormSearch" @reset="onFormSearch">
+    <div class="page-content">
+      <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="refreshData" @reset="refreshData">
         <el-form-item prop="name">
           <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
         </el-form-item>
@@ -146,16 +147,16 @@ function updatePageQuery() {
         </el-form-item>
       </DataForm>
       <div class="asset-manage-action">
-        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="updatePageQuery" />
-        <el-button type="primary" @click="() => router.push('/upload')">
+        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onStateChange" />
+        <el-button type="primary" @click="onUploadClick">
           上传视频
         </el-button>
       </div>
       <div class="asset-manage-data-container">
         <el-empty v-if="!dataSet.length" />
-        <AssetDataList v-else :data="dataSet" @detail="asesetCardClick" @action="onItemAction" />
+        <AssetDataList v-else :data="dataSet" @detail="onDetail" @action="onItemAction" />
       </div>
-      <DataPagination :page="pageService" @page-change="updatePageQuery" />
+      <DataPagination :page="pageService" @page-change="fetchData" />
     </div>
   </div>
 </template>

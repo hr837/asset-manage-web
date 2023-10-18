@@ -14,3 +14,13 @@ export interface AssetStateItem {
 
 /** 资产时间节点信息 */
 export type AssetTimeInfo = Pick<AssetInfo, 'status' | 'convertAlreadyWaitTime' | 'convertTime' | 'convertTotalTime' | 'lineAlreadyWaitTime' | 'lineTotalTime' | 'uploadTime' | 'processStage' | 'predictLineTime'>
+
+/** 页面查询参数定义 */
+export interface RouteQeuryInfo {
+  n: string
+  ts: string
+  te: string
+  pi: string
+  pz: string
+  s: string
+}
