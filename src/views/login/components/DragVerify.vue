@@ -1,0 +1,118 @@
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
+
+const emit = defineEmits(['success'])
+const validated = ref(false)
+const text = computed(() => validated.value ? '验证完成' : '请拖拽滑块至右侧，以完成验证')
+const left = ref('0px')
+
+/** 是否开始移动 */
+let moveStart = false
+/** 鼠标按下时候X坐标 */
+let startX = 0
+/** 容器的宽度 */
+let cWidth = 0
+/** 滑块宽度 */
+const bWidth = 40
+
+function onMouseMoving(e: MouseEvent) {
+  if (!cWidth) {
+    const el = e.target as HTMLDivElement
+    cWidth = el.clientWidth
+  }
+  if (!startX || !moveStart || validated.value)
+    return
+
+  const { pageX } = e
+  const moveX = pageX - startX
+  if (moveX < 0)
+    return onMouseEnd()
+
+  left.value = `${moveX}px`
+  // 最小有300px的宽度，超过300开始计算滑块位置
+  // if (moveX > 300) {
+  // }
+  const rightWidht = cWidth - moveX - bWidth
+  // 给与10px的缓冲区间
+  if (rightWidht < 5 && rightWidht > -5) {
+    validated.value = true
+    moveStart = false
+    left.value = `${cWidth - bWidth}px`
+  }
+}
+
+/** 开始监听移动 */
+function handleStart(e: MouseEvent) {
+  if (validated.value)
+    return
+  moveStart = true
+  startX = e.x
+}
+
+/** 鼠标离开目标，重置状态 */
+function onMouseEnd() {
+  if (validated.value)
+    return
+  if (moveStart) {
+    left.value = '0px'
+    moveStart = false
+  }
+}
+</script>
+
+<template>
+  <div
+    class="component drag-verify" :class="{ success: validated }" @mousemove="onMouseMoving" @mouseup="onMouseEnd"
+    @mouseleave="onMouseEnd"
+  >
+    <div class="progress-bar" />
+    <div class="verify-text">
+      {{ text }}
+    </div>
+    <div class="drag-blcok " @mousedown="handleStart">
+      <icon-park-outline-check v-if="validated" />
+      <icon-park-outline-double-right v-else />
+    </div>
+  </div>
+</template>
+
+<style lang="less" scoped>
+.drag-verify {
+  @apply relative border text-center h-10 leading-10 bg-gray-50 select-none overflow-hidden;
+
+  .progress-bar {
+    background-color: @color-primary;
+    @apply absolute left-0 top-0 h-full;
+    width: v-bind(left);
+  }
+
+  .verify-text {
+    @apply absolute w-full h-full select-none transition-colors;
+  }
+
+  .drag-blcok {
+    @apply absolute bg-white text-gray-400 w-10 h-full border border-white top-0 cursor-move inline-flex justify-center items-center text-xl;
+    left: v-bind(left);
+  }
+
+  &.success {
+    .drag-blcok {
+      @apply text-green-500 bg-white cursor-auto;
+    }
+
+    .verify-text {
+      @apply bg-green-500 text-white ;
+    }
+  }
+}
+
+@keyframes slidetounlock {
+  0% {
+    background-position: left;
+  }
+
+  100% {
+    background-position: right;
+  }
+}
+</style>

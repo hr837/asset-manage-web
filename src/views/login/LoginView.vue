@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { nanoid } from 'nanoid'
 import LoginForm from './components/LoginForm.vue'
+import VerifyCode from './components/VerifyCode.vue'
 import type { LoginInput } from '@/http/models/login.model'
 import { LoginService } from '@/http/services/LoginService'
 import { LoadingService } from '@/http/extends/loading.service'
@@ -45,8 +46,9 @@ function onValidated(formData: LoginInput) {
       <div class="login-title">
         {{ appTitle }}
       </div>
-
       <LoginForm :loading="loginLoding" :patchca-key="patchcaKey" @validated="onValidated" @chage-code="updatePatchKey" />
+      <VerifyCode />
+      <icon-park-outline-double-right />
     </div>
   </div>
 </template>
