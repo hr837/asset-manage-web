@@ -13,15 +13,14 @@ let startX = 0
 /** 容器的宽度 */
 let cWidth = 0
 /** 滑块宽度 */
-const bWidth = 40
+let bWidth = 40
 
 function onMouseMoving(e: MouseEvent) {
-  if (!cWidth) {
-    const el = e.target as HTMLDivElement
-    cWidth = el.clientWidth
-  }
-  if (!startX || !moveStart || validated.value)
+  if (!startX || !moveStart || validated.value || !bWidth)
     return
+
+  if (!cWidth)
+    cWidth = (e.currentTarget as HTMLDivElement).clientWidth
 
   const { pageX } = e
   const moveX = pageX - startX
@@ -41,10 +40,15 @@ function onMouseMoving(e: MouseEvent) {
   }
 }
 
+const failed = ref(false)
+
 /** 开始监听移动 */
 function handleStart(e: MouseEvent) {
   if (validated.value)
     return
+  failed.value = false
+  bWidth = (e.currentTarget as HTMLElement).clientWidth
+  cWidth = 0
   moveStart = true
   startX = e.x
 }
@@ -53,19 +57,23 @@ function handleStart(e: MouseEvent) {
 function onMouseEnd() {
   if (validated.value)
     return
-  if (moveStart) {
-    left.value = '0px'
-    moveStart = false
-  }
+  if (moveStart)
+    failed.value = true
+}
+
+function onTransitionend() {
+  left.value = '0px'
+  moveStart = false
+  failed.value = false
 }
 </script>
 
 <template>
   <div
-    class="component drag-verify" :class="{ success: validated }" @mousemove="onMouseMoving" @mouseup="onMouseEnd"
-    @mouseleave="onMouseEnd"
+    class="component drag-verify " :class="{ success: validated, fail: failed }" @mousemove="onMouseMoving"
+    @mouseup="onMouseEnd" @mouseleave="onMouseEnd"
   >
-    <div class="progress-bar" />
+    <div class="progress-bar" @transitionend="onTransitionend" />
     <div class="verify-text">
       {{ text }}
     </div>
@@ -78,7 +86,7 @@ function onMouseEnd() {
 
 <style lang="less" scoped>
 .drag-verify {
-  @apply relative border text-center h-10 leading-10 bg-gray-50 select-none overflow-hidden;
+  @apply relative border text-center h-10 leading-10 bg-gray-50 select-none overflow-hidden shadow-inner;
 
   .progress-bar {
     background-color: @color-primary;
@@ -101,18 +109,21 @@ function onMouseEnd() {
     }
 
     .verify-text {
-      @apply bg-green-500 text-white ;
+      @apply bg-green-500 text-white;
     }
   }
-}
 
-@keyframes slidetounlock {
-  0% {
-    background-position: left;
-  }
+  &.fail {
+    .drag-blcok {
+      left: 0;
+      transition: left linear 0.3s;
+    }
 
-  100% {
-    background-position: right;
+    .progress-bar {
+      width: 0;
+      background-color: var(--el-color-danger);
+      transition: width linear 0.3s;
+    }
   }
 }
 </style>
