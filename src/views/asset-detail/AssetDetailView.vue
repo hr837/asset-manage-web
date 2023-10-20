@@ -22,6 +22,7 @@ const assetData = reactive<Required<AssetInfo>>({
   uploadTime: '',
   lineTotalTime: '',
   processStage: '',
+  coverImage: '',
   lineAlreadyWaitTime: '',
   convertTotalTime: '',
   convertAlreadyWaitTime: '',
@@ -70,16 +71,21 @@ function onDownloadFbxClick() {
 function onDeleteClick() {
   ElMessageBox.confirm(`是否删除资源文件【${assetData.name}】`, '删除提示', {
     type: 'warning',
-  }).then(() => assetService.delete(id).then(() => {
-    ElMessage.success('资源已删除')
-    router.back()
-  })).catch(() => { })
+  }).then(() => assetService.delete(id))
+    .then(() => {
+      ElMessage.success('资源已删除')
+      router.back()
+    }).catch(({ msg }: any) => {
+      ElMessage.error(msg ?? '删除失败，请重试')
+    })
 }
 
 function onTransformClick() {
   assetService.convertToFbx(id).then(() => {
     ElMessage.success('操作成功')
     fetchData()
+  }).catch(({ msg }: any) => {
+    ElMessage.error(msg ?? '转换操作失败，请重试')
   })
 }
 

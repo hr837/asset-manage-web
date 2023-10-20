@@ -123,9 +123,9 @@ async function upload() {
     calcPrecent.value = 0
     partUpload()
   }
-  catch ({ message }: any) {
+  catch ({ message, msg }: any) {
     uploadStatus.value = 'fail'
-    ElMessage.error(message ?? '上传异常')
+    ElMessage.error(msg ?? message ?? '上传异常')
   }
 }
 
