@@ -77,6 +77,7 @@ function onTransitionend() {
     <div class="verify-text">
       {{ text }}
     </div>
+    <div class="eye" />
     <div class="drag-blcok " @mousedown="handleStart">
       <icon-park-outline-check v-if="validated" />
       <icon-park-outline-double-right v-else />
@@ -86,7 +87,9 @@ function onTransitionend() {
 
 <style lang="less" scoped>
 .drag-verify {
-  @apply relative border text-center h-10 leading-10 bg-gray-50 select-none overflow-hidden shadow-inner;
+  @textColor: #333;
+  color: @textColor;
+  @apply relative border text-center h-10 leading-10 rounded bg-gray-50 select-none overflow-hidden shadow-inner;
 
   .progress-bar {
     background-color: @color-primary;
@@ -99,7 +102,7 @@ function onTransitionend() {
   }
 
   .drag-blcok {
-    @apply absolute bg-white text-gray-400 w-10 h-full border border-white top-0 cursor-move inline-flex justify-center items-center text-xl;
+    @apply absolute bg-white text-gray-400 w-10 h-full rounded border border-white top-0 cursor-move inline-flex justify-center items-center text-xl shadow-sm;
     left: v-bind(left);
   }
 
@@ -124,6 +127,25 @@ function onTransitionend() {
       background-color: var(--el-color-danger);
       transition: width linear 0.3s;
     }
+  }
+
+  &:not(.success, .fail) {
+    .verify-text {
+      background: linear-gradient(to right, @textColor 20%, #fff 30%, @textColor 40%);
+      @apply bg-clip-text text-transparent;
+      animation: running 4s infinite;
+    }
+  }
+}
+
+@keyframes running {
+  from {
+    background-position-x: -100px;
+    left: 0;
+  }
+
+  to {
+    background-position-x: 300px;
   }
 }
 </style>
