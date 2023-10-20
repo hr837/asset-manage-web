@@ -35,7 +35,7 @@ watch(() => props.modelValue, v => v && fetchData())
 const router = useRouter()
 
 function onMessageClick(data: MessageQueryOutItem) {
-  router.push({ name: 'assets-detail', query: { id: data.fileId } })
+  router.push({ name: 'asset-detail', query: { id: data.fileId } })
   service.setRead([data.id]).then(() => fetchData()).catch(() => { })
 }
 </script>
@@ -72,7 +72,7 @@ function onMessageClick(data: MessageQueryOutItem) {
   min-height: 200px;
 
   .message-item {
-    @apply flex items-center rounded hover:bg-gray-100;
+    @apply text-sm flex items-center rounded hover:bg-gray-100;
 
     &-info {
       @apply flex-1 px-1 truncate;
