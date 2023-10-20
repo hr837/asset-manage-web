@@ -25,7 +25,7 @@ const assetData = reactive<Required<AssetInfo>>({
   lineAlreadyWaitTime: '',
   convertTotalTime: '',
   convertAlreadyWaitTime: '',
-  convertTime: '',
+  convertEndTime: '',
   message: '',
   size: 0,
   duration: 0,

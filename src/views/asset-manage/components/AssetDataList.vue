@@ -3,6 +3,7 @@ import AssetAction from './AssetAction.vue'
 import AssetTimeInfo from './AssetTimeInfo.vue'
 import AssetStateTag from './AssetStateTag.vue'
 import type { AssetActionCommand, AssetInfo } from '@/types/asset-info.type'
+import { getDuration, getFilePath } from '@/utils/file.util'
 
 defineProps<{
   data: AssetInfo[]
@@ -24,8 +25,12 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
           <AssetAction :status="item.status" @action="e => $emit('action', e, item.id)" />
         </div>
         <div class="asset-item-center" @click="$emit('detail', item.id)">
-          <icon-park-solid-play class="asset-play-icon" />
+          <img class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
+          <icon-park-solid-play class="video-play-icon" />
           <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
+          <div class="video-duration">
+            {{ getDuration(item.duration) }}
+          </div>
         </div>
 
         <AssetTimeInfo v-bind="item" />
@@ -51,8 +56,20 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
     &-center {
       @apply relative h-36 overflow-hidden bg-gray-100 flex justify-center items-center cursor-pointer;
 
-      &:hover .asset-play-icon {
+      &:hover .video-play-icon {
         @apply text-gray-400;
+      }
+
+      .video-play-icon {
+        @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-gray-300;
+      }
+
+      .video-duration {
+        @apply absolute bottom-0 right-0 w-full p-2 pt-4 text-right text-white bg-gradient-to-t from-gray-800/40;
+      }
+
+      .video-cover {
+        @apply bg-gray-50 h-full w-full object-contain;
       }
     }
 
@@ -74,8 +91,5 @@ defineEmits<{ detail: [id: string]; action: [command: AssetActionCommand, id: st
     height: 60px;
   }
 
-  .asset-play-icon {
-    @apply text-gray-300 text-4xl;
-  }
 }
 </style>

@@ -22,12 +22,7 @@ export interface AssetQueryInput {
 
 export interface AssetQueryOutItem {
   id: string
-  /** 转换已用时长 */
-  convertAlreadyWaitTime?: string
-  /** 转换开始时间 */
-  convertTime?: string
-  /** 转换完成用时 */
-  convertTotalTime?: string
+
   extensionName?: string
   fbxFileUrl?: string
   /** 排队等待已用时长 */
@@ -41,6 +36,8 @@ export interface AssetQueryOutItem {
   /**
    * 资产状态,传数字（1.仅上传-2.排队中-3.转换中-4.转换失败-5.转换完成）
   */
+  /** 封面图片路径 */
+  coverImage: string
   status: number
   /** 上传时间 */
   uploadTime?: string
@@ -54,6 +51,12 @@ export interface AssetQueryOutItem {
   duration: number
   /** 转换开始时间 */
   convertStartTime?: string
+  /** 转换已用时长 */
+  convertAlreadyWaitTime?: string
+  /** 转换结束时间 */
+  convertEndTime?: string
+  /** 转换完成用时 */
+  convertTotalTime?: string
   /** 当前队列位置 */
   lineIndex?: string
   /** 队列长度 */

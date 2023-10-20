@@ -20,7 +20,7 @@ const emit = defineEmits<{
   /** 移除文件 */
   remove: []
   /** 文件上传成功 */
-  success: [data: any]
+  success: []
 }>()
 defineComponent({
   name: 'UploadVideoItem',
@@ -32,10 +32,35 @@ const videoInfo = reactive({
   duration: 0,
   size: '--',
   fileId: '',
+  coverSrc: '',
 })
 
+/** 视频封面blob */
+let coverBlob: Blob | null = null
+
 onMounted(() => {
+  const videoEl = document.createElement('video')
   videoInfo.src = URL.createObjectURL(props.raw)
+  videoEl.src = videoInfo.src
+  videoEl.preload = 'auto'
+  videoEl.onloadedmetadata = () => {
+    videoInfo.duration = videoEl.duration
+    videoInfo.durationStr = getDuration(videoEl.duration)
+    videoInfo.size = getVideoSize(props.raw.size)
+  }
+  videoEl.onloadeddata = () => {
+    const { videoWidth, videoHeight } = videoEl
+    const canvas = document.createElement('canvas')
+    canvas.width = videoWidth
+    canvas.height = videoHeight
+    canvas.getContext('2d')!.drawImage(videoEl, 0, 0, videoWidth, videoHeight)
+    videoInfo.coverSrc = canvas.toDataURL()
+    canvas.toBlob(blob => coverBlob = blob)
+  }
+  videoEl.onerror = () => {
+    ElMessage.error('文件不能播放，请重新选择')
+    emit('remove')
+  }
 })
 
 // 组件卸载清除文件URL资源
@@ -43,18 +68,6 @@ onUnmounted(() => {
   if (videoInfo.src)
     URL.revokeObjectURL(videoInfo.src)
 })
-
-function onVideoLoad(e: Event) {
-  const el = e.target as HTMLVideoElement
-  videoInfo.duration = el.duration
-  videoInfo.durationStr = getDuration(el.duration)
-  videoInfo.size = getVideoSize(props.raw.size)
-}
-
-function onLoadError() {
-  ElMessage.error('文件不能播放，请重新选择')
-  emit('remove')
-}
 
 // 文件上传计算百分比
 const calcPrecent = ref(0)
@@ -86,7 +99,7 @@ async function upload() {
     uploadStatus.value = 'calc'
     const { md5, fileParts } = await getSliceFileMd5(props.raw, FileChunkSize, (precent: number) => calcPrecent.value = precent)
     // 开始预上传
-    const res = await uploadService.preUpload({
+    const { fastUpload, uploadFileId } = await uploadService.preUpload({
       originFileName: props.raw.name,
       fileSize: props.raw.size,
       duration: videoInfo.duration,
@@ -94,20 +107,25 @@ async function upload() {
       md5,
       auto: props.transfrom ? 1 : 0,
     })
-
-    videoInfo.fileId = res.uploadFileId
-    if (res.fastUpload)
+    // 根据fastupload判断是否上传过
+    if (fastUpload)
       return emitSuccess()
-
+    // 生成封面图片文件
+    if (!coverBlob)
+      throw new Error('视频封面生成失败')
+    const file = new File([coverBlob], `${uploadFileId}.png`, { type: coverBlob.type })
+    // 封面上传
+    await uploadService.coverUpload({ file, uploadFileId })
+    videoInfo.fileId = uploadFileId
     // 分片数据设置
     partList.value = fileParts.map(item => Object.assign(item, { uploaded: false }))
     // 分片上传
     calcPrecent.value = 0
     partUpload()
   }
-  catch (error) {
+  catch ({ message }: any) {
     uploadStatus.value = 'fail'
-    ElMessage.error('上传异常')
+    ElMessage.error(message ?? '上传异常')
   }
 }
 
@@ -141,7 +159,7 @@ function partUpload() {
 function emitSuccess() {
   uploaded.value = true
   uploadStatus.value = 'success'
-  emit('success', videoInfo.fileId)
+  emit('success')
 }
 
 /** 重新尝试上传 */
@@ -181,8 +199,8 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 
 <template>
   <div class="component upload-video-item">
-    <div class="video-container">
-      <video class="video-cover" :src="videoInfo.src" @loadeddata="onVideoLoad" @error="onLoadError" />
+    <div v-loading="!videoInfo.coverSrc" class="video-container">
+      <img class="video-cover" :src="videoInfo.coverSrc" :alt="raw.name">
       <div v-if="showSuccessIcon" class="video-upload-succss">
         <icon-park-outline-check class="-rotate-45" />
       </div>
@@ -229,7 +247,7 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
   }
 
   .video-cover {
-    @apply bg-gray-50 h-full w-full rounded;
+    @apply bg-gray-50 h-full w-full rounded object-contain;
   }
 
   .video-mask {

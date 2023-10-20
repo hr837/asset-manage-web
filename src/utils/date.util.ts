@@ -5,10 +5,10 @@ dayjs.extend(duration)
 /**
  * 获取时间周期
  */
-export function getDuration(times?: string) {
-  if (!times)
+export function getDuration(milliseconds?: string) {
+  if (!milliseconds)
     return ''
-  const d = dayjs.duration(Number.parseInt(times), 'second')
+  const d = dayjs.duration(Number.parseInt(milliseconds), 'ms')
   if (d.days() > 0)
     return d.format('D天H小时m分')
   else if (d.hours() > 0)

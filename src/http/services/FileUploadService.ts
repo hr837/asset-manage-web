@@ -1,5 +1,5 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
-import type { PartUploadInput, PartUploadResponse, PreuploadInput, PreuploadResponse } from '../models/upload.model'
+import type { CoverUploadInput, CoverUploadRes, PartUploadInput, PartUploadResponse, PreuploadInput, PreuploadResponse } from '../models/upload.model'
 export class FileUploadService {
   // 请求实例
   private request = RequestService.getInstance()
@@ -38,6 +38,31 @@ export class FileUploadService {
     return this.request.send(
       {
         path: '/api/file/upload',
+        method: RequestMethod.Post,
+        paramsBody: form,
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      },
+      requestPlugins,
+    )
+  }
+
+  /**
+   * 分片上传
+   */
+  coverUpload(
+    requestBody: CoverUploadInput,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<CoverUploadRes> {
+    const form = new FormData()
+    form.append('uploadFileId', requestBody.uploadFileId)
+    form.append('Size', `${requestBody.file.size}`)
+    form.append('file', requestBody.file)
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/file/cover_upload',
         method: RequestMethod.Post,
         paramsBody: form,
         headers: {

@@ -146,7 +146,7 @@ function updatePageQuery() {
         </el-form-item>
       </DataForm>
       <div class="asset-manage-action">
-        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="updatePageQuery" />
+        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onFormSearch" />
         <el-button type="primary" @click="() => router.push('/upload')">
           上传视频
         </el-button>

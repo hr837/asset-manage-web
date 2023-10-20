@@ -9,7 +9,7 @@ const props = defineProps<{
   modelValue: boolean
 }>()
 
-defineEmits<{ 'update:modelValue': [value:boolean] }>()
+defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 const dataSet = ref<MessageQueryOutItem[]>([])
 const service = new MessageService()
@@ -25,7 +25,7 @@ function fetchData() {
   service.getUnreadList([pageServce]).then((data) => {
     dataSet.value = data.rows
     total.value = data.totalRow
-  }).catch(() => {})
+  }).catch(() => { })
 }
 
 onMounted(fetchData)
@@ -36,16 +36,19 @@ const router = useRouter()
 
 function onMessageClick(data: MessageQueryOutItem) {
   router.push({ name: 'assets-detail', query: { id: data.fileId } })
-  service.setRead([data.id]).then(() => fetchData()).catch(() => {})
+  service.setRead([data.id]).then(() => fetchData()).catch(() => { })
 }
 </script>
 
 <template>
   <div class="component message-notify">
-    <el-popover placement="bottom-start" :width="400" trigger="click" popper-class="message-notify-popover" @show="() => $emit('update:modelValue', false)">
+    <el-popover
+      placement="bottom-start" :width="400" trigger="click" popper-class="message-notify-popover"
+      @show="() => $emit('update:modelValue', false)"
+    >
       <template #reference>
         <el-badge :is-dot="modelValue">
-          <icon-park-solid-remind class="text-gray-500 cursor-pointer" />
+          <icon-park-solid-remind class="text-gray-500 " />
         </el-badge>
       </template>
       <el-empty v-if="dataSet.length === 0" description="暂无消息" :image-size="60" />
@@ -65,18 +68,21 @@ function onMessageClick(data: MessageQueryOutItem) {
 </template>
 
 <style lang="less">
-.message-notify-popover{
+.message-notify-popover {
   min-height: 200px;
 
-  .message-item{
-    @apply flex items-center rounded hover:bg-gray-100 ;
-    &-info{
+  .message-item {
+    @apply flex items-center rounded hover:bg-gray-100;
+
+    &-info {
       @apply flex-1 px-1 truncate;
-      &.error{
+
+      &.error {
         @apply text-red-500;
       }
     }
-    &-btn{
+
+    &-btn {
       @apply mx-2 bg-transparent;
     }
   }
