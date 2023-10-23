@@ -64,7 +64,7 @@ const queueInfo = computed(() => {
         </template>
         <template #description>
           <div v-if="status === 3">
-            转换进度：{{ processStage ?? 0 }}%
+            转换进度：{{ processStage || 0 }}%
           </div>
           <div v-if="status > 3">
             实际耗时：{{ convertElapsedTime }}

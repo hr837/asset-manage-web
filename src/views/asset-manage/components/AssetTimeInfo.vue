@@ -21,7 +21,7 @@ const bgColor = computed(() => current.value[0])
     </li>
     <li v-if="status === 3">
       <span class="info-title">转换进度：</span>
-      <span class="info-content tag">{{ processStage ?? 0 }}%</span>
+      <span class="info-content tag">{{ processStage || 0 }}%</span>
     </li>
     <li v-if="status === 4">
       <span class="info-title">失败时间：</span>

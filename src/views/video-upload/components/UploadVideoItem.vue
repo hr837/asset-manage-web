@@ -21,6 +21,8 @@ const emit = defineEmits<{
   remove: []
   /** 文件上传成功 */
   success: []
+  /** 文件准备好了。可以上传标识 */
+  ready: []
 }>()
 defineComponent({
   name: 'UploadVideoItem',
@@ -56,6 +58,7 @@ onMounted(() => {
     canvas.getContext('2d')!.drawImage(videoEl, 0, 0, videoWidth, videoHeight)
     videoInfo.coverSrc = canvas.toDataURL()
     canvas.toBlob(blob => coverBlob = blob)
+    emit('ready')
   }
   videoEl.onerror = () => {
     ElMessage.error('文件不能播放，请重新选择')

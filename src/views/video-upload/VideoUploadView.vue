@@ -60,13 +60,18 @@ function onFileuploadSuccess(file: UploadFile) {
   })
 }
 
-/** 选择的文件发生改变 */
+/** 选择的文件发生改变
+ * 只检测文件格式是否正确
+ */
 function onUploadFileChange(file: UploadFile) {
   if (!/.mp4/i.test(file.name)) {
     ElMessage.error('请选择mp4格式文件')
     uploadRef.value!.handleRemove(file)
-    return
   }
+}
+
+/** 子组件准备好之后，可以开始上传  */
+function onFileReady(file: UploadFile) {
   fileList.value.push({
     uid: file.uid,
     uploaded: false,
@@ -141,7 +146,7 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
           <UploadVideoItem
             :start="uploadStart" :transfrom="transfrom" :raw="file.raw"
             @play="src => onPlay(src, file.name)" @success="() => onFileuploadSuccess(file)"
-            @remove="() => onRemoveClick(file)"
+            @ready="() => onFileReady(file)" @remove="() => onRemoveClick(file)"
           />
         </template>
       </el-upload>
