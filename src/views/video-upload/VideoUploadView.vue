@@ -37,7 +37,8 @@ function onUploadClick(trans = false) {
 
 interface FileListItem {
   uid: number
-  uploaded: boolean
+  /** 文件在列表中的状态 */
+  status: 'await' | 'ready' | 'success'
 }
 const fileList = ref<FileListItem[]>([])
 
@@ -47,7 +48,7 @@ const router = useRouter()
 function onFileuploadSuccess(file: UploadFile) {
   ElMessage.success(`${file.name}上传成功`)
   const fileInfo = fileList.value.find(x => x.uid === file.uid)
-  fileInfo!.uploaded = true
+  fileInfo!.status = 'success'
   nextTick(() => {
     const index = fileList.value.indexOf(fileInfo!)
     fileList.value.splice(index, 1)
@@ -60,7 +61,8 @@ function onFileuploadSuccess(file: UploadFile) {
   })
 }
 
-/** 选择的文件发生改变
+/**
+ * 选择的文件发生改变
  * 只检测文件格式是否正确
  */
 function onUploadFileChange(file: UploadFile) {
@@ -68,14 +70,17 @@ function onUploadFileChange(file: UploadFile) {
     ElMessage.error('请选择mp4格式文件')
     uploadRef.value!.handleRemove(file)
   }
+  fileList.value.push({
+    uid: file.uid,
+    status: 'await',
+  })
 }
 
 /** 子组件准备好之后，可以开始上传  */
 function onFileReady(file: UploadFile) {
-  fileList.value.push({
-    uid: file.uid,
-    uploaded: false,
-  })
+  const localFile = fileList.value.find(x => x.uid === file.uid)
+  if (localFile)
+    localFile.status = 'ready'
 }
 
 onMounted(() => {
@@ -113,10 +118,7 @@ function onVideoClick(e: Event) {
     videoEl.pause()
 }
 
-const canSubmit = computed(() => {
-  const hasFile = fileList.value.length > 0
-  return hasFile && !uploadStart.value
-})
+const canSubmit = computed(() => fileList.value.every(x => x.status === 'ready') && !uploadStart.value)
 const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.value)
 </script>
 

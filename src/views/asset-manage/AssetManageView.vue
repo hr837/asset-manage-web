@@ -152,8 +152,8 @@ function updatePageQuery() {
         </el-button>
       </div>
       <div class="asset-manage-data-container">
-        <el-empty v-if="!dataSet.length" />
-        <AssetDataList v-else :data="dataSet" @detail="asesetCardClick" @action="onItemAction" />
+        <AssetDataList v-if="dataSet.length > 0" :data="dataSet" @detail="asesetCardClick" @action="onItemAction" />
+        <el-empty v-if="!dataSet.length && !listLoading" />
       </div>
       <DataPagination :page="pageService" @page-change="updatePageQuery" />
     </div>
