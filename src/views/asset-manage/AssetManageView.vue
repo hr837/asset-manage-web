@@ -84,7 +84,7 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
       }).then(() => assetService.delete(id).then(() => {
         ElMessage.success('资源已删除')
         pageService.reset()
-        updatePageQuery()
+        fetchData()
       })).catch(() => { })
       break
     case 'download':

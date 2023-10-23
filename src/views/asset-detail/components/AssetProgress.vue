@@ -82,7 +82,7 @@ const queueInfo = computed(() => {
           </div>
         </template>
       </el-step>
-      <el-step v-else title="转换完成" class="icon-large">
+      <el-step v-else title="转换完成" class="icon-large" :status="status === 5 ? 'success' : 'wait'">
         <template #icon>
           <div>3</div>
         </template>

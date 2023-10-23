@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AssetProgress from './components/AssetProgress.vue'
@@ -91,15 +91,6 @@ function onTransformClick() {
 
 const videoWrap = ref<HTMLDivElement>()
 
-const videoHeight = ref('600px')
-let observer: ResizeObserver
-
-onMounted(() => {
-  observer = new ResizeObserver(([e]) => videoHeight.value = `${e.contentRect.height}px`)
-  observer.observe(videoWrap.value!)
-})
-onUnmounted(() => observer.disconnect())
-
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
 const duration = computed(() => getDuration(assetData.duration))
 const fileSize = computed(() => getVideoSize(assetData.size))
@@ -160,13 +151,11 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 <style lang="less" scoped>
 .asset-detail {
-
-  @apply p-0 flex flex-col;
+  @apply p-0;
 }
 
 .page-action {
-  height: 50px;
-  @apply px-4 border-b flex justify-between items-center;
+  @apply h-14 px-4 border-b flex justify-between items-center;
 
   .page-title {
     @apply text-base text-black font-semibold;
@@ -175,7 +164,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 .page-content {
   min-width: 1150px;
-  @apply flex-1 flex overflow-auto;
+  min-height: 800px;
+  @apply flex overflow-auto;
 }
 
 .content-left {
@@ -203,8 +193,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
   }
 
   .video-player {
-    width: 100%;
-    height: v-bind(videoHeight);
+    height: 600px;
+    @apply w-full bg-black my-8;
   }
 
 }
