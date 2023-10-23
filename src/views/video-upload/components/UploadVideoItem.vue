@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { type FilePart, getDuration, getSliceFileMd5, getVideoSize } from '@/utils/file.util'
+import { type FilePart, getSliceFileMd5, getVideoSize } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 import { FileChunkSize } from '@/views/asset-manage/composable/constant'
+import { getVideoDuration } from '@/utils/date.util'
 const props = defineProps<{
   /** 视频播放地址 */
   raw: File
@@ -46,8 +47,8 @@ onMounted(() => {
   videoEl.src = videoInfo.src
   videoEl.preload = 'auto'
   videoEl.onloadedmetadata = () => {
-    videoInfo.duration = videoEl.duration
-    videoInfo.durationStr = getDuration(videoEl.duration)
+    videoInfo.duration = Math.floor(videoEl.duration)
+    videoInfo.durationStr = getVideoDuration(videoEl.duration)
     videoInfo.size = getVideoSize(props.raw.size)
   }
   videoEl.onloadeddata = () => {

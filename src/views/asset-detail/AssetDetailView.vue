@@ -6,8 +6,9 @@ import AssetProgress from './components/AssetProgress.vue'
 import AssetDetailTag from './components/AssetDetailTag.vue'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { AssetVideoPrefix } from '@/config/app.config'
-import { downloadFile, getDuration, getVideoSize } from '@/utils/file.util'
+import { downloadFile, getVideoSize } from '@/utils/file.util'
 import type { AssetInfo } from '@/types/asset-info.type'
+import { getVideoDuration } from '@/utils/date.util'
 const route = useRoute()
 const router = useRouter()
 
@@ -92,7 +93,7 @@ function onTransformClick() {
 const videoWrap = ref<HTMLDivElement>()
 
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
-const duration = computed(() => getDuration(assetData.duration))
+const duration = computed(() => getVideoDuration(assetData.duration))
 const fileSize = computed(() => getVideoSize(assetData.size))
 const canDownload = computed(() => assetData.status === 5)
 const canTransform = computed(() => assetData.status === 1 || assetData.status === 4)
@@ -177,7 +178,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
   @apply flex-1 p-6 pb-0 flex flex-col;
 
   .info-name {
-    @apply h-12 text-2xl text-gray-700 font-semibold;
+    @apply py-4 text-2xl break-all text-gray-700 font-semibold;
   }
 
   .info-extra {

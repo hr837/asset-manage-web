@@ -18,3 +18,24 @@ export function getDuration(milliseconds?: string) {
   else
     return d.format('s秒')
 }
+
+/**
+ * 获取视频的时常
+ * @param inputSeconds 视频的时长 单位秒
+ * @returns 格式化后的时长字符串
+ */
+export function getVideoDuration(inputSeconds: number) {
+  if (!inputSeconds)
+    return ''
+  let val = typeof inputSeconds === 'string' ? Number.parseInt(inputSeconds) : inputSeconds
+  val = Math.floor(val)
+  const d = dayjs.duration(val, 's')
+  const minutes = d.minutes()
+  const seconds = d.seconds()
+  if (minutes > 0 && seconds === 0)
+    return `${minutes}min`
+  else if (minutes > 0 && seconds > 0)
+    return `${minutes}min ${seconds}s`
+  else
+    return `${seconds}s`
+}

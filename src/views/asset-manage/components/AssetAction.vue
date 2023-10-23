@@ -10,8 +10,11 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
 </script>
 
 <template>
-  <el-dropdown class="component asset-action" trigger="click" popper-class="asset-action-popper" @command="(e:AssetActionCommand) => $emit('action', e)">
-    <icon-park-outline-more class="text-xl text-gray-400" />
+  <el-dropdown
+    class="component asset-action" trigger="click" popper-class="asset-action-popper"
+    @command="(e: AssetActionCommand) => $emit('action', e)"
+  >
+    <icon-park-outline-more class="action-icon" />
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item command="download">
@@ -35,9 +38,15 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
   </el-dropdown>
 </template>
 
+<style lang="less" scoped>
+.action-icon {
+  @apply text-xl text-gray-400 focus:outline-dashed outline-1 outline-gray-300;
+}
+</style>
+
 <style lang="less">
-.asset-action-popper{
-  .el-dropdown-menu__item--divided{
+.asset-action-popper {
+  .el-dropdown-menu__item--divided {
     @apply m-0;
   }
 }
