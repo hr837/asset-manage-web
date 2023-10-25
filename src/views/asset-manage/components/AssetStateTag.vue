@@ -22,7 +22,7 @@ const backgroundColor = computed(() => `${current.value[0]}CC`)
 
 <style lang="less" scoped>
 .asset-state-tag {
-  @apply flex items-center p-1 rounded-tr rounded-br overflow-hidden;
+  @apply flex items-center p-px rounded-tr rounded-br overflow-hidden;
 
   &-text {
     @apply truncate text-sm block mr-2;

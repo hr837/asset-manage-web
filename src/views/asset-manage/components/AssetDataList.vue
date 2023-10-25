@@ -53,8 +53,8 @@ const emit = defineEmits<{
   @apply grid grid-cols-4;
 
   .asset-item {
-    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.25);
-    @apply overflow-hidden  rounded cursor-pointer;
+    box-shadow: var(--el-box-shadow-lighter);
+    @apply overflow-hidden rounded cursor-pointer;
 
     &-header {
       @apply flex items-center p-2;
@@ -72,7 +72,7 @@ const emit = defineEmits<{
       }
 
       .video-duration {
-        @apply w-full px-2 pt-4 text-right text-white bg-gradient-to-t from-gray-600/20;
+        @apply w-full text-sm px-2 pt-4 pb-px text-right text-white bg-gradient-to-t from-gray-600/20;
       }
 
       .video-cover {
