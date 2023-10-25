@@ -36,13 +36,14 @@ function onAction(cmd: AssetActionCommand, id: string) {
         </div>
         <div class="asset-item-center">
           <img class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
-          <icon-park-solid-play class="video-play-icon" />
-          <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
-          <div class="video-duration">
-            {{ getVideoDuration(item.duration) }}
+          <div class="video-mask">
+            <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
+            <icon-park-solid-play-one class="video-play-icon" />
+            <div class="video-duration">
+              {{ getVideoDuration(item.duration) }}
+            </div>
           </div>
         </div>
-
         <AssetTimeInfo v-bind="item" />
       </div>
     </template>
@@ -59,10 +60,6 @@ function onAction(cmd: AssetActionCommand, id: string) {
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.25);
     @apply overflow-hidden rounded cursor-pointer;
 
-    &:hover .video-play-icon {
-      @apply text-gray-400;
-    }
-
     &-header {
       @apply flex items-center p-2;
     }
@@ -70,16 +67,20 @@ function onAction(cmd: AssetActionCommand, id: string) {
     &-center {
       @apply relative h-36 overflow-hidden bg-gray-100 flex justify-center items-center select-none;
 
+      .video-mask {
+        @apply absolute w-full h-full bg-black/5 flex flex-col items-center;
+      }
+
       .video-play-icon {
-        @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-gray-300;
+        @apply text-4xl text-white;
       }
 
       .video-duration {
-        @apply absolute bottom-0 right-0 w-full px-2 pt-4 text-right text-white bg-gradient-to-t from-gray-800/40;
+        @apply w-full px-2 pt-4 text-right text-white bg-gradient-to-t from-gray-600/20;
       }
 
       .video-cover {
-        @apply bg-gray-50 h-full w-full object-contain;
+        @apply bg-gray-50 h-full w-full object-cover;
       }
     }
 
@@ -89,7 +90,7 @@ function onAction(cmd: AssetActionCommand, id: string) {
 
     &-tag {
       max-width: 100%;
-      @apply absolute top-4 left-0;
+      @apply mt-4 self-start;
     }
 
     &-action {
