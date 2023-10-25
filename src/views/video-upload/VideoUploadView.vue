@@ -128,9 +128,9 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
       <!-- control -->
       <el-upload
         ref="uploadRef" class="video-upload-control" :auto-upload="false" drag :limit="5" accept=".mp4"
-        :disabled="disableUpload" :on-change="onUploadFileChange"
+        :disabled="disableUpload" :on-change="onUploadFileChange" :class="{ disabled: disableUpload }"
       >
-        <el-button type="primary" :disabled="disableUpload" class="action-button px-6">
+        <el-button type="primary" class="action-button px-6" :class="[disableUpload ? 'is-disabled' : '']">
           上传视频
         </el-button>
         <div class="action-split-line mx-6 h-8 w-0.5 bg-gray-200" />
@@ -186,6 +186,12 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
   &-action {
     @apply col-span-2 text-right pt-3 border-t;
+  }
+
+  .video-upload-control.disabled {
+    :deep(.el-upload-dragger) {
+      cursor: not-allowed;
+    }
   }
 
   // 上传控制器描述
