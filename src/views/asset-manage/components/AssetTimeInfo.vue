@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import type { AssetTimeInfo } from '@/types/asset-info.type'
 import { TagColors } from '@/config/constant'
-import { getDuration } from '@/utils/date.util'
 const props = defineProps<AssetTimeInfo>()
 
 const current = computed(() => TagColors[props.status])
@@ -18,19 +17,19 @@ const bgColor = computed(() => current.value[0])
     </li>
     <li v-if="status === 2">
       <span class="info-title"> 预计排队耗时：</span>
-      <span class="info-content tag">{{ getDuration(lineAlreadyWaitTime) }}</span>
+      <span class="info-content tag">{{ predictLineTime }}</span>
     </li>
     <li v-if="status === 3">
       <span class="info-title">转换进度：</span>
-      <span class="info-content tag">{{ processStage }}%</span>
+      <span class="info-content tag">{{ processStage || 0 }}%</span>
     </li>
     <li v-if="status === 4">
       <span class="info-title">失败时间：</span>
-      <span class="info-content">{{ convertTime }}</span>
+      <span class="info-content">{{ convertEndTime }}</span>
     </li>
     <li v-if="status === 5">
       <span class="info-title">转换完成时间：</span>
-      <span class="info-content">{{ convertTime }}</span>
+      <span class="info-content">{{ convertEndTime }}</span>
     </li>
   </ul>
 </template>

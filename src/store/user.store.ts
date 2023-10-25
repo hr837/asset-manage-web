@@ -23,8 +23,8 @@ export const useUserStore = defineStore('user', {
     /**
      * 更新系统状态
      */
-    updateToken(token: string) {
-      this.token = token
+    updateToken(token?: string) {
+      this.token = token ?? ''
     },
     updateUserInfo(user: { id: string; name: string }) {
       this.id = user.id

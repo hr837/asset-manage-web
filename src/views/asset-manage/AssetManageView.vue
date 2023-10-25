@@ -84,7 +84,7 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
       }).then(() => assetService.delete(id).then(() => {
         ElMessage.success('资源已删除')
         pageService.reset()
-        updatePageQuery()
+        fetchData()
       })).catch(() => { })
       break
     case 'download':
@@ -146,14 +146,14 @@ function updatePageQuery() {
         </el-form-item>
       </DataForm>
       <div class="asset-manage-action">
-        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="updatePageQuery" />
+        <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onFormSearch" />
         <el-button type="primary" @click="() => router.push('/upload')">
           上传视频
         </el-button>
       </div>
       <div class="asset-manage-data-container">
-        <el-empty v-if="!dataSet.length" />
-        <AssetDataList v-else :data="dataSet" @detail="asesetCardClick" @action="onItemAction" />
+        <AssetDataList v-if="dataSet.length > 0" :data="dataSet" @detail="asesetCardClick" @action="onItemAction" />
+        <el-empty v-if="!dataSet.length && !listLoading" />
       </div>
       <DataPagination :page="pageService" @page-change="updatePageQuery" />
     </div>

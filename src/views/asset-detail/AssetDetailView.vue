@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AssetProgress from './components/AssetProgress.vue'
 import AssetDetailTag from './components/AssetDetailTag.vue'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { AssetVideoPrefix } from '@/config/app.config'
-import { downloadFile, getDuration, getVideoSize } from '@/utils/file.util'
+import { downloadFile, getVideoSize } from '@/utils/file.util'
 import type { AssetInfo } from '@/types/asset-info.type'
+import { getVideoDuration } from '@/utils/date.util'
 const route = useRoute()
 const router = useRouter()
 
@@ -22,10 +23,11 @@ const assetData = reactive<Required<AssetInfo>>({
   uploadTime: '',
   lineTotalTime: '',
   processStage: '',
+  coverImage: '',
   lineAlreadyWaitTime: '',
   convertTotalTime: '',
   convertAlreadyWaitTime: '',
-  convertTime: '',
+  convertEndTime: '',
   message: '',
   size: 0,
   duration: 0,
@@ -70,32 +72,28 @@ function onDownloadFbxClick() {
 function onDeleteClick() {
   ElMessageBox.confirm(`是否删除资源文件【${assetData.name}】`, '删除提示', {
     type: 'warning',
-  }).then(() => assetService.delete(id).then(() => {
-    ElMessage.success('资源已删除')
-    router.back()
-  })).catch(() => { })
+  }).then(() => assetService.delete(id))
+    .then(() => {
+      ElMessage.success('资源已删除')
+      router.back()
+    }).catch(({ msg }: any) => {
+      ElMessage.error(msg ?? '删除失败，请重试')
+    })
 }
 
 function onTransformClick() {
   assetService.convertToFbx(id).then(() => {
     ElMessage.success('操作成功')
     fetchData()
+  }).catch(({ msg }: any) => {
+    ElMessage.error(msg ?? '转换操作失败，请重试')
   })
 }
 
 const videoWrap = ref<HTMLDivElement>()
 
-const videoHeight = ref('600px')
-let observer: ResizeObserver
-
-onMounted(() => {
-  observer = new ResizeObserver(([e]) => videoHeight.value = `${e.contentRect.height}px`)
-  observer.observe(videoWrap.value!)
-})
-onUnmounted(() => observer.disconnect())
-
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
-const duration = computed(() => getDuration(assetData.duration))
+const duration = computed(() => getVideoDuration(assetData.duration))
 const fileSize = computed(() => getVideoSize(assetData.size))
 const canDownload = computed(() => assetData.status === 5)
 const canTransform = computed(() => assetData.status === 1 || assetData.status === 4)
@@ -154,13 +152,11 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 <style lang="less" scoped>
 .asset-detail {
-
-  @apply p-0 flex flex-col;
+  @apply p-0;
 }
 
 .page-action {
-  height: 50px;
-  @apply px-4 border-b flex justify-between items-center;
+  @apply h-14 px-4 border-b flex justify-between items-center;
 
   .page-title {
     @apply text-base text-black font-semibold;
@@ -169,7 +165,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 .page-content {
   min-width: 1150px;
-  @apply flex-1 flex overflow-auto;
+  min-height: 800px;
+  @apply flex overflow-auto;
 }
 
 .content-left {
@@ -181,7 +178,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
   @apply flex-1 p-6 pb-0 flex flex-col;
 
   .info-name {
-    @apply h-12 text-2xl text-gray-700 font-semibold;
+    @apply py-4 text-2xl break-all text-gray-700 font-semibold;
   }
 
   .info-extra {
@@ -197,8 +194,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
   }
 
   .video-player {
-    width: 100%;
-    height: v-bind(videoHeight);
+    height: 600px;
+    @apply w-full bg-black my-8;
   }
 
 }

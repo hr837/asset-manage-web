@@ -49,7 +49,7 @@ const queueInfo = computed(() => {
       </el-step>
       <el-step title="排队完成" class="icon-large">
         <template #icon>
-          <div v-if="status <= 3">
+          <div v-if="status < 3">
             2
           </div>
           <icon-park-outline-check v-else />
@@ -76,18 +76,18 @@ const queueInfo = computed(() => {
           <icon-park-outline-close />
         </template>
         <template #description>
-          <div>{{ convertTime }}</div>
+          <div>{{ convertEndTime }}</div>
           <div>
             {{ message }}
           </div>
         </template>
       </el-step>
-      <el-step v-else title="转换完成" class="icon-large">
+      <el-step v-else title="转换完成" class="icon-large" :status="status === 5 ? 'success' : 'wait'">
         <template #icon>
           <div>3</div>
         </template>
         <template #description>
-          <div>{{ convertTime }}</div>
+          <div>{{ convertEndTime }}</div>
         </template>
       </el-step>
     </el-steps>

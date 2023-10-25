@@ -5,6 +5,9 @@ const routesConfig: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: () => import('@/views/login/LoginView.vue'),
+    meta: {
+      ignoreAuth: true,
+    },
   },
   {
     path: '/forbidden',

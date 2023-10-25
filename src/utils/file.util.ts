@@ -37,7 +37,7 @@ export function fileSlice(file: Blob, chunkSize = 1048576) {
 }
 
 const AssetPrefix = '/asset/'
-type FileType = 'video' | 'fbx'
+type FileType = 'video' | 'fbx' | 'image'
 
 /**
  * 下载资源文件
@@ -66,19 +66,6 @@ export function getFilePath(relativePath: string, type: FileType) {
   if (!/^\//.test(relativePath))
     arr.splice(2, 0, '/')
   return arr.join('')
-}
-
-/** 计算视频长度 */
-export function getDuration(duration: number) {
-  if (duration < 60) {
-    return `${Math.round(duration)}s`
-  }
-  else {
-    const m = Math.round(duration / 60)
-    const seconds = duration - m * 60
-    const s = Math.ceil(seconds)
-    return `${m}min${s}s`
-  }
 }
 
 // 计算文件大小

@@ -85,3 +85,32 @@ export interface PartUploadResponse {
   /** 文件ID */
   fileId: string
 }
+
+/**
+ * 封面上传
+ */
+export interface CoverUploadInput {
+  /**
+   * 封面文件内容
+   */
+  file: File
+  /**
+   * 封面大小
+   */
+  Size?: number
+  /**
+   * 上传封面的对应的上传文件id
+   */
+  uploadFileId: string
+}
+
+export interface CoverUploadRes {
+  /**
+   * 封面上传结果，true代表成功，false代表失败
+   */
+  result: boolean
+  /**
+   * 上传封面的对应的上传文件id
+   */
+  uploadFileId: string
+}
