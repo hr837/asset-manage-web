@@ -26,15 +26,6 @@ const routesConfig: Array<RouteRecordRaw> = [
       menuPath: '/index',
     },
   },
-  {
-    path: '/play',
-    name: 'play-video',
-    component: () => import('@/views/asset-manage/AssetPlay.vue'),
-    meta: {
-      title: '资产播放',
-      menuPath: '/index',
-    },
-  },
 ]
 
 export default routesConfig
