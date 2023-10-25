@@ -28,7 +28,7 @@ const bgColor = computed(() => current.value[0])
       <span class="info-content">{{ convertEndTime }}</span>
     </li>
     <li v-if="status === 5">
-      <span class="info-title">转换完成时间：</span>
+      <span class="info-title">完成时间：</span>
       <span class="info-content">{{ convertEndTime }}</span>
     </li>
   </ul>
@@ -36,7 +36,7 @@ const bgColor = computed(() => current.value[0])
 
 <style lang="less" scoped>
 .asset-time-info {
-  @apply px-2 pt-2 text-sm text-gray-400;
+  @apply px-2 pt-2 text-xs text-gray-400;
 
   .info-title {
     color: #606266;

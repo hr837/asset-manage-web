@@ -14,10 +14,6 @@ const emit = defineEmits<{
   detail: [id: string]
   action: [command: AssetActionCommand, id: string]
 }>()
-
-function onAction(cmd: AssetActionCommand, id: string) {
-  emit('action', cmd, id)
-}
 </script>
 
 <template>
@@ -35,7 +31,7 @@ function onAction(cmd: AssetActionCommand, id: string) {
           </div>
         </div>
         <div class="asset-item-center">
-          <img class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
+          <img v-if="item.coverImage" class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
           <div class="video-mask">
             <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
             <icon-park-solid-play-one class="video-play-icon" />
@@ -53,22 +49,22 @@ function onAction(cmd: AssetActionCommand, id: string) {
 <style lang="less" scoped>
 .asset-data-list {
   column-gap: 14px;
-  row-gap: 10px;
+  row-gap: 20px;
   @apply grid grid-cols-4;
 
   .asset-item {
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.25);
-    @apply overflow-hidden rounded cursor-pointer;
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.25);
+    @apply overflow-hidden  rounded cursor-pointer;
 
     &-header {
       @apply flex items-center p-2;
     }
 
     &-center {
-      @apply relative h-36 overflow-hidden bg-gray-100 flex justify-center items-center select-none;
+      @apply relative h-36 overflow-hidden bg-white flex justify-center items-center select-none;
 
       .video-mask {
-        @apply absolute w-full h-full bg-black/5 flex flex-col items-center;
+        @apply absolute w-full h-full bg-black/20 flex flex-col justify-between items-center;
       }
 
       .video-play-icon {
@@ -99,7 +95,7 @@ function onAction(cmd: AssetActionCommand, id: string) {
   }
 
   .asset-time-info {
-    height: 60px;
+    height: 48px;
   }
 
 }

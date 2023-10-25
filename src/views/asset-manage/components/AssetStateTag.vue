@@ -9,10 +9,11 @@ const props = defineProps<{
 
 const current = computed(() => TagColors[props.state])
 const tagLabel = computed(() => AssetStatusDict.find(x => x.key === props.state)?.label ?? '--')
+const backgroundColor = computed(() => `${current.value[0]}CC`)
 </script>
 
 <template>
-  <div class="component asset-state-tag" :style="{ backgroundColor: current[0], color: current[1] }">
+  <div class="component asset-state-tag" :style="{ backgroundColor, color: current[1] }">
     <div class="asset-state-tag-text" :title="reason">
       {{ tagLabel }} {{ reason }}
     </div>
