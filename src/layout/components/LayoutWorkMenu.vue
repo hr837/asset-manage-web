@@ -42,7 +42,7 @@ interface PropType {
     width: 100%;
   }
 
-  --el-menu-item-height: 40px;
+  --el-menu-item-height: 48px;
 
   .el-menu-item {
     :deep(.el-menu-tooltip__trigger) {

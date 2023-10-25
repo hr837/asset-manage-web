@@ -14,10 +14,6 @@ const emit = defineEmits<{
   detail: [id: string]
   action: [command: AssetActionCommand, id: string]
 }>()
-
-function onAction(cmd: AssetActionCommand, id: string) {
-  emit('action', cmd, id)
-}
 </script>
 
 <template>
@@ -35,14 +31,15 @@ function onAction(cmd: AssetActionCommand, id: string) {
           </div>
         </div>
         <div class="asset-item-center">
-          <img class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
-          <icon-park-solid-play class="video-play-icon" />
-          <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
-          <div class="video-duration">
-            {{ getVideoDuration(item.duration) }}
+          <img v-if="item.coverImage" class="video-cover" :src="getFilePath(item.coverImage, 'image')" alt="视频封面">
+          <div class="video-mask">
+            <AssetStateTag class="asset-item-tag" :state="item.status" :reason="item.message" />
+            <icon-park-solid-play-one class="video-play-icon" />
+            <div class="video-duration">
+              {{ getVideoDuration(item.duration) }}
+            </div>
           </div>
         </div>
-
         <AssetTimeInfo v-bind="item" />
       </div>
     </template>
@@ -52,34 +49,34 @@ function onAction(cmd: AssetActionCommand, id: string) {
 <style lang="less" scoped>
 .asset-data-list {
   column-gap: 14px;
-  row-gap: 10px;
+  row-gap: 20px;
   @apply grid grid-cols-4;
 
   .asset-item {
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: var(--el-box-shadow-lighter);
     @apply overflow-hidden rounded cursor-pointer;
-
-    &:hover .video-play-icon {
-      @apply text-gray-400;
-    }
 
     &-header {
       @apply flex items-center p-2;
     }
 
     &-center {
-      @apply relative h-36 overflow-hidden bg-gray-100 flex justify-center items-center select-none;
+      @apply relative h-36 overflow-hidden bg-white flex justify-center items-center select-none;
+
+      .video-mask {
+        @apply absolute w-full h-full bg-black/20 flex flex-col justify-between items-center;
+      }
 
       .video-play-icon {
-        @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-gray-300;
+        @apply text-4xl text-white;
       }
 
       .video-duration {
-        @apply absolute bottom-0 right-0 w-full px-2 pt-4 text-right text-white bg-gradient-to-t from-gray-800/40;
+        @apply w-full text-sm px-2 pt-4 pb-px text-right text-white bg-gradient-to-t from-gray-600/20;
       }
 
       .video-cover {
-        @apply bg-gray-50 h-full w-full object-contain;
+        @apply bg-gray-50 h-full w-full object-cover;
       }
     }
 
@@ -89,7 +86,7 @@ function onAction(cmd: AssetActionCommand, id: string) {
 
     &-tag {
       max-width: 100%;
-      @apply absolute top-4 left-0;
+      @apply mt-4 self-start;
     }
 
     &-action {
@@ -98,7 +95,7 @@ function onAction(cmd: AssetActionCommand, id: string) {
   }
 
   .asset-time-info {
-    height: 60px;
+    height: 48px;
   }
 
 }

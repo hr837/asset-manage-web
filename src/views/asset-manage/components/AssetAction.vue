@@ -40,7 +40,7 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
 
 <style lang="less" scoped>
 .action-icon {
-  @apply text-xl text-gray-400 focus:outline-dashed outline-1 outline-gray-300;
+  @apply text-xl text-gray-400 focus:outline-dashed outline-1 outline-gray-300 hover:text-violet-500;
 }
 </style>
 

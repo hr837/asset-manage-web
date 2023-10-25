@@ -115,11 +115,11 @@ async function upload() {
     if (fastUpload)
       return emitSuccess()
     // 生成封面图片文件
-    if (!coverBlob)
-      throw new Error('视频封面生成失败')
-    const file = new File([coverBlob], `${uploadFileId}.png`, { type: coverBlob.type })
-    // 封面上传
-    await uploadService.coverUpload({ file, uploadFileId })
+    if (coverBlob !== null) {
+      const file = new File([coverBlob], `${uploadFileId}.png`, { type: coverBlob.type })
+      // 封面上传
+      await uploadService.coverUpload({ file, uploadFileId })
+    }
     videoInfo.fileId = uploadFileId
     // 分片数据设置
     partList.value = fileParts.map(item => Object.assign(item, { uploaded: false }))
@@ -205,22 +205,24 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
   <div class="component upload-video-item">
     <div v-loading="!videoInfo.coverSrc" class="video-container">
       <img class="video-cover" :src="videoInfo.coverSrc" :alt="raw.name">
-      <div v-if="showSuccessIcon" class="video-upload-succss">
-        <icon-park-outline-check class="-rotate-45" />
-      </div>
-      <div class="video-info-duration">
-        {{ videoInfo.durationStr }}
-      </div>
-      <!-- 开始上传，不允许播放 -->
-      <icon-park-solid-play v-if="showPlayIcon" class="video-aciton-play" @click="$emit('play', videoInfo.src)" />
-      <div v-else class="video-mask">
-        <el-progress
-          class="video-upload-progress" :percentage="calcPrecent" :class="showRefresh ? 'error' : ''"
-          :format="progressTextFormat"
-        />
-        <el-button v-if="showRefresh" type="primary" class="video-action-continue" @click="onRetryClick">
-          重新上传
-        </el-button>
+      <div class="video-mask-base">
+        <div v-if="showSuccessIcon" class="video-upload-succss">
+          <icon-park-outline-check class="-rotate-45" />
+        </div>
+        <div class="video-info-duration">
+          {{ videoInfo.durationStr }}
+        </div>
+        <!-- 开始上传，不允许播放 -->
+        <icon-park-solid-play-one v-if="showPlayIcon" class="video-aciton-play" @click="$emit('play', videoInfo.src)" />
+        <div v-else class="video-mask-retry">
+          <el-progress
+            class="video-upload-progress" :percentage="calcPrecent" :class="showRefresh ? 'error' : ''"
+            :format="progressTextFormat"
+          />
+          <el-button v-if="showRefresh" type="primary" class="video-action-continue" @click="onRetryClick">
+            重新上传
+          </el-button>
+        </div>
       </div>
     </div>
     <div class="video-info">
@@ -244,22 +246,26 @@ const showSuccessIcon = computed(() => uploadStatus.value === 'success')
 .video-container {
   width: 269px;
   height: 151px;
-  @apply bg-gray-50 relative rounded overflow-hidden;
+  @apply relative rounded overflow-hidden;
 
   .video-upload-succss {
     @apply absolute -top-px -right-4 text-white bg-green-500 w-12 flex justify-center py-1 rotate-45 text-xs;
   }
 
   .video-cover {
-    @apply bg-gray-50 h-full w-full rounded object-contain;
+    @apply bg-white h-full w-full rounded object-cover;
   }
 
-  .video-mask {
+  .video-mask-base {
+    @apply absolute top-0 left-0 right-0 bottom-0 bg-black/20;
+  }
+
+  .video-mask-retry {
     @apply absolute top-0 left-0 right-0 bottom-0 bg-black/50;
   }
 
   .video-aciton-play {
-    @apply text-5xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-gray-300 hover:text-gray-500;
+    @apply text-4xl absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 cursor-pointer text-white;
   }
 
   .video-action-continue {
