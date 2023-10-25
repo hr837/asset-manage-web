@@ -37,6 +37,7 @@ function onMouseMoving(e: MouseEvent) {
     validated.value = true
     moveStart = false
     left.value = `${cWidth - bWidth}px`
+    emit('success')
   }
 }
 

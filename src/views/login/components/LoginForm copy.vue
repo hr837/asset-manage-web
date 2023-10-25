@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
-import { computed, reactive, ref } from 'vue'
-import type { FormType } from '../composables/login.composable'
+import { reactive, ref, watch } from 'vue'
 import type { LoginInput } from '@/http/models/login.model'
 
 const props = defineProps<{
   /** 加载状态，登录的时候可以设置 */
   loading: boolean
-  type: FormType
+  patchcaKey: string
 }>()
 const emit = defineEmits<{
   /** 登录表单校验成功 */
@@ -42,7 +41,7 @@ const loginRules = {
   ],
 }
 
-const showPwd = computed(() => props.type === 'pwd')
+watch(() => props.patchcaKey, () => loginModel.validateCode = '')
 
 /**
  * 登陆
@@ -53,40 +52,38 @@ function handleLogin() {
       emit('validated', { ...loginModel })
   })
 }
-
-const showLabelAccount = computed(() => loginModel.account.trim() !== '')
-const showLabelPwd = computed(() => loginModel.password.trim() !== '')
-const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
 </script>
 
 <template>
   <div class="component login-form">
-    <el-form ref="loginRef" :model="loginModel" :rules="loginRules" label-position="top" class="login-form" size="large">
-      <el-form-item prop="account" label="手机号">
-        <el-input v-model="loginModel.account" type="text" placeholder="请输入手机号码">
+    <el-form ref="loginRef" :model="loginModel" :rules="loginRules" class="login-form" size="large">
+      <el-form-item prop="account">
+        <el-input v-model="loginModel.account" type="text" placeholder="请输入手机号码/用户名">
           <template #prefix>
-            <icon-park-solid-phone />
+            <icon-park-outline-user />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item v-if="showPwd" prop="password" label="密码">
-        <el-input v-model="loginModel.password" type="password" placeholder="请输入密码" maxlength="20">
+      <el-form-item prop="password">
+        <el-input
+          v-model="loginModel.password" type="password" placeholder="请输入密码"
+          maxlength="20"
+        >
           <template #prefix>
-            <icon-park-solid-lock />
+            <icon-park-outline-lock />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item v-else prop="validateCode" class="login-form-item--code" label="验证码">
+      <el-form-item prop="validateCode" class="login-form-item--code">
         <el-input v-model="loginModel.validateCode" placeholder="请输入验证码" maxlength="4">
           <template #prefix>
             <icon-park-outline-block-six />
           </template>
           <template #suffix>
-            <slot name="verify" />
+            <img :src="`/api/patchca/${patchcaKey}`" alt="code" class="login-img-verifycode" @click="$emit('chageCode')">
           </template>
         </el-input>
       </el-form-item>
-
       <el-form-item class="mt-12">
         <el-button class="w-full" :loading="loading" type="primary" @click="handleLogin">
           {{ loading ? '登 录 中...' : '登 录' }}
@@ -97,46 +94,28 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
 </template>
 
 <style lang="less" scoped>
-.login-form {
+.login-form{
   --el-component-size-large: 60px;
-  --el-font-size-base: 18px;
-  @apply relative z-0;
-
-  .el-input--large {
-    font-size: var(--el-font-size-base);
+  --el-font-size-base:18px;
+  .el-input--large{
+    font-size:var(--el-font-size-base);
   }
-
-  .el-button--large {
-    --el-button-size: var(--el-component-size-large);
+  .el-button--large{
+    --el-button-size:var(--el-component-size-large);
   }
-
-  .iconify {
-    color: @color-primary;
+  .iconify{
+    color:@color-primary;
   }
+}
+.login-form-item--code {
+  :deep(.el-input) {
+    .el-input__wrapper {
+      padding-right: 2px;
 
-  :deep(.el-form-item) {
-    position: relative;
-    --el-border-radius-base: 10px;
-
-    &.el-form-item--large {
-      &.is-error {
-        @apply mb-10;
-      }
-
-      .el-form-item__label {
-        color: #3C4071;
-        @apply text-xs h-auto absolute bg-white px-2 z-10 -top-2 left-2 transition-all;
-
-        &::before {
-          display: none;
-        }
-      }
-
-      .el-input__prefix {
-        @apply px-2;
+      .el-input__suffix {
+        @apply w-1/3 cursor-pointer bg-white;
       }
     }
-
   }
 }
 </style>
