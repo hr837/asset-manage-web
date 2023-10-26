@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import type { FormInstance } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { reactive, ref } from 'vue'
-import { EXP_Email } from '@/utils/regexp.util'
 
 const emit = defineEmits<{
   submit: [data: any]
@@ -12,13 +11,13 @@ const settingModel = reactive({
   password: '',
 })
 const formRef = ref<FormInstance>()
-const formRules = {
+const formRules: FormRules = {
   email: [
     {
-      required: true, message: '请设置登录邮箱', trigger: 'blur',
+      required: true, type: 'email', message: '请设置登录邮箱', trigger: 'blur',
     },
     {
-      pattern: EXP_Email, message: '请输入正确的邮箱地址', trigger: 'blur',
+      type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur',
     },
   ],
   password: [

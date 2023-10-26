@@ -17,6 +17,17 @@ export interface LoginInput {
   patchcaKey: string
 }
 
+export interface SmsCodeLoginInput {
+  /**
+     * 手机号
+     */
+  phone: string
+  /**
+      * 短信验证码
+      */
+  smsCode: string
+}
+
 export interface LoginOutput {
   token: string
 }

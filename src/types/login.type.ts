@@ -8,3 +8,8 @@ export type LoginFormData = Omit<LoginInput, 'patchcaKey'>
  * code 验证码登录
  */
 export type FormType = 'pwd' | 'code'
+
+export interface CodeFormData {
+  phone: string
+  code: string
+}

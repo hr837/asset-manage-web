@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 
 const emit = defineEmits(['success'])
 const validated = ref(false)
@@ -14,6 +14,7 @@ let startX = 0
 let cWidth = 0
 /** 滑块宽度 */
 let bWidth = 40
+let timerId = -1
 
 function onMouseMoving(e: MouseEvent) {
   if (!startX || !moveStart || validated.value || !bWidth)
@@ -37,7 +38,7 @@ function onMouseMoving(e: MouseEvent) {
     validated.value = true
     moveStart = false
     left.value = `${cWidth - bWidth}px`
-    emit('success')
+    timerId = window.setTimeout(() => emit('success'), 500)
   }
 }
 
@@ -67,6 +68,8 @@ function onTransitionend() {
   moveStart = false
   failed.value = false
 }
+
+onUnmounted(() => window.clearTimeout(timerId))
 </script>
 
 <template>
@@ -105,7 +108,7 @@ function onTransitionend() {
   .drag-blcok {
     background-color: @color-primary;
     border-color: @color-primary;
-    @apply absolute  text-white w-10 h-full  border  top-0 cursor-move inline-flex justify-center items-center text-xl shadow-sm;
+    @apply absolute text-white w-10 h-full border top-0 cursor-move inline-flex justify-center items-center text-xl shadow-sm;
     left: v-bind(left);
   }
 
