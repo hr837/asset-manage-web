@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { computed, onUnmounted, ref } from 'vue'
-import LoginForm from './components/LoginForm.vue'
-import type { FormType } from '@/types/login.type'
+import RegisterForm from './components/RegisterForm.vue'
+import SettingForm from './components/SettingForm.vue'
 import DragVerify from '@/components/common/DragVerify.vue'
+import type { RegistStep } from '@/types/register.type'
 const title = process.env.VUE_APP_TITLE
 
-const tabActive = ref<FormType>('code')
-
+const currentSetp = ref<RegistStep>('verifycode')
 const countDown = ref(0)
 const showCountDown = ref(false)
 
@@ -45,44 +45,67 @@ function onDragVerified() {
 
 onUnmounted(() => window.clearInterval(timerId))
 const countDownText = computed(() => `${countDown.value}s后重试`)
+const submitBtnText = computed(() => {
+  switch (currentSetp.value) {
+    case 'account':
+      return '下一步'
+    case 'verifycode':
+      return '注册'
+    default:
+      return '登录'
+  }
+})
+
+const showSettingFrom = ref(false)
+
+function onRegistSubmit() {
+  // send to server
+  showSettingFrom.value = true
+}
+
+function onSettingSubmit() {
+  showSettingFrom.value = false
+}
+
+const formTitle = computed(() => showSettingFrom.value ? '最后一步' : '注册')
+const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完成注册' : '请在下面录入信息注册')
 </script>
 
 <template>
-  <div class="login">
-    <div class="login-left">
-      <div class="login-left-bg" />
-      <div class="login-left-content">
+  <div class="register">
+    <div class="register-left">
+      <div class="register-left-bg" />
+      <div class="register-left-content">
         <div class="sys-name">
           {{ title }}
         </div>
-        <img class="login-img" src="/images/login/login-front.jpg" alt="login-front.jpg">
+        <img class="register-img" src="/images/login/login-front.jpg" alt="register-front.jpg">
       </div>
     </div>
-    <div class="login-right">
-      <div class="login-right-content">
-        <div class="login-title">
-          登录
+    <div class="register-right">
+      <div class="register-right-content">
+        <div class="register-title">
+          {{ formTitle }}
         </div>
-        <div class="login-tips">
-          请在下面录入信息登录
+        <div class="register-tips">
+          {{ formSubTitle }}
         </div>
-        <el-tabs v-model="tabActive">
-          <el-tab-pane name="pwd" label="密码登录" />
-          <el-tab-pane name="code" label="验证码登录" />
-        </el-tabs>
-        <LoginForm :type="tabActive" :loading="false">
+        <RegisterForm
+          v-if="!showSettingFrom" :step="currentSetp" @previous="currentSetp = 'account'"
+          @submit="onRegistSubmit"
+        >
           <template #verify>
             <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
               发送验证码
             </el-button>
             <span v-else class="leading-10">{{ countDownText }}</span>
           </template>
-        </LoginForm>
-
-        <div class="login-other">
-          <span>没有账户?</span>
-          <RouterLink class="login-router-link" to="/register">
-            立即注册
+        </RegisterForm>
+        <SettingForm v-else @submit="onSettingSubmit" />
+        <div class="register-other">
+          <span>已有账号！</span>
+          <RouterLink class="register-router-link" to="/login">
+            直接登录
           </RouterLink>
         </div>
       </div>
@@ -94,71 +117,65 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
 </template>
 
 <style lang="less" scoped>
-.login {
+.register {
   min-width: 1280px;
   min-height: 600px;
   @apply h-full w-full grid grid-cols-2;
 
 }
 
-.login-left {
+.register-left {
   @apply flex justify-center items-center relative select-none;
 
-  .login-left-bg {
+  .register-left-bg {
     @apply absolute w-3/4 h-full left-0 bg-img-login bg-no-repeat bg-cover bg-left;
   }
 
-  .login-left-content {
+  .register-left-content {
     @apply px-16 relative;
 
     .sys-name {
       @apply absolute top-10 left-28 text-white text-3xl font-semibold tracking-widest;
     }
 
-    .login-img {
+    .register-img {
       @apply rounded-2xl;
     }
   }
 }
 
-.login-right {
+.register-right {
   @apply pl-16 flex flex-col justify-center;
   color: #3F2D66;
 
-  .login-right-content {
+  .register-right-content {
     width: 450px;
   }
 
-  .login-title {
+  .register-title {
     @apply text-3xl font-semibold tracking-widest;
   }
 
-  .login-tips {
+  .register-tips {
     @apply h-20 pt-3;
   }
 
-  .login-other {
+  .register-submit {
+    @apply mt-6 mb-8;
+
+    .el-button {
+      @apply w-full h-16 rounded-lg text-2xl font-semibold tracking-widest;
+    }
+  }
+
+  .register-other {
     @apply flex justify-between items-center h-20 border-t border-gray-100;
 
-    .login-router-link {
+    .register-router-link {
       color: @color-primary;
       @apply font-semibold tracking-wider;
     }
   }
 
-  :deep(.el-tabs) {
-    --el-tabs-header-height: 32px;
-    --el-text-color-primary: #909399;
-
-    .el-tabs__item {
-      font-size: 24px;
-      line-height: 28px;
-      user-select: none;
-    }
-
-    .el-tabs__nav-wrap::after {
-      display: none;
-    }
-  }
 }
 </style>

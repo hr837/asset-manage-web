@@ -10,6 +10,14 @@ const routesConfig: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/register/RegisterView.vue'),
+    meta: {
+      ignoreAuth: true,
+    },
+  },
+  {
     path: '/forbidden',
     name: 'Forbidden',
     meta: {

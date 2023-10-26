@@ -103,13 +103,15 @@ function onTransitionend() {
   }
 
   .drag-blcok {
-    @apply absolute bg-white text-gray-400 w-10 h-full rounded border border-white top-0 cursor-move inline-flex justify-center items-center text-xl shadow-sm;
+    background-color: @color-primary;
+    border-color: @color-primary;
+    @apply absolute  text-white w-10 h-full  border  top-0 cursor-move inline-flex justify-center items-center text-xl shadow-sm;
     left: v-bind(left);
   }
 
   &.success {
     .drag-blcok {
-      @apply text-green-500 bg-white cursor-auto;
+      @apply text-green-500 bg-white border-white cursor-auto;
     }
 
     .verify-text {

@@ -1,18 +1,11 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
-import type { FormType } from '../composables/login.composable'
+import type { FormType } from '@/types/login.type'
 import type { LoginInput } from '@/http/models/login.model'
 
 const props = defineProps<{
-  /** 加载状态，登录的时候可以设置 */
-  loading: boolean
   type: FormType
-}>()
-const emit = defineEmits<{
-  /** 登录表单校验成功 */
-  validated: [data: LoginInput]
-  chageCode: []
 }>()
 const loginModel = reactive<LoginInput>({
   account: '',
@@ -20,7 +13,7 @@ const loginModel = reactive<LoginInput>({
   validateCode: '',
   patchcaKey: '',
 })
-const loginRef = ref<FormInstance>()
+const formRef = ref<FormInstance>()
 const loginRules = {
   account: [
     {
@@ -37,22 +30,22 @@ const loginRules = {
     },
   ],
   validateCode: [
-    { required: true, message: '请输入验证码' },
-    { len: 4, message: '请输入4位验证码' },
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 4, message: '请输入4位验证码', trigger: 'blur' },
   ],
 }
 
 const showPwd = computed(() => props.type === 'pwd')
 
-/**
- * 登陆
- */
-function handleLogin() {
-  loginRef.value?.validate((valid, _) => {
-    if (valid)
-      emit('validated', { ...loginModel })
-  })
+/** 表单验证 */
+async function validateForm() {
+  const val = await formRef.value!.validate().then(() => true).catch(() => false)
+  return val ? { ...loginModel } as LoginInput : null
 }
+
+defineExpose({
+  validate: validateForm,
+})
 
 const showLabelAccount = computed(() => loginModel.account.trim() !== '')
 const showLabelPwd = computed(() => loginModel.password.trim() !== '')
@@ -61,7 +54,7 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
 
 <template>
   <div class="component login-form">
-    <el-form ref="loginRef" :model="loginModel" :rules="loginRules" label-position="top" class="login-form" size="large">
+    <el-form ref="formRef" :model="loginModel" :rules="loginRules" label-position="top" size="large">
       <el-form-item prop="account" label="手机号">
         <el-input v-model="loginModel.account" type="text" placeholder="请输入手机号码">
           <template #prefix>
@@ -86,10 +79,12 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
           </template>
         </el-input>
       </el-form-item>
-
-      <el-form-item class="mt-12">
-        <el-button class="w-full" :loading="loading" type="primary" @click="handleLogin">
-          {{ loading ? '登 录 中...' : '登 录' }}
+      <el-form-item class="login-form-item--pass">
+        <el-checkbox>七天免登录</el-checkbox>
+      </el-form-item>
+      <el-form-item class="login-form-item--submit">
+        <el-button type="primary" size="large">
+          登录
         </el-button>
       </el-form-item>
     </el-form>
@@ -98,8 +93,8 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
 
 <style lang="less" scoped>
 .login-form {
-  --el-component-size-large: 60px;
-  --el-font-size-base: 18px;
+  --el-component-size-large: 64px;
+  --el-font-size-base: 16px;
   @apply relative z-0;
 
   .el-input--large {
@@ -119,6 +114,8 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
     --el-border-radius-base: 10px;
 
     &.el-form-item--large {
+      @apply mt-6;
+
       &.is-error {
         @apply mb-10;
       }
@@ -133,7 +130,19 @@ const showLabelCode = computed(() => loginModel.validateCode.trim() !== '')
       }
 
       .el-input__prefix {
-        @apply px-2;
+        @apply px-3;
+      }
+    }
+
+    &.login-form-item--pass {
+      @apply mb-0;
+    }
+
+    &.login-form-item--submit {
+      @apply mb-8;
+
+      .el-button {
+        @apply w-full rounded-lg text-2xl font-semibold tracking-widest;
       }
     }
 
