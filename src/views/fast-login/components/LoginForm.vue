@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { FormInstance, FormRules } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import type { CodeFormData } from '@/types/login.type'
 import { EXP_Phone } from '@/utils/regexp.util'
 
@@ -18,11 +18,11 @@ const formRef = ref<FormInstance>()
 const formRules: FormRules = {
   phone: [
     { required: true, trigger: 'blur', message: '请输入手机号码' },
-    { pattern: EXP_Phone, trigger: 'blur', message: '请输入正确的手机号码' },
+    { pattern: EXP_Phone, trigger: 'change', message: '请输入正确的手机号码' },
   ],
   code: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '请输入6位验证码', trigger: 'blur' },
+    { required: true, message: '请输入验证码登录', trigger: 'blur' },
+    { len: 6, message: '请输入6位验证码', trigger: 'change' },
   ],
 }
 
@@ -39,6 +39,20 @@ async function getPhoneNumber() {
   return result ? loginModel.phone : null
 }
 
+const itemsValid = reactive({
+  phone: false,
+  code: false,
+})
+
+function onFormItemValidate(prop: any, isValid: boolean) {
+  if (prop === 'phone')
+    itemsValid.phone = isValid
+  else
+    itemsValid.code = isValid
+}
+
+const canSubmit = computed(() => itemsValid.code && itemsValid.phone)
+
 defineExpose({
   getPhoneNumber,
 })
@@ -46,7 +60,10 @@ defineExpose({
 
 <template>
   <div class="component login-form">
-    <el-form ref="formRef" :model="loginModel" :rules="formRules" label-position="top" size="large">
+    <el-form
+      ref="formRef" :model="loginModel" :rules="formRules" label-position="top" size="large"
+      @validate="onFormItemValidate"
+    >
       <el-form-item prop="phone" label="手机号">
         <el-input v-model="loginModel.phone" type="text" placeholder="请输入手机号码" maxlength="11">
           <template #prefix>
@@ -65,7 +82,7 @@ defineExpose({
         </el-input>
       </el-form-item>
       <el-form-item class="login-form-item--submit">
-        <el-button type="primary" size="large" :disabled="loading" :loading="loading" @click="onSubmit">
+        <el-button type="primary" size="large" :disabled="loading || !canSubmit" :loading="loading" @click="onSubmit">
           登录
         </el-button>
       </el-form-item>
