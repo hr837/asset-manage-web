@@ -50,5 +50,47 @@ const title = process.env.VUE_APP_TITLE
 .account-layout-right {
   @apply pl-16 flex flex-col justify-center items-start;
   color: #3F2D66;
+
+  --el-component-size-large: 64px;
+  --el-font-size-base: 16px;
+
+  :deep(.el-form-item) {
+    position: relative;
+    --el-border-radius-base: 10px;
+
+    .iconify {
+      color: @color-primary;
+    }
+
+    &.el-form-item--large {
+      @apply mt-6 mb-10;
+
+      .el-form-item__label {
+        color: #3C4071;
+        @apply text-xs h-auto absolute bg-white px-2 z-10 -top-2 left-2 transition-all;
+
+        &::before {
+          display: none;
+        }
+      }
+
+      .el-input__prefix {
+        @apply text-xl px-3;
+      }
+    }
+
+    &.el-form-item__content {
+      @apply leading-10;
+    }
+
+    &.form-item--submit {
+      @apply mb-8;
+
+      .el-button {
+        @apply w-full rounded-lg text-2xl font-semibold tracking-widest;
+      }
+    }
+
+  }
 }
 </style>

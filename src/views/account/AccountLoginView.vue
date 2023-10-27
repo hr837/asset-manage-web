@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { computed, onUnmounted, ref } from 'vue'
-import LoginForm from './components/LoginForm.vue'
-import type { FormType } from '@/types/login.type'
+import PasswordLoginForm from './components/PasswordLoginForm.vue'
+import SmsCodeLoginForm from './components/SmsCodeLoginForm.vue'
 import DragVerify from '@/components/common/DragVerify.vue'
-const title = process.env.VUE_APP_TITLE
+import type { LoginType } from '@/types/login.type'
 
-const tabActive = ref<FormType>('code')
-
+const tabActive = ref<LoginType>('pwd')
 const countDown = ref(0)
 const showCountDown = ref(false)
 
@@ -48,33 +47,33 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
 </script>
 
 <template>
-  <div class="login">
-    <div class="login-right-content">
-      <div class="login-title">
-        登录
-      </div>
-      <div class="login-tips">
-        请在下面录入信息登录
-      </div>
-      <el-tabs v-model="tabActive">
-        <el-tab-pane name="pwd" label="密码登录" />
-        <el-tab-pane name="code" label="验证码登录" />
-      </el-tabs>
-      <LoginForm :type="tabActive" :loading="false">
-        <template #verify>
-          <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
-            发送验证码
-          </el-button>
-          <span v-else class="leading-10">{{ countDownText }}</span>
-        </template>
-      </LoginForm>
+  <div class="account-login">
+    <div class="account-login-title">
+      登录
+    </div>
+    <div class="account-login-tips">
+      请在下面录入信息登录
+    </div>
+    <el-tabs v-model="tabActive">
+      <el-tab-pane name="pwd" label="密码登录">
+        <PasswordLoginForm />
+      </el-tab-pane>
+      <el-tab-pane name="code" label="验证码登录">
+        <SmsCodeLoginForm />
+      </el-tab-pane>
+    </el-tabs>
+    <div>
+      <el-checkbox>七天免登录</el-checkbox>
+    </div>
+    <el-button type="primary" size="large">
+      登录
+    </el-button>
 
-      <div class="login-other">
-        <span>没有账户?</span>
-        <RouterLink class="login-router-link" to="/register">
-          立即注册
-        </RouterLink>
-      </div>
+    <div class="account-login-other">
+      <span>没有账户?</span>
+      <RouterLink class="account-login-router-link" to="/register">
+        立即注册
+      </RouterLink>
     </div>
     <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
       <DragVerify @success="onDragVerified" />
@@ -83,46 +82,22 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
 </template>
 
 <style lang="less" scoped>
-.login-left {
-  @apply flex justify-center items-center relative select-none;
-
-  .login-left-bg {
-    @apply absolute w-3/4 h-full left-0 bg-no-repeat bg-cover bg-left;
-  }
-
-  .login-left-content {
-    @apply px-16 relative;
-
-    .sys-name {
-      @apply absolute top-10 left-28 text-white text-3xl font-semibold tracking-widest;
-    }
-
-    .login-img {
-      @apply rounded-2xl;
-    }
-  }
-}
-
-.login-right {
+.account-login {
+  width: 450px;
   @apply pl-16 flex flex-col justify-center;
-  color: #3F2D66;
 
-  .login-right-content {
-    width: 450px;
-  }
-
-  .login-title {
+  .account-login-title {
     @apply text-3xl font-semibold tracking-widest;
   }
 
-  .login-tips {
+  .account-login-tips {
     @apply h-20 pt-3;
   }
 
-  .login-other {
+  .account-login-other {
     @apply flex justify-between items-center h-20 border-t border-gray-100;
 
-    .login-router-link {
+    .account-login-router-link {
       color: @color-primary;
       @apply font-semibold tracking-wider;
     }

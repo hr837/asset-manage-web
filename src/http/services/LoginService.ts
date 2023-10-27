@@ -1,5 +1,5 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
-import type { LoginInput, LoginOutput, SmsCodeLoginInput } from '../models/login.model'
+import type { LoginOutput, PasswordLoginInput, SmsCodeLoginInput } from '../models/login.model'
 export class LoginService {
   // 请求实例
   private request = RequestService.getInstance()
@@ -8,7 +8,7 @@ export class LoginService {
    * 获取token
    */
   passwordLogin(
-    requestBody: LoginInput,
+    requestBody: PasswordLoginInput,
     requestPlugins: RequestPlugin[] = [],
   ): Promise<LoginOutput> {
     // 请求数据

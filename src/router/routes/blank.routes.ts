@@ -8,7 +8,7 @@ const routesConfig: Array<RouteRecordRaw> = [
       {
         path: '/login',
         name: 'login',
-        component: () => import('@/views/account/LoginView.vue'),
+        component: () => import('@/views/account/AccountLoginView.vue'),
         meta: {
           ignoreAuth: true,
         },
@@ -16,7 +16,7 @@ const routesConfig: Array<RouteRecordRaw> = [
       {
         path: '/register',
         name: 'register',
-        component: () => import('@/views/account/RegisterView.vue'),
+        component: () => import('@/views/account/AccountRegisterView.vue'),
         meta: {
           ignoreAuth: true,
         },
