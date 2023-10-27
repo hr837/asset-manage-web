@@ -33,11 +33,9 @@ export default defineComponent({
       <LayoutWorkTitle />
       <el-main class="layout-work-container-main">
         <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
-          <transition name="fade-transform" mode="out-in">
-            <KeepAlive include="VideoUploadView">
-              <component :is="Component" :key="route.path" />
-            </KeepAlive>
-          </transition>
+          <KeepAlive include="VideoUploadView">
+            <component :is="Component" :key="route.path" />
+          </KeepAlive>
         </router-view>
       </el-main>
     </el-container>
@@ -69,19 +67,18 @@ export default defineComponent({
 }
 
 .layout-work-container {
-  @apply overflow-hidden;
   position: relative;
+  width: 100%;
+  overflow-x: auto;
 
   &-main {
-    @apply overflow-x-hidden;
     background-color: #EFF3F6;
+    min-width: 980px;
     padding: 15px;
-    height: calc(100% - 50px);
-    flex: none;
 
     &-content {
-      padding: 10px 20px;
       background-color: #fff;
+      border-radius: 4px;
     }
   }
 }

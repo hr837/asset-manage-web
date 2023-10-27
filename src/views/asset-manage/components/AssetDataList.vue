@@ -61,10 +61,11 @@ const emit = defineEmits<{
     }
 
     &-center {
-      @apply relative h-36 overflow-hidden bg-white flex justify-center items-center select-none;
+      padding-bottom: 56%;
+      @apply relative h-0 w-full overflow-hidden bg-white flex justify-center items-center select-none;
 
       .video-mask {
-        @apply absolute w-full h-full bg-black/20 flex flex-col justify-between items-center;
+        @apply absolute top-0 left-0 w-full h-full bg-black/20 flex flex-col justify-between items-center;
       }
 
       .video-play-icon {
@@ -76,7 +77,7 @@ const emit = defineEmits<{
       }
 
       .video-cover {
-        @apply bg-gray-50 h-full w-full object-cover;
+        @apply absolute top-0 left-0 bottom-0 right-0 bg-gray-50 h-full w-full object-cover;
       }
     }
 

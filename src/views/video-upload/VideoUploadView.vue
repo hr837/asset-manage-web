@@ -124,7 +124,7 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
 <template>
   <div class="page video-upload">
-    <div class="page-content">
+    <div class="video-upload-content">
       <!-- control -->
       <el-upload
         ref="uploadRef" class="video-upload-control" :auto-upload="false" drag :limit="5" accept=".mp4"
@@ -154,15 +154,16 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
       </el-upload>
       <!-- right -->
       <UploadDescription class="video-upload-description" />
-      <!-- bottom -->
-      <div class="video-upload-action">
-        <el-button type="primary" plain :disabled="!canSubmit" @click="() => onUploadClick()">
-          仅上传
-        </el-button>
-        <el-button type="primary" :disabled="!canSubmit" @click="() => onUploadClick(true)">
-          上传并转换
-        </el-button>
-      </div>
+    </div>
+
+    <!-- bottom -->
+    <div class="video-upload-action">
+      <el-button type="primary" plain :disabled="!canSubmit" @click="() => onUploadClick()">
+        仅上传
+      </el-button>
+      <el-button type="primary" :disabled="!canSubmit" @click="() => onUploadClick(true)">
+        上传并转换
+      </el-button>
     </div>
 
     <!-- video player -->
@@ -178,14 +179,18 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
 
 <style lang="less" scoped>
 .video-upload {
-  .page-content {
-    width: 1150px;
-    @apply mx-auto grid gap-4 justify-center;
-    grid-template: 1fr auto / 827px 272px;
+  @apply p-4 flex flex-col gap-3;
+
+  .video-upload-content {
+    @apply flex-1 flex gap-4;
   }
 
-  &-action {
+  .video-upload-action {
     @apply col-span-2 text-right pt-3 border-t;
+  }
+
+  .video-upload-control {
+    @apply flex-1;
   }
 
   .video-upload-control.disabled {
@@ -203,8 +208,12 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
   :deep(.el-upload-list) {
     @apply grid grid-cols-3 gap-3;
 
+    .el-list-leave-active{
+      position: relative !important;
+    }
+
     &__item {
-      width: 269px;
+      width: 100%;
     }
   }
 

@@ -39,8 +39,7 @@ const nameSetting = [
 
 <style lang="less" scoped>
 .upload-description {
-  @apply rounded-lg bg-violet-50 p-4 px-6;
-
+  @apply w-72 min-h-min rounded-lg bg-violet-50 p-4 px-6;
 }
 
 .description-items {

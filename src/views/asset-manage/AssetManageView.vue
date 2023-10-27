@@ -136,15 +136,16 @@ function updatePageQuery() {
 
 <template>
   <div class="page asset-manage-view">
-    <div v-loading="listLoading" class="page-content">
-      <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="onFormSearch" @reset="onFormSearch">
-        <el-form-item prop="name">
-          <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
-        </el-form-item>
-        <el-form-item prop="date">
-          <DateRange v-model="queryModel.date" :disabled-date="disabledDate" />
-        </el-form-item>
-      </DataForm>
+    <DataForm ref="formRef" :model="queryModel" :label-width="0" @search="onFormSearch" @reset="onFormSearch">
+      <el-form-item prop="name">
+        <el-input v-model="queryModel.name" placeholder="请输入文件名称" clearable />
+      </el-form-item>
+      <el-form-item prop="date">
+        <DateRange v-model="queryModel.date" :disabled-date="disabledDate" />
+      </el-form-item>
+    </DataForm>
+
+    <div class="data-container">
       <div class="asset-manage-action">
         <AssetQeuryFilter v-model="queryModel.status" @update:model-value="onFormSearch" />
         <el-button type="primary" @click="() => router.push('/upload')">
@@ -162,12 +163,15 @@ function updatePageQuery() {
 
 <style lang="less" scoped>
 .asset-manage-view {
-  @apply p-0;
+  @apply bg-transparent flex flex-col gap-y-2 overflow-y-hidden;
 }
 
-.page-content {
-  width: 1150px;
-  @apply mx-auto p-4 h-full flex flex-col;
+.data-form {
+  @apply bg-white h-16 p-4 rounded;
+}
+
+.data-container {
+  @apply rounded p-4 flex-1 flex flex-col bg-white overflow-y-auto;
 }
 
 .asset-manage-action {
@@ -177,16 +181,4 @@ function updatePageQuery() {
 .asset-manage-data-container {
   @apply flex-1;
 }
-
-// .asset-manage-view {
-//   @apply h-full flex flex-col;
-
-//   .asset-manage-action {
-//     @apply flex justify-between items-center mb-4;
-//   }
-
-//   .asset-manage-data-container {
-//     @apply flex-1 overflow-auto;
-//   }
-// }
 </style>
