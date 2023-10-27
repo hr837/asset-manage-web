@@ -115,8 +115,8 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
 
 <style lang="less" scoped>
 .login {
-  min-width: 1280px;
-  min-height: 600px;
+  min-width: 1200px;
+  min-height: 590px;
   @apply h-full w-full grid grid-cols-2;
 
   .verify-success {
@@ -125,21 +125,25 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
 }
 
 .login-left {
-  @apply flex justify-center items-center relative select-none;
+  @apply relative select-none;
 
   .login-left-bg {
     @apply absolute w-3/4 h-full left-0 bg-img-login bg-no-repeat bg-cover bg-left;
   }
 
   .login-left-content {
-    @apply px-16 relative;
+    @apply absolute right-20;
+    top: 6.6%;
+    bottom: 6.6%;
 
     .sys-name {
-      @apply absolute top-10 left-28 text-white text-3xl font-semibold tracking-widest;
+      @apply absolute text-white text-3xl font-semibold tracking-widest;
+      top: 5%;
+      left: 7.9%;
     }
 
     .login-img {
-      @apply rounded-2xl;
+      @apply w-full h-full object-cover rounded-2xl;
     }
   }
 }
