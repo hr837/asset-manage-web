@@ -6,9 +6,6 @@ module.exports = {
       spacing: {
         128: '32rem',
       },
-      backgroundImage: {
-        'img-login': 'url(\'/public/images/login/login-bg.jpg\')',
-      },
     },
   },
   plugins: [],

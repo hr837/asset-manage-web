@@ -73,41 +73,30 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
 
 <template>
   <div class="register">
-    <div class="register-left">
-      <div class="register-left-bg" />
-      <div class="register-left-content">
-        <div class="sys-name">
-          {{ title }}
-        </div>
-        <img class="register-img" src="/images/login/login-front.jpg" alt="register-front.jpg">
+    <div class="register-right-content">
+      <div class="register-title">
+        {{ formTitle }}
       </div>
-    </div>
-    <div class="register-right">
-      <div class="register-right-content">
-        <div class="register-title">
-          {{ formTitle }}
-        </div>
-        <div class="register-tips">
-          {{ formSubTitle }}
-        </div>
-        <RegisterForm
-          v-if="!showSettingFrom" :step="currentSetp" @previous="currentSetp = 'account'"
-          @submit="onRegistSubmit"
-        >
-          <template #verify>
-            <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
-              发送验证码
-            </el-button>
-            <span v-else class="leading-10">{{ countDownText }}</span>
-          </template>
-        </RegisterForm>
-        <SettingForm v-else @submit="onSettingSubmit" />
-        <div class="register-other">
-          <span>已有账号！</span>
-          <RouterLink class="register-router-link" to="/login">
-            直接登录
-          </RouterLink>
-        </div>
+      <div class="register-tips">
+        {{ formSubTitle }}
+      </div>
+      <RegisterForm
+        v-if="!showSettingFrom" :step="currentSetp" @previous="currentSetp = 'account'"
+        @submit="onRegistSubmit"
+      >
+        <template #verify>
+          <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
+            发送验证码
+          </el-button>
+          <span v-else class="leading-10">{{ countDownText }}</span>
+        </template>
+      </RegisterForm>
+      <SettingForm v-else @submit="onSettingSubmit" />
+      <div class="register-other">
+        <span>已有账号！</span>
+        <RouterLink class="register-router-link" to="/login">
+          直接登录
+        </RouterLink>
       </div>
     </div>
     <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
@@ -117,18 +106,11 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
 </template>
 
 <style lang="less" scoped>
-.register {
-  min-width: 1280px;
-  min-height: 600px;
-  @apply h-full w-full grid grid-cols-2;
-
-}
-
 .register-left {
   @apply flex justify-center items-center relative select-none;
 
   .register-left-bg {
-    @apply absolute w-3/4 h-full left-0 bg-img-login bg-no-repeat bg-cover bg-left;
+    @apply absolute w-3/4 h-full left-0 bg-no-repeat bg-cover bg-left;
   }
 
   .register-left-content {

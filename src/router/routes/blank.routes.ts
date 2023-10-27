@@ -2,21 +2,27 @@ import type { RouteRecordRaw } from 'vue-router'
 
 const routesConfig: Array<RouteRecordRaw> = [
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/fast-login/FastLoginView.vue'),
-    meta: {
-      ignoreAuth: true,
-    },
+    path: '/account',
+    component: () => import('@/views/account/AccountLayout.vue'),
+    children: [
+      {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/views/account/LoginView.vue'),
+        meta: {
+          ignoreAuth: true,
+        },
+      },
+      {
+        path: '/register',
+        name: 'register',
+        component: () => import('@/views/account/RegisterView.vue'),
+        meta: {
+          ignoreAuth: true,
+        },
+      },
+    ],
   },
-  // {
-  //   path: '/register',
-  //   name: 'register',
-  //   component: () => import('@/views/register/RegisterView.vue'),
-  //   meta: {
-  //     ignoreAuth: true,
-  //   },
-  // },
   {
     path: '/forbidden',
     name: 'Forbidden',

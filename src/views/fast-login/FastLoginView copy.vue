@@ -1,14 +1,21 @@
 <script lang="ts" setup>
 import { computed, onUnmounted, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import LoginForm from './components/LoginForm.vue'
-import type { FormType } from '@/types/login.type'
+import type { CodeFormData, FormType } from '@/types/login.type'
 import DragVerify from '@/components/common/DragVerify.vue'
+import { LoadingService } from '@/http/extends/loading.service'
+import { LoginService } from '@/http/services/LoginService'
+import { useUserStore } from '@/store/user.store'
 const title = process.env.VUE_APP_TITLE
 
 const tabActive = ref<FormType>('code')
 
 const countDown = ref(0)
 const showCountDown = ref(false)
+const loadingStatus = ref(false)
+const formRef = ref()
 
 let timerId = -1
 function startCount() {
@@ -25,12 +32,23 @@ function startCount() {
 
 const verified = ref(false)
 const showDialog = ref(false)
+const service = new LoginService()
+
+let tmpPhoneNumber = ''
 
 function sendMessage() {
-  startCount()
+  service.getSmsCode(tmpPhoneNumber).then(() => {
+    showDialog.value = false
+    startCount()
+    ElMessage.success('验证码已发送，请注意查收短信')
+  }).catch(({ msg }) => ElMessage.error(msg ?? '获取验证码失败，请稍后重试'))
 }
 
-function onSendMessageClick() {
+async function onSendMessageClick() {
+  const phone = await formRef.value?.getPhoneNumber()
+  if (!phone)
+    return
+  tmpPhoneNumber = phone
   if (verified.value)
     sendMessage()
   else
@@ -39,8 +57,18 @@ function onSendMessageClick() {
 
 function onDragVerified() {
   verified.value = true
-  showDialog.value = false
   sendMessage()
+}
+
+const loadingService = new LoadingService(loadingStatus)
+const userStore = useUserStore()
+const router = useRouter()
+function onLogin(data: CodeFormData) {
+  service.smsCodeLogin({ phone: data.phone, smsCode: data.code }, [loadingService])
+    .then((res) => {
+      userStore.updateToken(res.token)
+      router.push('/index')
+    }).catch(({ msg }) => ElMessage.error(msg ?? '登录失败，请稍后重试'))
 }
 
 onUnmounted(() => window.clearInterval(timerId))
@@ -55,7 +83,7 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
         <div class="sys-name">
           {{ title }}
         </div>
-        <img class="login-img" src="/images/login/login-front.jpg" alt="login-front.jpg">
+        <img class="login-img" src="/images/login/login-front.png" alt="login-front.jpg">
       </div>
     </div>
     <div class="login-right">
@@ -66,57 +94,56 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
         <div class="login-tips">
           请在下面录入信息登录
         </div>
-        <el-tabs v-model="tabActive">
-          <el-tab-pane name="pwd" label="密码登录" />
-          <el-tab-pane name="code" label="验证码登录" />
-        </el-tabs>
-        <LoginForm :type="tabActive" :loading="false">
+        <LoginForm ref="formRef" :loading="false" @submit="onLogin">
           <template #verify>
-            <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
-              发送验证码
+            <el-button v-if="!showCountDown" type="primary" text @click="onSendMessageClick">
+              获取验证码
             </el-button>
             <span v-else class="leading-10">{{ countDownText }}</span>
           </template>
         </LoginForm>
-
-        <div class="login-other">
-          <span>没有账户?</span>
-          <RouterLink class="login-router-link" to="/register">
-            立即注册
-          </RouterLink>
-        </div>
       </div>
     </div>
     <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
-      <DragVerify @success="onDragVerified" />
+      <Transition name="el-zoom-in-top">
+        <DragVerify v-if="!verified" @success="onDragVerified" />
+        <el-result v-else class="verify-success" title="验证成功" icon="success" />
+      </Transition>
     </el-dialog>
   </div>
 </template>
 
 <style lang="less" scoped>
 .login {
-  min-width: 1280px;
-  min-height: 600px;
+  min-width: 1200px;
+  min-height: 590px;
   @apply h-full w-full grid grid-cols-2;
 
+  .verify-success {
+    --el-result-padding: 0;
+  }
 }
 
 .login-left {
-  @apply flex justify-center items-center relative select-none;
+  @apply relative select-none;
 
   .login-left-bg {
-    @apply absolute w-3/4 h-full left-0 bg-img-login bg-no-repeat bg-cover bg-left;
+    @apply absolute w-3/4 h-full left-0  bg-no-repeat bg-cover bg-left;
   }
 
   .login-left-content {
-    @apply px-16 relative;
+    @apply absolute right-20;
+    top: 6.6%;
+    bottom: 6.6%;
 
     .sys-name {
-      @apply absolute top-10 left-28 text-white text-3xl font-semibold tracking-widest;
+      @apply absolute text-white text-3xl font-semibold tracking-widest;
+      top: 5%;
+      left: 7.9%;
     }
 
     .login-img {
-      @apply rounded-2xl;
+      @apply w-full h-full object-cover rounded-2xl;
     }
   }
 }
@@ -146,19 +173,5 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
     }
   }
 
-  :deep(.el-tabs) {
-    --el-tabs-header-height: 32px;
-    --el-text-color-primary: #909399;
-
-    .el-tabs__item {
-      font-size: 24px;
-      line-height: 28px;
-      user-select: none;
-    }
-
-    .el-tabs__nav-wrap::after {
-      display: none;
-    }
-  }
 }
 </style>

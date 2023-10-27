@@ -14,9 +14,7 @@ export default defineComponent({
     <LayoutHeader />
     <el-main class="layout-work-container-main">
       <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
-        <transition name="fade-transform" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
+        <component :is="Component" :key="route.path" />
       </router-view>
     </el-main>
   </el-container>

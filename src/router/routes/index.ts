@@ -12,6 +12,7 @@ const routesConfig: Array<RouteRecordRaw> = [
     component: BlankLayout,
     children: blankRoutes,
   },
+
   {
     path: '/basic',
     component: BasicLayout,
