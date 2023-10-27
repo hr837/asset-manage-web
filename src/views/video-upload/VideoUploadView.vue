@@ -208,6 +208,10 @@ const disableUpload = computed(() => fileList.value.length >= 5 || uploadStart.v
   :deep(.el-upload-list) {
     @apply grid grid-cols-3 gap-3;
 
+    .el-list-leave-active{
+      position: relative !important;
+    }
+
     &__item {
       width: 100%;
     }
