@@ -69,19 +69,18 @@ export default defineComponent({
 }
 
 .layout-work-container {
-  @apply overflow-hidden;
   position: relative;
+  width: 100%;
+  overflow-x: auto;
 
   &-main {
-    @apply overflow-x-hidden;
     background-color: #EFF3F6;
+    min-width: 980px;
     padding: 15px;
-    height: calc(100% - 50px);
-    flex: none;
 
     &-content {
-      padding: 10px 20px;
       background-color: #fff;
+      border-radius: 4px;
     }
   }
 }
