@@ -18,11 +18,11 @@ const formRef = ref<FormInstance>()
 const formRules: FormRules = {
   phone: [
     { required: true, trigger: 'blur', message: '请输入手机号码' },
-    { pattern: EXP_Phone, trigger: 'change', message: '请输入正确的手机号码' },
+    { pattern: EXP_Phone, message: '请输入正确的手机号码' },
   ],
   code: [
     { required: true, message: '请输入验证码登录', trigger: 'blur' },
-    { len: 6, message: '请输入6位验证码', trigger: 'change' },
+    { len: 6, message: '请输入6位验证码' },
   ],
 }
 

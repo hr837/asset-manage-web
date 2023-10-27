@@ -83,7 +83,7 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
         <div class="sys-name">
           {{ title }}
         </div>
-        <img class="login-img" src="/images/login/login-front.jpg" alt="login-front.jpg">
+        <img class="login-img" src="/images/login/login-front.png" alt="login-front.jpg">
       </div>
     </div>
     <div class="login-right">
