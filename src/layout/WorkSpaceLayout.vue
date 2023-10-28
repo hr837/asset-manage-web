@@ -73,7 +73,8 @@ export default defineComponent({
 
   &-main {
     background-color: #EFF3F6;
-    min-width: 980px;
+    // 适配最低分辨率 1366
+    min-width: 1100px;
     padding: 15px;
 
     &-content {

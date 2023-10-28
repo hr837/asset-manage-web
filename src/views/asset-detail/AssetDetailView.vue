@@ -139,7 +139,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
           </div>
         </div>
 
-        <div ref="videoWrap" class="flex-1">
+        <div ref="videoWrap" class="video-wrapper">
           <video
             class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
             disablePictureInPicture
@@ -152,7 +152,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 <style lang="less" scoped>
 .asset-detail {
-  @apply p-0;
+  @apply p-0 flex flex-col overflow-hidden;
 }
 
 .page-action {
@@ -164,9 +164,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 }
 
 .page-content {
-  min-width: 1150px;
-  min-height: 800px;
-  @apply flex overflow-auto;
+  @apply flex-1 flex overflow-hidden;
+  ;
 }
 
 .content-left {
@@ -193,9 +192,11 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
     }
   }
 
+  .video-wrapper{
+    @apply flex-1 py-4 overflow-hidden;
+  }
   .video-player {
-    height: 600px;
-    @apply w-full bg-black my-8;
+    @apply h-full w-full bg-black;
   }
 
 }
