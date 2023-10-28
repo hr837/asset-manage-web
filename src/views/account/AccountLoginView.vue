@@ -1,49 +1,60 @@
 <script lang="ts" setup>
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import PasswordLoginForm from './components/PasswordLoginForm.vue'
 import SmsCodeLoginForm from './components/SmsCodeLoginForm.vue'
-import DragVerify from '@/components/common/DragVerify.vue'
-import type { LoginType } from '@/types/login.type'
+import type { CodeFormData, LoginType, PasswordFormData } from '@/types/login.type'
+import { LoginService } from '@/http/services/LoginService'
+import type { PasswordLoginInput, SmsCodeLoginInput } from '@/http/models/login.model'
+import { LoadingService } from '@/http/extends/loading.service'
+import { useUserStore } from '@/store/user.store'
 
 const tabActive = ref<LoginType>('pwd')
-const countDown = ref(0)
-const showCountDown = ref(false)
+const service = new LoginService()
 
-let timerId = -1
-function startCount() {
-  countDown.value = 60
-  showCountDown.value = true
-  timerId = window.setInterval(() => {
-    if (countDown.value === 1) {
-      clearInterval(timerId)
-      showCountDown.value = false
+const router = useRouter()
+// 忘记密码
+const onForgot = () => router.push('/reset-pwd')
+// 获取验证码
+const getCode = (phone: string) => service.getSmsCode(phone)
+  .then(() => { ElMessage.success('验证码已发送，请注意查收短信') })
+  .catch(({ msg }) => { ElMessage.error(msg ?? '获取验证码失败，请稍后重试') })
+
+const formValid = reactive({
+  pwd: false,
+  code: false,
+})
+
+const tabFromValid = computed(() => tabActive.value === 'code' ? formValid.code : formValid.pwd)
+const pwdFormRef = ref()
+const codeFormRef = ref()
+const loadingStatus = ref(false)
+const loadingService = new LoadingService(loadingStatus)
+const userStore = useUserStore()
+
+function onSubmit() {
+  let task: Promise<any>
+  if (tabActive.value === 'code') {
+    const formData = codeFormRef.value!.getFormData() as CodeFormData
+    const loginData: SmsCodeLoginInput = {
+      phone: formData.phone,
+      smsCode: formData.code,
     }
-    countDown.value -= 1
-  }, 1000)
+    task = service.smsCodeLogin(loginData, [loadingService])
+  }
+  else {
+    const formData = codeFormRef.value!.getFormData() as PasswordFormData
+    const loginData: PasswordLoginInput = {
+      password: formData.password,
+      account: formData.account,
+    }
+    task = service.passwordLogin(loginData, [loadingService])
+  }
+  task.then(({ token }) => {
+    userStore.updateToken(token)
+    router.push({ name: 'assets-manage' })
+  }).catch(({ msg }) => ElMessage.error(msg ?? '登录失败，请稍后重试'))
 }
-
-const verified = ref(false)
-const showDialog = ref(false)
-
-function sendMessage() {
-  startCount()
-}
-
-function onSendMessageClick() {
-  if (verified.value)
-    sendMessage()
-  else
-    showDialog.value = true
-}
-
-function onDragVerified() {
-  verified.value = true
-  showDialog.value = false
-  sendMessage()
-}
-
-onUnmounted(() => window.clearInterval(timerId))
-const countDownText = computed(() => `${countDown.value}s后重试`)
 </script>
 
 <template>
@@ -56,16 +67,16 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
     </div>
     <el-tabs v-model="tabActive">
       <el-tab-pane name="pwd" label="密码登录">
-        <PasswordLoginForm />
+        <PasswordLoginForm ref="pwdFormRef" @forgot="onForgot" @validate="val => formValid.pwd = val" />
       </el-tab-pane>
       <el-tab-pane name="code" label="验证码登录">
-        <SmsCodeLoginForm />
+        <SmsCodeLoginForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" />
       </el-tab-pane>
     </el-tabs>
     <div>
       <el-checkbox>七天免登录</el-checkbox>
     </div>
-    <el-button type="primary" size="large">
+    <el-button type="primary" size="large" :disabled="!tabFromValid" @click="onSubmit">
       登录
     </el-button>
 
@@ -75,9 +86,6 @@ const countDownText = computed(() => `${countDown.value}s后重试`)
         立即注册
       </RouterLink>
     </div>
-    <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
-      <DragVerify @success="onDragVerified" />
-    </el-dialog>
   </div>
 </template>
 

@@ -1,20 +1,34 @@
 <script lang="ts" setup>
-import type { FormInstance } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { reactive, ref } from 'vue'
 import type { PasswordFormData } from '@/types/login.type'
+import { EXP_Email, EXP_Phone } from '@/utils/regexp.util'
+
+const emit = defineEmits<{
+  // 表单验证事件
+  validate: [isValid: boolean]
+  // 忘记密码
+  forgot: []
+}>()
 
 const loginModel = reactive<PasswordFormData>({
   account: '',
   password: '',
 })
 const formRef = ref<FormInstance>()
-const loginRules = {
+
+const loginRules: FormRules = {
   account: [
     { required: true, trigger: 'blur', message: '请输入邮箱/手机号登录' },
-  ],
-  code: [
-    { required: true, message: '请输入验证码登录', trigger: 'blur' },
-    { len: 6, message: '请输入6位验证码' },
+    {
+      validator: (_: unknown, value: string, callback: Function) => {
+        if (EXP_Phone.test(value) || EXP_Email.test(value))
+          callback()
+
+        else
+          callback(new Error('请输入正确的邮箱或者手机号码'))
+      },
+    },
   ],
   password: [
     {
@@ -24,11 +38,31 @@ const loginRules = {
     },
   ],
 }
+
+const itemsValid = {
+  account: false,
+  password: false,
+}
+
+function onFormItemValidate(prop: any, isValid: boolean) {
+  if (prop === 'account')
+    itemsValid.account = isValid
+  else
+    itemsValid.password = isValid
+  emit('validate', itemsValid.account && itemsValid.password)
+}
+
+defineExpose({
+  getFormData: () => Object.assign({}, loginModel),
+})
 </script>
 
 <template>
   <div class="component password-login-form">
-    <el-form ref="formRef" :model="loginModel" :rules="loginRules" label-position="top" size="large">
+    <el-form
+      ref="formRef" :model="loginModel" :rules="loginRules" label-position="top" size="large"
+      @validate="onFormItemValidate"
+    >
       <el-form-item prop="account" label="账号">
         <el-input v-model="loginModel.account" type="text" placeholder="请输入邮箱/手机号">
           <template #prefix>
@@ -42,7 +76,7 @@ const loginRules = {
             <icon-park-solid-lock />
           </template>
           <template #suffix>
-            <el-button type="primary" text>
+            <el-button type="primary" text @click="$emit('forgot')">
               忘记密码
             </el-button>
           </template>
