@@ -24,6 +24,10 @@ const routesConfig: Array<RouteRecordRaw> = [
     ],
   },
   {
+    path: '/dev-test',
+    component: () => import('@/views/test/TestView.vue'),
+  },
+  {
     path: '/forbidden',
     name: 'Forbidden',
     meta: {

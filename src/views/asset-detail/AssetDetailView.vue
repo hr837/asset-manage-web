@@ -109,42 +109,40 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
         返回
       </el-button>
     </div>
-    <div class="page-content">
-      <div class="content-left">
-        <AssetDetailTag :status="assetData.status" />
-        <AssetProgress v-bind="assetData" />
+    <div class="content-left">
+      <AssetDetailTag :status="assetData.status" />
+      <AssetProgress v-bind="assetData" />
+    </div>
+    <div class="content-right">
+      <div class="info-name">
+        {{ assetData.name }}
       </div>
-      <div class="content-right">
-        <div class="info-name">
-          {{ assetData.name }}
+      <div class="info-extra">
+        <div class="file-info">
+          <span> 视频时长：{{ duration }}</span>
+          <span> 视频大小：{{ fileSize }}</span>
         </div>
-        <div class="info-extra">
-          <div class="file-info">
-            <span> 视频时长：{{ duration }}</span>
-            <span> 视频大小：{{ fileSize }}</span>
-          </div>
-          <div class="info-aciton">
-            <el-button type="primary" plain @click="onDownloadMp4Click">
-              下载MP4文件
-            </el-button>
-            <el-button type="primary" plain :disabled="!canDownload" @click="onDownloadFbxClick">
-              下载FBX文件
-            </el-button>
-            <el-button type="primary" plain :disabled="!canTransform" @click="onTransformClick">
-              转换文件
-            </el-button>
-            <el-button type="primary" plain @click="onDeleteClick">
-              删除文件
-            </el-button>
-          </div>
+        <div class="info-aciton">
+          <el-button type="primary" plain @click="onDownloadMp4Click">
+            下载MP4文件
+          </el-button>
+          <el-button type="primary" plain :disabled="!canDownload" @click="onDownloadFbxClick">
+            下载FBX文件
+          </el-button>
+          <el-button type="primary" plain :disabled="!canTransform" @click="onTransformClick">
+            转换文件
+          </el-button>
+          <el-button type="primary" plain @click="onDeleteClick">
+            删除文件
+          </el-button>
         </div>
+      </div>
 
-        <div ref="videoWrap" class="video-wrapper">
-          <video
-            class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
-            disablePictureInPicture
-          />
-        </div>
+      <div ref="videoWrap" class="video-wrapper">
+        <video
+          class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
+          disablePictureInPicture
+        />
       </div>
     </div>
   </div>
@@ -152,20 +150,16 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 
 <style lang="less" scoped>
 .asset-detail {
-  @apply p-0 flex flex-col overflow-hidden;
+  @apply grid overflow-hidden;
+  grid-template: 56px 1fr / 277px 1fr;
 }
 
 .page-action {
-  @apply h-14 px-4 border-b flex justify-between items-center;
+  @apply col-span-2 px-4 border-b flex justify-between items-center;
 
   .page-title {
     @apply text-base text-black font-semibold;
   }
-}
-
-.page-content {
-  @apply flex-1 flex overflow-hidden;
-  ;
 }
 
 .content-left {
@@ -173,8 +167,8 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
 }
 
 .content-right {
-  background-color: #FAFAFA;
-  @apply flex-1 p-6 pb-0 flex flex-col;
+  background-color: #fafafa;
+  @apply flex-1 p-6 pb-1 flex flex-col overflow-hidden;
 
   .info-name {
     @apply py-4 text-2xl break-all text-gray-700 font-semibold;
@@ -192,9 +186,10 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
     }
   }
 
-  .video-wrapper{
-    @apply flex-1 py-4 overflow-hidden;
+  .video-wrapper {
+    @apply flex-1 overflow-hidden;
   }
+
   .video-player {
     @apply h-full w-full bg-black;
   }
