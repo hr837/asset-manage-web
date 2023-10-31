@@ -48,7 +48,7 @@ const submitDisabled = computed(() => !itemsValid.email || !itemsValid.password)
         </el-input>
       </el-form-item>
       <el-form-item prop="password" class="setting-form-item--code" label="密码" :rules="FormRules.settingPassword">
-        <el-input v-model="settingModel.password" placeholder="请输入登录密码" maxlength="20">
+        <el-input v-model="settingModel.password" autocomplete="new-password" type="password" placeholder="请输入登录密码" maxlength="20">
           <template #prefix>
             <icon-park-solid-lock />
           </template>

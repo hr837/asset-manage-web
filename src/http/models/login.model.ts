@@ -10,6 +10,14 @@ export interface PasswordLoginInput {
   account: string
   /** 密码 */
   password: string
+  /**
+     * 验证码key
+     */
+  patchcaKey: string
+  /**
+       * 图形验证码
+       */
+  validateCode: string
 }
 
 export interface LoginOutput {
@@ -29,11 +37,12 @@ export interface RegisterInput {
    * 手机号
    */
   phone: string
-  /** 验证码校验成功的token */
-  token: string
+  /** 短信验证码 */
+  smsCode: string
 }
 
 export interface RepairPasswordInput {
-  token: string
+  smsCode: string
   password: string
+  account: string
 }

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import LoginPasswordForm from './components/LoginPasswordForm.vue'
 import LoginCodeForm from './components/LoginCodeForm.vue'
-import type { CodeFormData, LoginType, PasswordFormData } from '@/types/account.type'
+import type { CodeFormData, LoginType } from '@/types/account.type'
 import { LoginService } from '@/http/services/LoginService'
 import type { PasswordLoginInput, SmsCodeLoginInput } from '@/http/models/login.model'
 import { LoadingService } from '@/http/extends/loading.service'
@@ -31,6 +32,7 @@ const codeFormRef = ref()
 const loadingStatus = ref(false)
 const loadingService = new LoadingService(loadingStatus)
 const userStore = useUserStore()
+const remember = ref(false)
 
 function onSubmit() {
   let task: Promise<any>
@@ -43,15 +45,11 @@ function onSubmit() {
     task = service.smsCodeLogin(loginData, [loadingService])
   }
   else {
-    const formData = codeFormRef.value!.getFormData() as PasswordFormData
-    const loginData: PasswordLoginInput = {
-      password: formData.password,
-      account: formData.account,
-    }
-    task = service.passwordLogin(loginData, [loadingService])
+    const formData = pwdFormRef.value!.getFormData() as PasswordLoginInput
+    task = service.passwordLogin(formData, [loadingService])
   }
   task.then(({ token }) => {
-    userStore.updateToken(token)
+    userStore.updateToken(token, remember.value)
     router.push({ name: 'assets-manage' })
   }).catch(({ msg }) => ElMessage.error(msg ?? '登录失败，请稍后重试'))
 }
@@ -73,8 +71,10 @@ function onSubmit() {
         <LoginCodeForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" />
       </el-tab-pane>
     </el-tabs>
-    <div>
-      <el-checkbox>七天免登录</el-checkbox>
+    <div class="mb-4">
+      <el-checkbox v-model="remember">
+        七天免登录
+      </el-checkbox>
     </div>
     <div class="el-form-item form-item--submit">
       <el-button type="primary" size="large" :disabled="!tabFromValid" @click="onSubmit">

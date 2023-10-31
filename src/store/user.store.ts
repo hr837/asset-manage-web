@@ -8,6 +8,8 @@ interface State {
   id: string
   /** 子菜单列表 */
   subMenuList: MenuData[]
+  /** 最后一次登录日期 */
+  LLD: number
 }
 
 const initialState: State = {
@@ -15,6 +17,7 @@ const initialState: State = {
   token: '',
   /** 子菜单列表 */
   subMenuList: [],
+  LLD: -1,
 }
 
 export const useUserStore = defineStore('user', {
@@ -23,8 +26,14 @@ export const useUserStore = defineStore('user', {
     /**
      * 更新系统状态
      */
-    updateToken(token?: string) {
-      this.token = token ?? ''
+    updateToken(token: string, remember = false) {
+      this.token = token
+      this.LLD = remember ? Date.now() : -1
+    },
+    /** 清除token */
+    cleanToken() {
+      this.token = ''
+      this.LLD = -1
     },
     updateUserInfo(user: { id: string; name: string }) {
       this.id = user.id

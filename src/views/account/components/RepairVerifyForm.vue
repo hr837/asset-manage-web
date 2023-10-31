@@ -96,13 +96,15 @@ function onFormItemValidate(prop: any, isValid: boolean) {
 }
 
 const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code : !itemsValid.account)
+// 不是手机号设置，就掩码显示
+const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? formModel.phone : formModel.phone.replace(/\d{7}/, '***'))
 </script>
 
 <template>
   <div class="component repair-verify-form">
     <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate">
       <el-form-item v-if="!showVerifyInput" prop="account" label="账号" :rules="FormRules.loginAccount">
-        <el-input v-model="formModel.account" placeholder="请输入邮箱/手机号" maxlength="50">
+        <el-input v-model="formModel.account" autocomplete="account" placeholder="请输入邮箱/手机号" maxlength="50">
           <template #prefix>
             <icon-park-solid-user />
           </template>
@@ -115,7 +117,7 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
             <span class="pl-1">返回上一步</span>
           </div>
           <div class="step-tip">
-            验证码将发送至 <span class="step-tip-account">{{ formModel.phone }}</span>
+            验证码将发送至 <span class="step-tip-account">{{ viewPhoneNumber }}</span>
           </div>
         </div>
         <el-form-item prop="code" class="register-form-item--code" label="验证码" :rules="FormRules.smsCode">

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { nanoid } from 'nanoid'
 import { FormRules } from '../composables/form-help'
-import type { PasswordFormData } from '@/types/account.type'
+import type { PasswordLoginInput } from '@/http/models/login.model'
 
 const emit = defineEmits<{
   // 表单验证事件
@@ -11,29 +12,37 @@ const emit = defineEmits<{
   forgot: []
 }>()
 
-const loginModel = reactive<PasswordFormData>({
+const loginModel = reactive<PasswordLoginInput>({
   account: '',
   password: '',
+  patchcaKey: nanoid(),
+  validateCode: '',
 })
 const formRef = ref<FormInstance>()
-
-const loginRules = {
-  account: FormRules.loginAccount,
-  password: FormRules.loginPassword,
-}
 
 const itemsValid = {
   account: false,
   password: false,
+  validateCode: false,
 }
 
 function onFormItemValidate(prop: any, isValid: boolean) {
   if (prop === 'account')
     itemsValid.account = isValid
-  else
+  else if (prop === 'password')
     itemsValid.password = isValid
-  emit('validate', itemsValid.account && itemsValid.password)
+  else
+    itemsValid.validateCode = isValid
+  //
+  emit('validate', itemsValid.account && itemsValid.password && itemsValid.validateCode)
 }
+
+function remakeCode() {
+  formRef.value!.resetFields('validateCode')
+  loginModel.patchcaKey = nanoid()
+}
+
+const codeSrc = computed(() => `/api/patchca/${loginModel.patchcaKey}`)
 
 defineExpose({
   getFormData: () => Object.assign({}, loginModel),
@@ -42,18 +51,15 @@ defineExpose({
 
 <template>
   <div class="component login-password-form">
-    <el-form
-      ref="formRef" :model="loginModel" :rules="loginRules" label-position="top" size="large"
-      @validate="onFormItemValidate"
-    >
-      <el-form-item prop="account" label="账号">
+    <el-form ref="formRef" :model="loginModel" label-position="top" size="large" @validate="onFormItemValidate">
+      <el-form-item prop="account" label="账号" :rules="FormRules.loginAccount">
         <el-input v-model="loginModel.account" type="text" placeholder="请输入邮箱/手机号" maxlength="50">
           <template #prefix>
             <icon-park-solid-user />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="password" label="密码">
+      <el-form-item prop="password" label="密码" :rules="FormRules.loginPassword">
         <el-input v-model="loginModel.password" type="password" placeholder="请输入密码" maxlength="20">
           <template #prefix>
             <icon-park-solid-lock />
@@ -62,6 +68,16 @@ defineExpose({
             <el-button type="primary" text @click="$emit('forgot')">
               忘记密码
             </el-button>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item prop="validateCode" label="验证码" :rules="FormRules.pictureCode">
+        <el-input v-model="loginModel.validateCode" autocomplete="off" placeholder="请输入验证码" maxlength="4">
+          <template #prefix>
+            <icon-park-outline-block-six />
+          </template>
+          <template #suffix>
+            <img class="cursor-pointer" :src="codeSrc" alt="图形验证码" @click="remakeCode">
           </template>
         </el-input>
       </el-form-item>

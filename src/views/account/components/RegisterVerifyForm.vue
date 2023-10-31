@@ -98,7 +98,7 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
   <div class="component register-verify-form">
     <el-form ref="formRef" :model="registerModel" label-position="top" size="large" @validate="onFormItemValidate">
       <el-form-item v-if="!showVerifyInput" prop="phone" label="手机号" :rules="FormRules.phone">
-        <el-input v-model="registerModel.phone" type="phone" placeholder="请输入手机号码" maxlength="11">
+        <el-input v-model="registerModel.phone" type="tel" autocomplete="tel" placeholder="请输入手机号码" maxlength="11">
           <template #prefix>
             <icon-park-solid-phone />
           </template>

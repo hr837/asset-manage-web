@@ -15,7 +15,7 @@ const registerData: RegisterInput = {
   phone: '',
   mail: '',
   password: '',
-  token: '',
+  smsCode: '',
 }
 
 const userStore = useUserStore()
@@ -27,9 +27,11 @@ const loadingService = new LoadingService(loadingStatus)
 // 验证用户注册输入的验证码是否正确
 function onRegistSubmit(data: RegisterFormData) {
   service.smsCodeCheck({ smsCode: data.code, phone: data.phone }, [loadingService])
-    .then((res) => {
+    .then(({ successful }) => {
+      if (!successful)
+        throw new Error('短信验证码错误')
+      registerData.smsCode = data.code
       registerData.phone = data.phone
-      registerData.token = res.token
       // 进入设置页面
       showSettingFrom.value = true
     })
@@ -45,9 +47,13 @@ const getCode = (phone: string) => service.getSmsCode(phone, [loadingService])
 
 // 检查账号是否可用
 const checkAccount = (account: string) => service.checkAccountExist(account, [loadingService])
-  .then(res => !res.registed)
-  .catch(({ msg }) => {
-    ElMessage.error(msg ?? '获取验证码失败，请稍后重试')
+  .then(({ regphone }) => {
+    if (regphone !== '')
+      throw new Error('账号已存在，请重新输入')
+    return true
+  })
+  .catch(({ msg, message }) => {
+    ElMessage.error(msg ?? message ?? '检测账号失败，请稍后重试')
     return false
   })
 

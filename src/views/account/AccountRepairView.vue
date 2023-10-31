@@ -12,7 +12,8 @@ const showSettingFrom = ref(false)
 
 const repairData: RepairPasswordInput = {
   password: '',
-  token: '',
+  smsCode: '',
+  account: '',
 }
 
 const router = useRouter()
@@ -23,13 +24,17 @@ const loadingService = new LoadingService(loadingStatus)
 // 验证用户注册输入的验证码是否正确
 function onVerifySubmit(data: RegisterFormData) {
   service.smsCodeCheck({ smsCode: data.code, phone: data.phone }, [loadingService])
-    .then((res) => {
-      repairData.token = res.token
+    .then(({ successful }) => {
+      if (!successful)
+        throw new Error('短信验证码错误')
+
+      repairData.smsCode = data.code
+      repairData.account = data.phone
       // 进入设置页面
       showSettingFrom.value = true
     })
-    .catch(({ msg }) => {
-      ElMessage.error(msg ?? '短信验证码校验失败')
+    .catch(({ msg, message }) => {
+      ElMessage.error(msg ?? message ?? '短信验证码校验失败')
     })
 }
 
@@ -40,9 +45,13 @@ const getCode = (phone: string) => service.getSmsCode(phone, [loadingService])
 
 // 获取登录手机号
 const checkAccount = (account: string) => service.checkAccountExist(account, [loadingService])
-  .then(() => account)
-  .catch(({ msg }) => {
-    ElMessage.error(msg ?? '获取验证码失败，请稍后重试')
+  .then(({ regphone }) => {
+    if (!regphone)
+      throw new Error('账号不存在，请检查后重试')
+    return regphone
+  })
+  .catch(({ msg, message }) => {
+    ElMessage.error(msg ?? message ?? '验证账号失败')
     return null
   })
 

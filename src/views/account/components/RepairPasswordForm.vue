@@ -50,15 +50,24 @@ const submitDisabled = computed(() => !itemsValid.password || !itemsValid.confir
 <template>
   <div class="component setting-form">
     <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate">
-      <el-form-item prop="password" class="setting-form-item--code" label="新密码" :rules="FormRules.settingPassword">
-        <el-input v-model="formModel.password" type="password" placeholder="请设置登录密码" maxlength="20">
+      <el-form-item prop="password" label="新密码" :rules="FormRules.settingPassword">
+        <el-input
+          v-model="formModel.password" type="password" autocomplete="new-password" placeholder="请设置登录密码"
+          maxlength="20"
+        >
           <template #prefix>
             <icon-park-solid-lock />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="confirmPassword" class="form-item--confirm" label="确认密码" :rules="[{ validator: confirmValidator }]">
-        <el-input v-model="formModel.confirmPassword" type="password" placeholder="请确认登录密码" maxlength="50">
+      <el-form-item
+        prop="confirmPassword" class="form-item--confirm" label="确认密码"
+        :rules="[{ validator: confirmValidator }]"
+      >
+        <el-input
+          v-model="formModel.confirmPassword" type="password" autocomplete="new-password" placeholder="请确认登录密码"
+          maxlength="50"
+        >
           <template #prefix>
             <icon-park-solid-lock />
           </template>
@@ -74,8 +83,8 @@ const submitDisabled = computed(() => !itemsValid.password || !itemsValid.confir
 </template>
 
 <style lang="less" scoped>
-.form-item--confirm{
-  :deep(.el-form-item__label){
+.form-item--confirm {
+  :deep(.el-form-item__label) {
     left: 0.3rem !important;
   }
 }

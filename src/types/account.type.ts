@@ -10,11 +10,6 @@ export interface CodeFormData {
   code: string
 }
 
-export interface PasswordFormData {
-  account: string
-  password: string
-}
-
 /**
  * 注册步骤类型
  * account 账号

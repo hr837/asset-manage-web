@@ -44,4 +44,15 @@ export const FormRules = {
       },
     },
   ],
+  pictureCode: [
+    {
+      required: true,
+      trigger: 'blur',
+      message: '请输入验证码',
+    },
+    {
+      len: 4,
+      message: '请输入4位验证码',
+    },
+  ],
 }

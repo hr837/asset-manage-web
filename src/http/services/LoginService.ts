@@ -42,7 +42,7 @@ export class LoginService {
   smsCodeCheck(
     requestBody: SmsCodeLoginInput,
     requestPlugins: RequestPlugin[] = [],
-  ): Promise<LoginOutput> {
+  ): Promise<{ successful: boolean }> {
     // 请求数据
     return this.request.send(
       {
@@ -90,7 +90,7 @@ export class LoginService {
   checkAccountExist(
     account: string,
     requestPlugins: RequestPlugin[] = [],
-  ): Promise<{ registed: boolean }> {
+  ): Promise<{ regphone: string }> {
     // 请求数据
     return this.request.send(
       {
@@ -110,7 +110,7 @@ export class LoginService {
     // 请求数据
     return this.request.send(
       {
-        path: '/api/accountVerification',
+        path: '/api/resetPassword',
         method: RequestMethod.Post,
         paramsBody: requestBody,
       },

@@ -88,7 +88,7 @@ defineExpose({
       @validate="onFormItemValidate"
     >
       <el-form-item prop="phone" label="手机号" :rules="FormRules.phone">
-        <el-input v-model="loginModel.phone" type="text" placeholder="请输入手机号码" maxlength="11">
+        <el-input v-model="loginModel.phone" type="tel" autocomplete="tel" placeholder="请输入手机号码" maxlength="11">
           <template #prefix>
             <icon-park-solid-phone />
           </template>
