@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { take, timer } from 'rxjs'
+import { FormRules } from '../composables/form-help'
 import type { CodeFormData } from '@/types/login.type'
-import { EXP_Phone } from '@/utils/regexp.util'
 
 const props = defineProps<{
   getCode: (phone: string) => Promise<void>
@@ -18,15 +18,9 @@ const loginModel = reactive<CodeFormData>({
   code: '',
 })
 const formRef = ref<FormInstance>()
-const formRules: FormRules = {
-  phone: [
-    { required: true, trigger: 'blur', message: '请输入手机号码' },
-    { pattern: EXP_Phone, message: '请输入正确的手机号码' },
-  ],
-  code: [
-    { required: true, message: '请输入验证码登录', trigger: 'blur' },
-    { len: 6, message: '请输入6位验证码' },
-  ],
+const formRules = {
+  phone: FormRules.phone,
+  code: FormRules.smsCode,
 }
 
 const itemsValid = {

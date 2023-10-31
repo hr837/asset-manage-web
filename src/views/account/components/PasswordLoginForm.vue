@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
+import { FormRules } from '../composables/form-help'
 import type { PasswordFormData } from '@/types/login.type'
-import { EXP_Email, EXP_Phone } from '@/utils/regexp.util'
 
 const emit = defineEmits<{
   // 表单验证事件
@@ -17,26 +17,9 @@ const loginModel = reactive<PasswordFormData>({
 })
 const formRef = ref<FormInstance>()
 
-const loginRules: FormRules = {
-  account: [
-    { required: true, trigger: 'blur', message: '请输入邮箱/手机号登录' },
-    {
-      validator: (_: unknown, value: string, callback: Function) => {
-        if (EXP_Phone.test(value) || EXP_Email.test(value))
-          callback()
-
-        else
-          callback(new Error('请输入正确的邮箱或者手机号码'))
-      },
-    },
-  ],
-  password: [
-    {
-      required: true,
-      trigger: 'blur',
-      message: '请输入密码登录',
-    },
-  ],
+const loginRules = {
+  account: FormRules.loginAccount,
+  password: FormRules.loginPassword,
 }
 
 const itemsValid = {

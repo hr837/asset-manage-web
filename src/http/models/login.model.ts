@@ -15,3 +15,20 @@ export interface PasswordLoginInput {
 export interface LoginOutput {
   token: string
 }
+
+export interface RegisterInput {
+  /**
+   * 邮箱地址
+   */
+  mail: string
+  /**
+   * 密码
+   */
+  password: string
+  /**
+   * 手机号
+   */
+  phone: string
+  /** 验证码校验成功的token */
+  token: string
+}

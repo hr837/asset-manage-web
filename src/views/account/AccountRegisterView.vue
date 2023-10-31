@@ -1,70 +1,70 @@
 <script lang="ts" setup>
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import RegisterForm from './components/RegisterForm.vue'
 import SettingForm from './components/SettingForm.vue'
-import DragVerify from '@/components/common/DragVerify.vue'
-import type { RegistStep } from '@/types/register.type'
-const title = process.env.VUE_APP_TITLE
-
-const currentSetp = ref<RegistStep>('verifycode')
-const countDown = ref(0)
-const showCountDown = ref(false)
-
-let timerId = -1
-function startCount() {
-  countDown.value = 60
-  showCountDown.value = true
-  timerId = window.setInterval(() => {
-    if (countDown.value === 1) {
-      clearInterval(timerId)
-      showCountDown.value = false
-    }
-    countDown.value -= 1
-  }, 1000)
-}
-
-const verified = ref(false)
-const showDialog = ref(false)
-
-function sendMessage() {
-  startCount()
-}
-
-function onSendMessageClick() {
-  if (verified.value)
-    sendMessage()
-  else
-    showDialog.value = true
-}
-
-function onDragVerified() {
-  verified.value = true
-  showDialog.value = false
-  sendMessage()
-}
-
-onUnmounted(() => window.clearInterval(timerId))
-const countDownText = computed(() => `${countDown.value}s后重试`)
-const submitBtnText = computed(() => {
-  switch (currentSetp.value) {
-    case 'account':
-      return '下一步'
-    case 'verifycode':
-      return '注册'
-    default:
-      return '登录'
-  }
-})
+import type { RegisterFormData, SettingFormData } from '@/types/register.type'
+import { LoginService } from '@/http/services/LoginService'
+import type { RegisterInput } from '@/http/models/login.model'
+import { LoadingService } from '@/http/extends/loading.service'
+import { useUserStore } from '@/store/user.store'
 
 const showSettingFrom = ref(false)
 
-function onRegistSubmit() {
-  // send to server
-  showSettingFrom.value = true
+const registerData: RegisterInput = {
+  phone: '',
+  mail: '',
+  password: '',
+  token: '',
 }
 
-function onSettingSubmit() {
-  showSettingFrom.value = false
+const userStore = useUserStore()
+const router = useRouter()
+const service = new LoginService()
+const loadingStatus = ref(false)
+const loadingService = new LoadingService(loadingStatus)
+
+// 验证用户注册输入的验证码是否正确
+function onRegistSubmit(data: RegisterFormData) {
+  service.smsCodeCheck({ smsCode: data.code, phone: data.phone }, [loadingService])
+    .then((res) => {
+      registerData.phone = data.phone
+      registerData.token = res.token
+      // 进入设置页面
+      showSettingFrom.value = true
+    })
+    .catch(({ msg }) => {
+      ElMessage.error(msg ?? '短信验证码校验失败')
+    })
+}
+
+// 获取验证码
+const getCode = (phone: string) => service.getSmsCode(phone, [loadingService])
+  .then(() => { ElMessage.success('验证码已发送，请注意查收短信') })
+  .catch(({ msg }) => { ElMessage.error(msg ?? '获取验证码失败，请稍后重试') })
+
+// 检查账号是否可用
+const checkAccount = (account: string) => service.checkAccountExist(account, [loadingService])
+  .then(res => !res.registed)
+  .catch(({ msg }) => {
+    ElMessage.error(msg ?? '获取验证码失败，请稍后重试')
+    return false
+  })
+
+async function onSettingSubmit(data: SettingFormData) {
+  const verified = await checkAccount(data.email)
+  if (!verified)
+    return
+  registerData.mail = data.email
+  registerData.password = data.password
+  const res = await service.register(registerData, [loadingService]).catch(({ msg }) => {
+    ElMessage.error(msg ?? '登录失败，请重试')
+    return null
+  })
+  if (!res)
+    return
+  userStore.updateToken(res.token)
+  router.push({ name: 'assets-manage' })
 }
 
 const formTitle = computed(() => showSettingFrom.value ? '最后一步' : '注册')
@@ -72,88 +72,44 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
 </script>
 
 <template>
-  <div class="register">
-    <div class="register-right-content">
-      <div class="register-title">
-        {{ formTitle }}
-      </div>
-      <div class="register-tips">
-        {{ formSubTitle }}
-      </div>
-      <RegisterForm
-        v-if="!showSettingFrom" :step="currentSetp" @previous="currentSetp = 'account'"
-        @submit="onRegistSubmit"
-      >
-        <template #verify>
-          <el-button v-if="!showCountDown" type="text" @click="onSendMessageClick">
-            发送验证码
-          </el-button>
-          <span v-else class="leading-10">{{ countDownText }}</span>
-        </template>
-      </RegisterForm>
-      <SettingForm v-else @submit="onSettingSubmit" />
-      <div class="register-other">
-        <span>已有账号！</span>
-        <RouterLink class="register-router-link" to="/login">
-          直接登录
-        </RouterLink>
-      </div>
+  <div class="account-register">
+    <div class="account-register-title">
+      {{ formTitle }}
     </div>
-    <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
-      <DragVerify @success="onDragVerified" />
-    </el-dialog>
+    <div class="account-register-tips">
+      {{ formSubTitle }}
+    </div>
+    <RegisterForm
+      v-if="!showSettingFrom" :form-loading="loadingStatus" :get-code="getCode" :check-phone="checkAccount"
+      @previous="showSettingFrom = false" @submit="onRegistSubmit"
+    />
+    <SettingForm v-else :form-loading="loadingStatus" @submit="onSettingSubmit" />
+    <div class="account-register-other">
+      <span>已有账号！</span>
+      <RouterLink class="account-register-router-link" to="/login">
+        直接登录
+      </RouterLink>
+    </div>
   </div>
 </template>
 
 <style lang="less" scoped>
-.register-left {
-  @apply flex justify-center items-center relative select-none;
-
-  .register-left-bg {
-    @apply absolute w-3/4 h-full left-0 bg-no-repeat bg-cover bg-left;
-  }
-
-  .register-left-content {
-    @apply px-16 relative;
-
-    .sys-name {
-      @apply absolute top-10 left-28 text-white text-3xl font-semibold tracking-widest;
-    }
-
-    .register-img {
-      @apply rounded-2xl;
-    }
-  }
-}
-
-.register-right {
+.account-register {
+  width: 450px;
   @apply pl-16 flex flex-col justify-center;
-  color: #3F2D66;
 
-  .register-right-content {
-    width: 450px;
-  }
-
-  .register-title {
+  .account-register-title {
     @apply text-3xl font-semibold tracking-widest;
   }
 
-  .register-tips {
+  .account-register-tips {
     @apply h-20 pt-3;
   }
 
-  .register-submit {
-    @apply mt-6 mb-8;
-
-    .el-button {
-      @apply w-full h-16 rounded-lg text-2xl font-semibold tracking-widest;
-    }
-  }
-
-  .register-other {
+  .account-register-other {
     @apply flex justify-between items-center h-20 border-t border-gray-100;
 
-    .register-router-link {
+    .account-register-router-link {
       color: @color-primary;
       @apply font-semibold tracking-wider;
     }

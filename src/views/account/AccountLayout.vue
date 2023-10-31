@@ -87,7 +87,8 @@ const title = process.env.VUE_APP_TITLE
       @apply mb-8;
 
       .el-button {
-        @apply w-full rounded-lg text-2xl font-semibold tracking-widest;
+        height: 60px;
+        @apply w-full rounded-lg text-xl font-semibold tracking-widest;
       }
     }
 

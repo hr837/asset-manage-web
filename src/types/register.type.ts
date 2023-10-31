@@ -6,7 +6,12 @@
  */
 export type RegistStep = 'account' | 'verifycode' | 'setting'
 
-export interface RegistInputData {
-  account: string
-  validateCode: string
+export interface RegisterFormData {
+  phone: string
+  code: string
+}
+
+export interface SettingFormData {
+  email: string
+  password: string
 }

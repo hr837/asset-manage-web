@@ -76,9 +76,11 @@ function onSubmit() {
     <div>
       <el-checkbox>七天免登录</el-checkbox>
     </div>
-    <el-button type="primary" size="large" :disabled="!tabFromValid" @click="onSubmit">
-      登录
-    </el-button>
+    <div class="el-form-item form-item--submit">
+      <el-button type="primary" size="large" :disabled="!tabFromValid" @click="onSubmit">
+        登录
+      </el-button>
+    </div>
 
     <div class="account-login-other">
       <span>没有账户?</span>
