@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import RegisterForm from './components/RegisterForm.vue'
-import SettingForm from './components/SettingForm.vue'
-import type { RegisterFormData, SettingFormData } from '@/types/register.type'
+import RegisterVerifyForm from './components/RegisterVerifyForm.vue'
+import RegisterSettingForm from './components/RegisterSettingForm.vue'
+import type { RegisterFormData, SettingFormData } from '@/types/account.type'
 import { LoginService } from '@/http/services/LoginService'
 import type { RegisterInput } from '@/http/models/login.model'
 import { LoadingService } from '@/http/extends/loading.service'
@@ -79,11 +79,11 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
     <div class="account-register-tips">
       {{ formSubTitle }}
     </div>
-    <RegisterForm
+    <RegisterVerifyForm
       v-if="!showSettingFrom" :form-loading="loadingStatus" :get-code="getCode" :check-phone="checkAccount"
       @previous="showSettingFrom = false" @submit="onRegistSubmit"
     />
-    <SettingForm v-else :form-loading="loadingStatus" @submit="onSettingSubmit" />
+    <RegisterSettingForm v-else :form-loading="loadingStatus" @submit="onSettingSubmit" />
     <div class="account-register-other">
       <span>已有账号！</span>
       <RouterLink class="account-register-router-link" to="/login">

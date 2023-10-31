@@ -3,7 +3,7 @@ import { type FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { take, timer } from 'rxjs'
 import { FormRules } from '../composables/form-help'
-import type { CodeFormData } from '@/types/login.type'
+import type { CodeFormData } from '@/types/account.type'
 
 const props = defineProps<{
   getCode: (phone: string) => Promise<void>
@@ -18,10 +18,6 @@ const loginModel = reactive<CodeFormData>({
   code: '',
 })
 const formRef = ref<FormInstance>()
-const formRules = {
-  phone: FormRules.phone,
-  code: FormRules.smsCode,
-}
 
 const itemsValid = {
   phone: false,
@@ -86,19 +82,19 @@ defineExpose({
 </script>
 
 <template>
-  <div class="component sms-code-login-form">
+  <div class="component login-code-form">
     <el-form
-      ref="formRef" :model="loginModel" :rules="formRules" label-position="top" size="large"
+      ref="formRef" :model="loginModel" label-position="top" size="large"
       @validate="onFormItemValidate"
     >
-      <el-form-item prop="phone" label="手机号">
+      <el-form-item prop="phone" label="手机号" :rules="FormRules.phone">
         <el-input v-model="loginModel.phone" type="text" placeholder="请输入手机号码" maxlength="11">
           <template #prefix>
             <icon-park-solid-phone />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="code" class="login-form-item--code" label="验证码">
+      <el-form-item prop="code" label="验证码" :rules="FormRules.smsCode">
         <el-input v-model="loginModel.code" placeholder="请输入验证码" maxlength="6">
           <template #prefix>
             <icon-park-outline-block-six />

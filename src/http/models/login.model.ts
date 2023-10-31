@@ -32,3 +32,8 @@ export interface RegisterInput {
   /** 验证码校验成功的token */
   token: string
 }
+
+export interface RepairPasswordInput {
+  token: string
+  password: string
+}

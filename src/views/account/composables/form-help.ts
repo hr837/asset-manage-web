@@ -33,7 +33,7 @@ export const FormRules = {
     },
   ],
   loginAccount: [
-    { required: true, trigger: 'blur', message: '请输入邮箱/手机号登录' },
+    { required: true, trigger: 'blur', message: '请输入邮箱/手机号' },
     {
       validator: (_: unknown, value: string, callback: Function) => {
         if (EXP_Phone.test(value) || EXP_Email.test(value))

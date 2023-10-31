@@ -1,5 +1,5 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
-import type { LoginOutput, PasswordLoginInput, RegisterInput, SmsCodeLoginInput } from '../models/login.model'
+import type { LoginOutput, PasswordLoginInput, RegisterInput, RepairPasswordInput, SmsCodeLoginInput } from '../models/login.model'
 export class LoginService {
   // 请求实例
   private request = RequestService.getInstance()
@@ -97,6 +97,22 @@ export class LoginService {
         path: '/api/accountVerification',
         method: RequestMethod.Get,
         paramsQuery: { account },
+      },
+      requestPlugins,
+    )
+  }
+
+  /** 检测账号是否存在 */
+  repairPassword(
+    requestBody: RepairPasswordInput,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<boolean> {
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/accountVerification',
+        method: RequestMethod.Post,
+        paramsBody: requestBody,
       },
       requestPlugins,
     )

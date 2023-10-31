@@ -2,7 +2,7 @@
 import type { FormInstance } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
 import { FormRules } from '../composables/form-help'
-import type { SettingFormData } from '@/types/register.type'
+import type { SettingFormData } from '@/types/account.type'
 
 const props = defineProps<{
   formLoading: boolean

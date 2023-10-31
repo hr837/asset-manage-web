@@ -2,7 +2,7 @@
 import type { FormInstance } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { FormRules } from '../composables/form-help'
-import type { PasswordFormData } from '@/types/login.type'
+import type { PasswordFormData } from '@/types/account.type'
 
 const emit = defineEmits<{
   // 表单验证事件
@@ -41,13 +41,13 @@ defineExpose({
 </script>
 
 <template>
-  <div class="component password-login-form">
+  <div class="component login-password-form">
     <el-form
       ref="formRef" :model="loginModel" :rules="loginRules" label-position="top" size="large"
       @validate="onFormItemValidate"
     >
       <el-form-item prop="account" label="账号">
-        <el-input v-model="loginModel.account" type="text" placeholder="请输入邮箱/手机号">
+        <el-input v-model="loginModel.account" type="text" placeholder="请输入邮箱/手机号" maxlength="50">
           <template #prefix>
             <icon-park-solid-user />
           </template>

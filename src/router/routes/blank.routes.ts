@@ -21,6 +21,14 @@ const routesConfig: Array<RouteRecordRaw> = [
           ignoreAuth: true,
         },
       },
+      {
+        path: 'repair',
+        name: 'account-repair',
+        component: () => import('@/views/account/AccountRepairView.vue'),
+        meta: {
+          ignoreAuth: true,
+        },
+      },
     ],
   },
   {

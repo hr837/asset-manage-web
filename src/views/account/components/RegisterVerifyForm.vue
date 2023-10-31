@@ -3,7 +3,7 @@ import type { FormInstance } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
 import { take, timer } from 'rxjs'
 import { FormRules } from '../composables/form-help'
-import type { RegisterFormData } from '@/types/register.type'
+import type { RegisterFormData } from '@/types/account.type'
 
 const props = defineProps<{
   formLoading: boolean
@@ -23,10 +23,10 @@ const formRef = ref<FormInstance>()
 async function onSubmitClick() {
   if (!showVerifyInput.value) {
     const result = await formRef.value!.validateField('account').then(() => true).catch(() => false)
-    if (result) {
-      props.checkPhone(registerModel.phone)
-        .then(res => showVerifyInput.value = res)
-    }
+    if (!result)
+      return
+    const valid = await props.checkPhone(registerModel.phone)
+    showVerifyInput.value = valid
   }
   else {
     const result = await formRef.value!.validateField('validateCode').then(() => true).catch(() => false)
@@ -95,7 +95,7 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
 </script>
 
 <template>
-  <div class="component register-form">
+  <div class="component register-verify-form">
     <el-form ref="formRef" :model="registerModel" label-position="top" size="large" @validate="onFormItemValidate">
       <el-form-item v-if="!showVerifyInput" prop="phone" label="手机号" :rules="FormRules.phone">
         <el-input v-model="registerModel.phone" type="phone" placeholder="请输入手机号码" maxlength="11">
@@ -114,7 +114,7 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
             验证码将发送至 <span class="step-tip-account">{{ registerModel.phone }}</span>
           </div>
         </div>
-        <el-form-item prop="code" class="register-form-item--code" label="验证码" :rules="FormRules.smsCode">
+        <el-form-item prop="code" label="验证码" :rules="FormRules.smsCode">
           <el-input v-model="registerModel.code" placeholder="请输入手机验证码" maxlength="6">
             <template #prefix>
               <icon-park-outline-block-six />

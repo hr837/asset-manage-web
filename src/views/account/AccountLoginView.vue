@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PasswordLoginForm from './components/PasswordLoginForm.vue'
-import SmsCodeLoginForm from './components/SmsCodeLoginForm.vue'
-import type { CodeFormData, LoginType, PasswordFormData } from '@/types/login.type'
+import LoginPasswordForm from './components/LoginPasswordForm.vue'
+import LoginCodeForm from './components/LoginCodeForm.vue'
+import type { CodeFormData, LoginType, PasswordFormData } from '@/types/account.type'
 import { LoginService } from '@/http/services/LoginService'
 import type { PasswordLoginInput, SmsCodeLoginInput } from '@/http/models/login.model'
 import { LoadingService } from '@/http/extends/loading.service'
@@ -14,7 +14,7 @@ const service = new LoginService()
 
 const router = useRouter()
 // 忘记密码
-const onForgot = () => router.push('/reset-pwd')
+const onForgot = () => router.push({ name: 'account-repair' })
 // 获取验证码
 const getCode = (phone: string) => service.getSmsCode(phone)
   .then(() => { ElMessage.success('验证码已发送，请注意查收短信') })
@@ -67,10 +67,10 @@ function onSubmit() {
     </div>
     <el-tabs v-model="tabActive">
       <el-tab-pane name="pwd" label="密码登录">
-        <PasswordLoginForm ref="pwdFormRef" @forgot="onForgot" @validate="val => formValid.pwd = val" />
+        <LoginPasswordForm ref="pwdFormRef" @forgot="onForgot" @validate="val => formValid.pwd = val" />
       </el-tab-pane>
       <el-tab-pane name="code" label="验证码登录">
-        <SmsCodeLoginForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" />
+        <LoginCodeForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" />
       </el-tab-pane>
     </el-tabs>
     <div>
