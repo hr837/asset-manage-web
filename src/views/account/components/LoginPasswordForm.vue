@@ -46,16 +46,20 @@ const codeSrc = computed(() => `/api/patchca/${loginModel.patchcaKey}`)
 
 defineExpose({
   getFormData: () => Object.assign({}, loginModel),
+  resetCode: () => {
+    formRef.value?.resetFields('validateCode')
+    remakeCode()
+  },
 })
 </script>
 
 <template>
   <div class="component login-password-form">
     <el-form ref="formRef" :model="loginModel" label-position="top" size="large" @validate="onFormItemValidate">
-      <el-form-item prop="account" label="账号" :rules="FormRules.loginAccount">
-        <el-input v-model="loginModel.account" type="text" placeholder="请输入邮箱/手机号" maxlength="50">
+      <el-form-item prop="account" label="手机号" :rules="FormRules.phone">
+        <el-input v-model="loginModel.account" type="tel" autocomplete="tel" placeholder="请输入手机号" maxlength="11">
           <template #prefix>
-            <icon-park-solid-user />
+            <icon-park-solid-phone />
           </template>
         </el-input>
       </el-form-item>

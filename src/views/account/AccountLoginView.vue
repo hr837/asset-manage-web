@@ -16,10 +16,6 @@ const service = new LoginService()
 const router = useRouter()
 // 忘记密码
 const onForgot = () => router.push({ name: 'account-repair' })
-// 获取验证码
-const getCode = (phone: string) => service.getSmsCode(phone)
-  .then(() => { ElMessage.success('验证码已发送，请注意查收短信') })
-  .catch(({ msg }) => { ElMessage.error(msg ?? '获取验证码失败，请稍后重试') })
 
 const formValid = reactive({
   pwd: false,
@@ -34,8 +30,22 @@ const loadingService = new LoadingService(loadingStatus)
 const userStore = useUserStore()
 const remember = ref(false)
 
+// 获取验证码
+const getCode = (phone: string) => service.checkAccountExist(phone, [loadingService])
+  .then(({ regphone }) => {
+    // 未注册用户不发送验证码
+    if (!regphone)
+      throw new Error('账号未注册，请先注册')
+    return service.getSmsCode(phone)
+  })
+  .then(() => { ElMessage.success('验证码已发送，请注意查收短信') })
+  .catch(({ msg, message }) => { ElMessage.error(msg ?? message ?? '获取验证码失败，请稍后重试') })
+
 function onSubmit() {
   let task: Promise<any>
+
+  const formRef = tabActive.value === 'code' ? codeFormRef : pwdFormRef
+  // 验证码表单提交
   if (tabActive.value === 'code') {
     const formData = codeFormRef.value!.getFormData() as CodeFormData
     const loginData: SmsCodeLoginInput = {
@@ -44,6 +54,7 @@ function onSubmit() {
     }
     task = service.smsCodeLogin(loginData, [loadingService])
   }
+  // 密码表单提交
   else {
     const formData = pwdFormRef.value!.getFormData() as PasswordLoginInput
     task = service.passwordLogin(formData, [loadingService])
@@ -51,7 +62,10 @@ function onSubmit() {
   task.then(({ token }) => {
     userStore.updateToken(token, remember.value)
     router.push({ name: 'assets-manage' })
-  }).catch(({ msg }) => ElMessage.error(msg ?? '登录失败，请稍后重试'))
+  }).catch(({ msg }) => {
+    ElMessage.error(msg ?? '登录失败，请稍后重试')
+    formRef.value!.resetCode()
+  })
 }
 </script>
 
@@ -77,7 +91,7 @@ function onSubmit() {
       </el-checkbox>
     </div>
     <div class="el-form-item form-item--submit">
-      <el-button type="primary" size="large" :disabled="!tabFromValid" @click="onSubmit">
+      <el-button type="primary" size="large" :disabled="!tabFromValid" :loading="loadingStatus" @click="onSubmit">
         登录
       </el-button>
     </div>

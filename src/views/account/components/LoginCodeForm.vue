@@ -78,6 +78,7 @@ async function onSendClick() {
 
 defineExpose({
   getFormData: () => Object.assign({}, loginModel),
+  resetCode: () => formRef.value?.resetFields('code'),
 })
 </script>
 
@@ -95,7 +96,7 @@ defineExpose({
         </el-input>
       </el-form-item>
       <el-form-item prop="code" label="验证码" :rules="FormRules.smsCode">
-        <el-input v-model="loginModel.code" placeholder="请输入验证码" maxlength="6">
+        <el-input v-model="loginModel.code" placeholder="请输入验证码" maxlength="6" autocomplete="off">
           <template #prefix>
             <icon-park-outline-block-six />
           </template>

@@ -86,8 +86,8 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
       {{ formSubTitle }}
     </div>
     <RegisterVerifyForm
-      v-if="!showSettingFrom" :form-loading="loadingStatus" :get-code="getCode" :check-phone="checkAccount"
-      @previous="showSettingFrom = false" @submit="onRegistSubmit"
+      v-if="!showSettingFrom" :form-loading="loadingStatus" :get-code="getCode"
+      :check-phone="checkAccount" @previous="showSettingFrom = false" @submit="onRegistSubmit"
     />
     <RegisterSettingForm v-else :form-loading="loadingStatus" @submit="onSettingSubmit" />
     <div class="account-register-other">
