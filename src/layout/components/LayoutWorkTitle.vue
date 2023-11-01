@@ -57,7 +57,7 @@ function initSocket() {
 onBeforeUnmount(() => window.clearTimeout(timerId))
 function exit() {
   socket?.close()
-  userStore.cleanToken()
+  userStore.$reset()
   router.push({ name: 'login' })
 }
 </script>

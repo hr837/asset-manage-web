@@ -13,16 +13,19 @@ interface State {
   showWorkMenuTree: boolean
 }
 
-const initialState: State = {
-  ready: false,
-  title: '',
-  microApp: false,
-  showAside: false,
-  showWorkMenuTree: false,
+/** 初始化state */
+const initialState = (): State => {
+  return {
+    ready: false,
+    title: '',
+    microApp: false,
+    showAside: false,
+    showWorkMenuTree: false,
+  }
 }
 
 export const useAppStore = defineStore('app', {
-  state: () => initialState,
+  state: initialState,
   actions: {
     /**
      * 更新系统状态

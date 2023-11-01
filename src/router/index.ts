@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { h } from 'vue'
 import routes from './routes'
 import BlankLayout from '@/layout/BlankLayout.vue'
-import { isAuthenticated } from '@/composables'
 import { appConfig } from '@/config/app.config'
 import { useAppStore } from '@/store/app.store'
+import { useUserStore } from '@/store/user.store'
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
@@ -16,9 +16,10 @@ router.beforeEach((to) => {
     return
   // 权限检测 // 路由配置需要权限
   const ignoreAuth = to.meta.ignoreAuth ?? false
-  if (!ignoreAuth && to.name !== 'login') {
+  if (!ignoreAuth) {
+    const userStore = useUserStore()
     // 但是 未授权
-    if (!isAuthenticated())
+    if (!userStore.token)
       return { name: 'login' }
 
     // 已授权，检测用户菜单权限
