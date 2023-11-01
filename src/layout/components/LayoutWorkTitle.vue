@@ -22,7 +22,7 @@ const hasNew = ref(false)
 const userStore = useUserStore()
 let socket: WebSocket | null = null
 
-watch(() => userStore.token, val => val && initSocket(), { immediate: true })
+// watch(() => userStore.token, val => val && initSocket(), { immediate: true })
 let timerId = -1
 
 function initSocket() {

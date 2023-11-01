@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AssetProgress from './components/AssetProgress.vue'
 import AssetDetailTag from './components/AssetDetailTag.vue'
+import { loadFbx, unloadFbx } from './FbxPlayer'
 import { AssetManageService } from '@/http/services/AssetManageService'
 import { AssetVideoPrefix } from '@/config/app.config'
 import { downloadFile, getVideoSize } from '@/utils/file.util'
@@ -44,15 +45,20 @@ onMounted(() => {
   fetchData()
 })
 
+onUnmounted(unloadFbx)
+
 function fetchData() {
-  service.getAssetInfo(id).then((data) => {
-    if (!data)
-      throw new Error('未获取到资产信息')
-    Object.assign(assetData, data)
-  }).catch(({ message }) => {
-    ElMessage.error(message)
-    router.back()
-  })
+  service.getAssetInfo(id)
+    .then((data) => {
+      if (!data)
+        throw new Error('未获取到资产信息')
+      Object.assign(assetData, data)
+    })
+    .then(() => nextTick(checkStatus))
+    .catch(({ message }) => {
+      ElMessage.error(message)
+      router.back()
+    })
 }
 
 const assetService = new AssetManageService()
@@ -91,6 +97,18 @@ function onTransformClick() {
 }
 
 const videoWrap = ref<HTMLDivElement>()
+const miniVideo = ref(false)
+
+function checkStatus() {
+  if (assetData.status !== 5)
+    return
+  const container = videoWrap.value!.querySelector<HTMLDivElement>('.fbx-player-container')
+  const video = videoWrap.value!.querySelector<HTMLVideoElement>('.video-player')
+  if (!container || !video)
+    return
+  video.onloadedmetadata = () => miniVideo.value = true
+  loadFbx(container, video, assetData.fbxFileUrl)
+}
 
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
 const duration = computed(() => getVideoDuration(assetData.duration))
@@ -139,9 +157,10 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
       </div>
 
       <div ref="videoWrap" class="video-wrapper">
+        <div v-if="canDownload" class="fbx-player-container" />
         <video
-          class="video-player" :src="src" controls controlslist="nodownload noremoteplayback"
-          disablePictureInPicture
+          class="video-player" :class="{ mini: miniVideo }" :src="src" controls
+          controlslist="nodownload noremoteplayback" disablePictureInPicture
         />
       </div>
     </div>
@@ -187,11 +206,25 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
   }
 
   .video-wrapper {
-    @apply flex-1 overflow-hidden;
+    @apply flex-1 overflow-hidden relative;
+  }
+
+  .fbx-player-container {
+    @apply absolute top-0 right-0 bottom-0 left-0 bg-gray-50;
   }
 
   .video-player {
     @apply h-full w-full bg-black;
+
+    &.mini {
+      height: 90px;
+      @apply absolute bottom-0 z-10 bg-transparent;
+      object-position: center -100px;
+
+      &::-webkit-media-controls-panel {
+        @apply bg-gradient-to-t from-black/80 to-transparent;
+      }
+    }
   }
 
 }
