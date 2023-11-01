@@ -115,7 +115,7 @@ function onSubmit() {
   }
 
   .account-login-tips {
-    @apply h-20 pt-3;
+    @apply h-20 pt-3 text-gray-500;
   }
 
   .account-login-other {

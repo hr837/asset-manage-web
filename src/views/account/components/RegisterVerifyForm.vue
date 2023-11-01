@@ -22,14 +22,14 @@ const formRef = ref<FormInstance>()
 
 async function onSubmitClick() {
   if (!showVerifyInput.value) {
-    const result = await formRef.value!.validateField('account').then(() => true).catch(() => false)
+    const result = await formRef.value!.validateField('phone').then(() => true).catch(() => false)
     if (!result)
       return
     const valid = await props.checkPhone(registerModel.phone)
     showVerifyInput.value = valid
   }
   else {
-    const result = await formRef.value!.validateField('validateCode').then(() => true).catch(() => false)
+    const result = await formRef.value!.validateField('code').then(() => true).catch(() => false)
     if (result)
       emit('submit', { ...registerModel })
   }
@@ -66,10 +66,6 @@ function onDragVerified() {
 }
 
 async function onSendClick() {
-  // 手机号是否通过表单验证
-  const phoneIsValid = await formRef.value!.validateField('phone').then(() => true).catch(() => false)
-  if (!phoneIsValid)
-    return
   // 如果没有人机验证过，则显示验证弹窗
   if (!verified.value) {
     showDialog.value = true
@@ -120,7 +116,7 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
               <icon-park-outline-block-six />
             </template>
             <template #suffix>
-              <el-button v-if="!showCountDown" type="text" @click="onSendClick">
+              <el-button v-if="!showCountDown" type="primary" text @click="onSendClick">
                 发送验证码
               </el-button>
               <span v-else class="leading-10">{{ countDownText }}</span>
@@ -135,7 +131,8 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
       </el-form-item>
     </el-form>
     <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
-      <DragVerify @success="onDragVerified" />
+      <DragVerify v-if="!verified" @success="onDragVerified" />
+      <el-result v-else class="verify-success" title="验证成功" icon="success" />
     </el-dialog>
   </div>
 </template>
@@ -145,11 +142,11 @@ const submitDisabled = computed(() => showVerifyInput.value ? !itemsValid.code :
   @apply mb-8;
 
   .step-back {
-    @apply inline-flex items-center cursor-pointer leading-10;
+    @apply inline-flex items-center cursor-pointer leading-10 ;
   }
 
   .step-tip {
-    @apply text-sm;
+    @apply text-sm text-gray-500;
 
     &-account {
       color: @color-primary;

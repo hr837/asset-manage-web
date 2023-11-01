@@ -109,7 +109,7 @@ const formSubTitle = computed(() => showSettingFrom.value ? '补充信息，完�
   }
 
   .account-register-tips {
-    @apply h-20 pt-3;
+    @apply h-20 pt-3 text-gray-500;
   }
 
   .account-register-other {

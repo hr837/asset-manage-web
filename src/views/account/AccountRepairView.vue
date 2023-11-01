@@ -101,7 +101,7 @@ const formSubTitle = computed(() => showSettingFrom.value ? '验证成功，设�
   }
 
   .account-repair-tips {
-    @apply h-20 pt-3;
+    @apply h-20 pt-3 text-gray-500;
   }
 
   .account-repair-other {

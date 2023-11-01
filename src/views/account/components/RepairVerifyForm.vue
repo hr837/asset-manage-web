@@ -33,7 +33,7 @@ async function onSubmitClick() {
     }
   }
   else {
-    const result = await formRef.value!.validateField('validateCode').then(() => true).catch(() => false)
+    const result = await formRef.value!.validateField('code').then(() => true).catch(() => false)
     if (result)
       emit('submit', { ...formModel })
   }
@@ -70,10 +70,6 @@ function onDragVerified() {
 }
 
 async function onSendClick() {
-  // 手机号是否通过表单验证
-  const phoneIsValid = await formRef.value!.validateField('phone').then(() => true).catch(() => false)
-  if (!phoneIsValid)
-    return
   // 如果没有人机验证过，则显示验证弹窗
   if (!verified.value) {
     showDialog.value = true
@@ -104,7 +100,7 @@ const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? f
   <div class="component repair-verify-form">
     <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate">
       <el-form-item v-if="!showVerifyInput" prop="account" label="账号" :rules="FormRules.loginAccount">
-        <el-input v-model="formModel.account" autocomplete="account" placeholder="请输入邮箱/手机号" maxlength="50">
+        <el-input v-model="formModel.account" placeholder="请输入邮箱/手机号" maxlength="50">
           <template #prefix>
             <icon-park-solid-user />
           </template>
@@ -126,7 +122,7 @@ const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? f
               <icon-park-outline-block-six />
             </template>
             <template #suffix>
-              <el-button v-if="!showCountDown" type="text" @click="onSendClick">
+              <el-button v-if="!showCountDown" type="primary" text @click="onSendClick">
                 发送验证码
               </el-button>
               <span v-else class="leading-10">{{ countDownText }}</span>
@@ -141,7 +137,8 @@ const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? f
       </el-form-item>
     </el-form>
     <el-dialog v-model="showDialog" title="请完成安全验证" width="400px" align-center>
-      <DragVerify @success="onDragVerified" />
+      <DragVerify v-if="!verified" @success="onDragVerified" />
+      <el-result v-else class="verify-success" title="验证成功" icon="success" />
     </el-dialog>
   </div>
 </template>
@@ -155,7 +152,7 @@ const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? f
   }
 
   .step-tip {
-    @apply text-sm;
+    @apply text-sm text-gray-500;
 
     &-account {
       color: @color-primary;
