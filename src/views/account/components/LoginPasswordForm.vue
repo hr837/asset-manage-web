@@ -69,7 +69,7 @@ defineExpose({
             <icon-park-solid-lock />
           </template>
           <template #suffix>
-            <el-button type="primary" text @click="$emit('forgot')">
+            <el-button type="primary" text tag="div" @click="$emit('forgot')">
               忘记密码
             </el-button>
           </template>

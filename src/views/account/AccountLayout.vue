@@ -44,6 +44,7 @@ const title = process.env.VUE_APP_TITLE
 
   &-img {
     @apply w-full h-full object-cover rounded-2xl;
+    -webkit-user-drag: none;
   }
 }
 

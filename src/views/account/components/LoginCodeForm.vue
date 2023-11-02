@@ -101,7 +101,7 @@ defineExpose({
             <icon-park-outline-block-six />
           </template>
           <template #suffix>
-            <el-button v-if="!showCountDown" type="primary" text @click="onSendClick">
+            <el-button v-if="!showCountDown" tag="div" type="primary" text @click="onSendClick">
               获取验证码
             </el-button>
             <span v-else class="leading-10">{{ countDownText }}</span>
