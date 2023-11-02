@@ -2,9 +2,7 @@ import { ElMessage } from 'element-plus'
 import * as THREE from 'three'
 import WebGL from 'three/examples/jsm/capabilities/WebGL'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import type { GUI } from 'three/examples/jsm/libs/lil-gui.module.min'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { ref } from 'vue'
 import { getFilePath } from '@/utils/file.util'
 /** 容器实例 */
 let containerEl: HTMLDivElement
@@ -19,8 +17,6 @@ let renderer: THREE.WebGLRenderer | null = null
 let objAction: THREE.AnimationAction
 let clock: THREE.Clock
 let fbxModelUrl = ''
-const playing = ref(false)
-let _gui: GUI
 
 // 执行动画
 function animate() {
@@ -133,13 +129,13 @@ function addLight() {
   // 平行光，为了产生阴影
   const dirLight = new THREE.DirectionalLight(0xFFFFFF, 5)
   dirLight.name = 'dirLight'
-  dirLight.position.set(0, 3, -2)
+  // 光源位置设置在电视墙的上方
+  dirLight.position.set(0, wallHeight + 1, -wallHeight)
   dirLight.castShadow = true
-  const d = 1
-  dirLight.shadow.camera.left = -d
-  dirLight.shadow.camera.right = d
-  dirLight.shadow.camera.top = d * 2
-  dirLight.shadow.camera.bottom = -d
+  dirLight.shadow.camera.left = -wallWidth / 2
+  dirLight.shadow.camera.right = wallWidth / 2
+  dirLight.shadow.camera.top = wallHeight
+  dirLight.shadow.camera.bottom = -wallHeight
   dirLight.shadow.camera.far = 10 // 最大值设置10即可
   scene!.add(dirLight)
 }
@@ -192,12 +188,13 @@ function addModel() {
     }
     const mixer = new THREE.AnimationMixer(obj)
     objAction = mixer.clipAction(clip)
+    // console.log('Video Duration:', videoEl.duration)
+    // console.log('Clip Duration:', clip.duration)
     registerVideoEvent()
   })
 }
 
 function registerVideoEvent() {
-  const playing = false
   // 视频播放时，开始动画
   videoEl.onplay = () => objAction.play()
   videoEl.onplaying = () => objAction.paused = false
@@ -210,6 +207,12 @@ function registerVideoEvent() {
   videoEl.onseeked = () => objAction.time = videoEl.currentTime
 }
 
+/**
+ * 加载FBX模型
+ * @param container 承载渲染器的元素
+ * @param video 视频源
+ * @param fbxPath 模型路径
+ */
 export function loadFbx(container: HTMLDivElement, video: HTMLVideoElement, fbxPath: string) {
   containerEl = container
   videoEl = video
@@ -229,6 +232,7 @@ export function loadFbx(container: HTMLDivElement, video: HTMLVideoElement, fbxP
   })
 }
 
+/** 卸载FBX模型 */
 export function unloadFbx() {
   if (scene)
     scene.clear()
