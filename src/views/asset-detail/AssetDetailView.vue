@@ -106,8 +106,12 @@ function checkStatus() {
   const video = videoWrap.value!.querySelector<HTMLVideoElement>('.video-player')
   if (!container || !video)
     return
-  video.onloadedmetadata = () => miniVideo.value = true
+  //
   loadFbx(container, video, assetData.fbxFileUrl)
+    .then(() => miniVideo.value = true)
+    .catch(() => {
+      video.style.display = 'none'
+    })
 }
 
 const src = computed(() => AssetVideoPrefix + assetData.sourceFileUrl)
@@ -157,9 +161,9 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
       </div>
 
       <div ref="videoWrap" class="video-wrapper">
-        <div v-if="canDownload" class="fbx-player-container" />
+        <div class="fbx-player-container" />
         <video
-          class="video-player" :class="{ mini: miniVideo }" :src="src" controls
+          class="video-player" :src="src" :class="{ mini: miniVideo }" controls
           controlslist="nodownload noremoteplayback" disablePictureInPicture
         />
       </div>
@@ -226,6 +230,5 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
       }
     }
   }
-
 }
 </style>
