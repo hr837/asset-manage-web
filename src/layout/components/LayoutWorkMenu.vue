@@ -1,60 +1,79 @@
 <script lang="ts" setup>
-import { defineProps, withDefaults } from 'vue'
 import { useRoute } from 'vue-router'
 
-withDefaults(defineProps<PropType>(), {
-  collapse: false,
-})
-
 const route = useRoute()
-
-interface PropType {
-  /** 是否折叠菜单 */
-  collapse: boolean
-}
+const openedMenus = ['ai', 'virtual']
 </script>
 
 <template>
   <el-menu
     :default-active="route.meta.menuPath || route.path" class="component layout-work-menu" router
-    :collapse="collapse"
+    :default-openeds="openedMenus"
   >
-    <el-menu-item index="/index">
-      <icon-park-outline-cylinder />
+    <el-sub-menu index="ai">
       <template #title>
-        <span>资产管理</span>
+        <icon-park-outline-adobe-illustrate />
+        <span>AI动捕</span>
       </template>
-    </el-menu-item>
-    <el-menu-item index="/upload">
-      <icon-park-outline-upload />
+      <el-menu-item index="/index">
+        <icon-park-solid-data />
+        <template #title>
+          <span>资产管理</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="/upload">
+        <icon-park-solid-inbox-upload-r />
+        <template #title>
+          <span>上传视频</span>
+        </template>
+      </el-menu-item>
+    </el-sub-menu>
+    <el-sub-menu index="virtual">
       <template #title>
-        <span>上传视频</span>
+        <icon-park-outline-people />
+        <span>虚拟人</span>
       </template>
-    </el-menu-item>
+      <el-menu-item index="/digital">
+        <icon-park-solid-at-sign />
+        <template #title>
+          <span>数字中心</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="/zone">
+        <icon-park-solid-arena />
+        <template #title>
+          <span>创作空间</span>
+        </template>
+      </el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 
 <style lang="less" scoped>
 .layout-work-menu {
-  @apply h-full overflow-x-hidden overflow-y-auto border-0;
+  @apply h-full overflow-x-hidden overflow-y-auto border-0 py-3 px-2;
 
-  &:not(.el-menu--collapse) {
-    width: 100%;
+  .iconify {
+    @apply mr-2;
   }
 
-  --el-menu-item-height: 48px;
-
-  .el-menu-item {
-    :deep(.el-menu-tooltip__trigger) {
-      justify-content: center;
-    }
-
-    span {
-      padding-left: 5px;
+  :deep(.el-sub-menu) {
+    .el-sub-menu__title {
+      @apply rounded;
     }
 
     &.is-active {
-      @apply text-white rounded-lg;
+      .el-sub-menu__title {
+        --el-menu-text-color: @color-primary;
+      }
+    }
+  }
+
+  .el-menu-item {
+    @apply rounded my-2;
+
+    &.is-active {
+      --el-menu-active-color: #fff;
       background-color: @color-primary;
     }
   }
