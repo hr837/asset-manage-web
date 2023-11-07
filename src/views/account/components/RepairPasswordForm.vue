@@ -49,7 +49,7 @@ const submitDisabled = computed(() => !itemsValid.password || !itemsValid.confir
 
 <template>
   <div class="component setting-form">
-    <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate">
+    <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate" @keydown.prevent.enter="onSubmitClick">
       <el-form-item prop="password" label="新密码" :rules="FormRules.settingPassword">
         <el-input
           v-model="formModel.password" type="password" autocomplete="new-password" placeholder="请设置登录密码"

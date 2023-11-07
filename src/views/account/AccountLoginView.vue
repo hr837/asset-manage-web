@@ -79,10 +79,10 @@ function onSubmit() {
     </div>
     <el-tabs v-model="tabActive">
       <el-tab-pane name="pwd" label="密码登录">
-        <LoginPasswordForm ref="pwdFormRef" @forgot="onForgot" @validate="val => formValid.pwd = val" />
+        <LoginPasswordForm ref="pwdFormRef" @forgot="onForgot" @validate="val => formValid.pwd = val" @keydown.prevent.enter="onSubmit" />
       </el-tab-pane>
       <el-tab-pane name="code" label="验证码登录">
-        <LoginCodeForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" />
+        <LoginCodeForm ref="codeFormRef" :get-code="getCode" @validate="val => formValid.code = val" @keydown.prevent.enter="onSubmit" />
       </el-tab-pane>
     </el-tabs>
     <div class="mb-4">

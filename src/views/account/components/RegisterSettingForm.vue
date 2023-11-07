@@ -39,7 +39,7 @@ const submitDisabled = computed(() => !itemsValid.email || !itemsValid.password)
 
 <template>
   <div class="component setting-form">
-    <el-form ref="formRef" :model="settingModel" label-position="top" size="large" @validate="onFormItemValidate">
+    <el-form ref="formRef" :model="settingModel" label-position="top" size="large" @validate="onFormItemValidate" @keydown.prevent.enter="onSubmitClick">
       <el-form-item prop="email" label="邮箱" :rules="FormRules.email as any">
         <el-input v-model="settingModel.email" type="email" placeholder="请输入邮箱账号" maxlength="50">
           <template #prefix>

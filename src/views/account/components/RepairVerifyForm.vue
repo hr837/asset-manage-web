@@ -98,7 +98,7 @@ const viewPhoneNumber = computed(() => formModel.account === formModel.phone ? f
 
 <template>
   <div class="component repair-verify-form">
-    <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate">
+    <el-form ref="formRef" :model="formModel" label-position="top" size="large" @validate="onFormItemValidate" @keydown.prevent.enter="onSubmitClick">
       <el-form-item v-if="!showVerifyInput" prop="account" label="账号" :rules="FormRules.loginAccount">
         <el-input v-model="formModel.account" placeholder="请输入邮箱/手机号" maxlength="50">
           <template #prefix>
