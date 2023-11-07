@@ -4,7 +4,6 @@ import LayoutHeaderSysLogo from './components/LayoutHeaderSysLogo.vue'
 import LayoutWorkAction from './components/LayoutWorkAction.vue'
 import LayoutWorkTitle from './components/LayoutWorkTitle.vue'
 import LayoutWorkMenu from './components/LayoutWorkMenu.vue'
-import { useAppStore } from '@/store/app.store'
 
 export default defineComponent({
   name: 'WorkSpaceLayout',
@@ -14,20 +13,15 @@ export default defineComponent({
     LayoutWorkTitle,
     LayoutWorkMenu,
   },
-  computed: {
-    collapseAside: () => useAppStore().showWorkMenuTree,
-  },
+
 })
 </script>
 
 <template>
   <el-container class="layout workspace-layout">
-    <el-aside class="layout-work-aside" width="258px" :class="{ 'layout-work-aside-hide': collapseAside }">
-      <div>
-        <LayoutHeaderSysLogo :collapse="collapseAside" />
-        <!-- <LayoutWorkTree /> -->
-        <LayoutWorkMenu :collapse="collapseAside" />
-      </div>
+    <el-aside class="overflow-hidden" width="258px">
+      <LayoutHeaderSysLogo />
+      <LayoutWorkMenu />
     </el-aside>
     <el-container class="layout-work-container" direction="vertical">
       <LayoutWorkTitle />
@@ -39,31 +33,12 @@ export default defineComponent({
         </router-view>
       </el-main>
     </el-container>
-    <LayoutWorkAction />
   </el-container>
 </template>
 
 <style lang="less" scoped>
 .workspace-layout {
   position: relative;
-}
-
-.layout-work-aside {
-  @apply overflow-hidden;
-  position: relative;
-  background-color: @color-primary;
-  transition: all .5s;
-
-  >div {
-    @apply h-full bg-white;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    background-color: #fff;
-  }
-
-  &-hide {
-    width: 64px;
-  }
 }
 
 .layout-work-container {
