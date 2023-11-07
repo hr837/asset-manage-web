@@ -108,7 +108,20 @@ function checkStatus() {
     return
   //
   loadFbx(container, video, assetData.fbxFileUrl)
-    .then(() => miniVideo.value = true)
+    .then(() => {
+      miniVideo.value = true
+      // 增加键盘事件，支持空格键暂停和播放媒体
+      videoWrap.value!.contentEditable = 'true'
+      videoWrap.value!.addEventListener('keyup', (e) => {
+        if (e.code !== 'Space')
+          return
+        if (video.paused)
+          video.play()
+
+        else
+          video.pause()
+      })
+    })
     .catch(() => {
       video.style.display = 'none'
     })
