@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import RegisterVerifyForm from './components/RegisterVerifyForm.vue'
 import RegisterSettingForm from './components/RegisterSettingForm.vue'
+import type { AccountCheckType } from './composables/form-help'
 import type { RegisterFormData, SettingFormData } from '@/types/account.type'
 import { LoginService } from '@/http/services/LoginService'
 import type { RegisterInput } from '@/http/models/login.model'
@@ -46,10 +48,14 @@ const getCode = (phone: string) => service.getSmsCode(phone, [loadingService])
   .catch(({ msg }) => { ElMessage.error(msg ?? '获取验证码失败，请稍后重试') })
 
 // 检查账号是否可用
-const checkAccount = (account: string) => service.checkAccountExist(account, [loadingService])
+const checkAccount = (account: string, type: AccountCheckType = 'Phone') => service.checkAccountExist(account, [loadingService])
   .then(({ regphone }) => {
-    if (regphone !== '')
-      throw new Error('账号已存在，请重新输入')
+    if (regphone !== '') {
+      if (type === 'Phone')
+        throw new Error('账号已存在，请转去登录')
+      if (type === 'Email')
+        throw new Error('邮箱已被注册，请更换邮箱账号')
+    }
     return true
   })
   .catch(({ msg, message }) => {
@@ -58,7 +64,7 @@ const checkAccount = (account: string) => service.checkAccountExist(account, [lo
   })
 
 async function onSettingSubmit(data: SettingFormData) {
-  const verified = await checkAccount(data.email)
+  const verified = await checkAccount(data.email, 'Email')
   if (!verified)
     return
   registerData.mail = data.email

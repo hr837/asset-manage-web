@@ -56,3 +56,6 @@ export const FormRules = {
     },
   ],
 }
+
+/** 账号检测类型 */
+export type AccountCheckType = 'Phone' | 'Email'

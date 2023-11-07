@@ -56,10 +56,10 @@ defineExpose({
 <template>
   <div class="component login-password-form">
     <el-form ref="formRef" :model="loginModel" label-position="top" size="large" @validate="onFormItemValidate">
-      <el-form-item prop="account" label="手机号" :rules="FormRules.phone">
-        <el-input v-model="loginModel.account" type="tel" autocomplete="tel" placeholder="请输入手机号" maxlength="11">
+      <el-form-item prop="account" label="账号" :rules="FormRules.loginAccount">
+        <el-input v-model="loginModel.account" placeholder="请输入账号" maxlength="50">
           <template #prefix>
-            <icon-park-solid-phone />
+            <icon-park-solid-user />
           </template>
         </el-input>
       </el-form-item>

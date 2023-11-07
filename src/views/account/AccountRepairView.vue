@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import RepairVerifyForm from './components/RepairVerifyForm.vue'
 import RepairPasswordForm from './components/RepairPasswordForm.vue'
 import type { RegisterFormData } from '@/types/account.type'
