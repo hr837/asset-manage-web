@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { ElMessage } from 'element-plus'
 import type { MenuData } from '@/types/work-tree.type'
 
 /** 一天的毫秒数 */
