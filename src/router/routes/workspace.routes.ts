@@ -26,6 +26,14 @@ const routesConfig: Array<RouteRecordRaw> = [
       menuPath: '/index',
     },
   },
+  {
+    path: '/digital',
+    name: 'digital',
+    component: () => import('@/views/digital/DigitalView.vue'),
+    meta: {
+      title: '数字中心',
+    },
+  },
 ]
 
 export default routesConfig
