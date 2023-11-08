@@ -11,7 +11,9 @@ export default defineComponent({
 
 <template>
   <el-container class="layout basic-layout" direction="vertical">
-    <LayoutHeader />
+    <el-header>
+      <LayoutHeader />
+    </el-header>
     <el-main class="layout-work-container-main">
       <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
         <component :is="Component" :key="route.path" />
