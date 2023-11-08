@@ -184,7 +184,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
       </div>
 
       <div ref="videoWrap" class="video-wrapper">
-        <div class="fbx-player-container" />
+        <div v-if="canDownload" class="fbx-player-container" />
         <video
           class="video-player" :src="src" :class="{ mini: miniVideo }" controls
           controlslist="nodownload noremoteplayback" disablePictureInPicture
