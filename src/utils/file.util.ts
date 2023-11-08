@@ -37,7 +37,7 @@ export function fileSlice(file: Blob, chunkSize = 1048576) {
 }
 
 const AssetPrefix = '/asset/'
-type FileType = 'video' | 'fbx' | 'image'
+type FileType = 'video' | 'fbx' | 'image' | 'bvh'
 
 /**
  * 下载资源文件

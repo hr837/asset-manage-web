@@ -25,6 +25,7 @@ export interface AssetQueryOutItem {
 
   extensionName?: string
   fbxFileUrl?: string
+  bvhFileUrl?: string
   /** 排队等待已用时长 */
   lineAlreadyWaitTime?: string
   /** 排队总用时 */

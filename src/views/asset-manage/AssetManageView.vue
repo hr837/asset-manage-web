@@ -93,6 +93,14 @@ function onItemAction(cmd: AssetActionCommand, id: string) {
     case 'downloadFbx':
       downloadFile(item.fbxFileUrl!, `${item.name ?? '资源文件-FBX'}.fbx`, 'fbx')
       break
+    case 'downloadBvh':
+      if (!item.bvhFileUrl)
+        ElMessage.error('文件不存在，请稍后重试')
+
+      else
+        downloadFile(item.bvhFileUrl, `${item.name ?? '资源文件-BVH'}.bvh`, 'bvh')
+
+      break
     case 'transfrom':
       task = assetService.convertToFbx(id).then(() => {
         ElMessage.success('操作成功')

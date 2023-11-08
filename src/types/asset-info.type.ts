@@ -1,6 +1,6 @@
 import type { AssetQueryOutItem } from '@/http/models/asset.model'
 
-export type AssetActionCommand = 'download' | 'downloadFbx' | 'transfrom' | 'delete'
+export type AssetActionCommand = 'download' | 'downloadFbx' | 'downloadBvh' | 'transfrom' | 'delete'
 
 export type AssetInfo = AssetQueryOutItem
 

@@ -20,6 +20,7 @@ const assetData = reactive<Required<AssetInfo>>({
   status: 1,
   sourceFileUrl: '',
   fbxFileUrl: '',
+  bvhFileUrl: '',
   name: '资产文件名',
   uploadTime: '',
   lineTotalTime: '',
@@ -73,6 +74,12 @@ function onDownloadFbxClick() {
   if (!assetData.fbxFileUrl)
     return
   downloadFile(assetData.fbxFileUrl, `${assetData.name}.fbx`, 'fbx')
+}
+
+function onDownloadBVHClick() {
+  if (!assetData.bvhFileUrl)
+    return
+  downloadFile(assetData.bvhFileUrl, `${assetData.name}.bvh`, 'bvh')
 }
 
 function onDeleteClick() {
@@ -163,6 +170,9 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
           </el-button>
           <el-button type="primary" plain :disabled="!canDownload" @click="onDownloadFbxClick">
             下载FBX文件
+          </el-button>
+          <el-button type="primary" plain :disabled="!canDownload" @click="onDownloadBVHClick">
+            下载BVH文件
           </el-button>
           <el-button type="primary" plain :disabled="!canTransform" @click="onTransformClick">
             转换文件

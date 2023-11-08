@@ -25,6 +25,10 @@ const canTransform = computed(() => props.status === 1 || props.status === 4)
           <icon-park-outline-database-download class="mr-1" />
           下载FBX文件
         </el-dropdown-item>
+        <el-dropdown-item :disabled="!canDownload" divided command="downloadBvh">
+          <icon-park-outline-database-download class="mr-1" />
+          下载BVH文件
+        </el-dropdown-item>
         <el-dropdown-item :disabled="!canTransform" divided command="transfrom">
           <icon-park-outline-effects class="mr-1" />
           转换文件
