@@ -1,33 +1,19 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import MessageNotify from './MessageNotify.vue'
 import { useUserStore } from '@/store/user.store'
-import workspaceRoutes from '@/router/routes/workspace.routes'
 import router from '@/router'
-
-const currentRoute = useRoute()
-
-const title = ref('')
-
-watch(() => currentRoute.path, () => {
-  const menuPath = currentRoute.meta?.menuPath
-  if (menuPath)
-    title.value = workspaceRoutes.find(x => x.path === menuPath)?.meta?.title ?? ''
-  else
-    title.value = currentRoute.meta?.title ?? ''
-}, { immediate: true })
 
 const hasNew = ref(false)
 const userStore = useUserStore()
 let socket: WebSocket | null = null
-
-// watch(() => userStore.token, val => val && initSocket(), { immediate: true })
+const isDev = process.env.NODE_ENV === 'development'
+watch(() => userStore.token, val => !isDev && val && initSocket(), { immediate: true })
 let timerId = -1
 
 function initSocket() {
   // websocket 路径, 正式环境使用/ws 开发环境使用 /socket代理
-  const wsPath = process.env.NODE_ENV === 'development' ? '/socket' : '/ws'
+  const wsPath = isDev ? '/socket' : '/ws'
   // socket 主机
   const host = window.location.host
   // socket 协议
@@ -63,30 +49,23 @@ function exit() {
 </script>
 
 <template>
-  <el-header>
-    <h1>{{ title }}</h1>
-    <ul class="right-actions">
-      <li>
-        <MessageNotify v-model="hasNew" />
-      </li>
-      <li>
-        <el-popconfirm title="确定退出账号吗?" width="200px" @confirm="exit">
-          <template #reference>
-            <icon-park-outline-logout />
-          </template>
-        </el-popconfirm>
-      </li>
-    </ul>
-  </el-header>
+  <ul class="component header-action">
+    <li>
+      <MessageNotify v-model="hasNew" />
+    </li>
+    <li>
+      <el-popconfirm title="确定退出账号吗?" width="200px" @confirm="exit">
+        <template #reference>
+          <icon-park-outline-logout class="h-5 w-5" />
+        </template>
+      </el-popconfirm>
+    </li>
+  </ul>
 </template>
 
 <style lang="less" scoped>
-header {
-  @apply text-lg font-bold flex justify-between items-center bg-white;
-}
-
-.right-actions {
-  @apply flex justify-center items-center gap-4;
+.header-action {
+  @apply flex justify-end items-center gap-4;
 
   li {
     @apply cursor-pointer text-gray-500;

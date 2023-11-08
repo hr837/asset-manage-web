@@ -1,30 +1,25 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import LayoutHeaderSysLogo from './components/LayoutHeaderSysLogo.vue'
-import LayoutWorkAction from './components/LayoutWorkAction.vue'
-import LayoutWorkTitle from './components/LayoutWorkTitle.vue'
 import LayoutWorkMenu from './components/LayoutWorkMenu.vue'
-
+import LayoutHeader from './components/LayoutHeader.vue'
 export default defineComponent({
   name: 'WorkSpaceLayout',
   components: {
-    LayoutHeaderSysLogo,
-    LayoutWorkAction,
-    LayoutWorkTitle,
     LayoutWorkMenu,
+    LayoutHeader,
   },
-
 })
 </script>
 
 <template>
   <el-container class="layout workspace-layout">
-    <el-aside class="overflow-hidden" width="258px">
-      <LayoutHeaderSysLogo />
-      <LayoutWorkMenu />
-    </el-aside>
-    <el-container class="layout-work-container" direction="vertical">
-      <LayoutWorkTitle />
+    <el-header>
+      <LayoutHeader />
+    </el-header>
+    <el-container class="layout-work-container">
+      <el-aside class="overflow-hidden" width="240px">
+        <LayoutWorkMenu />
+      </el-aside>
       <el-main class="layout-work-container-main">
         <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">
           <KeepAlive include="VideoUploadView">
@@ -37,8 +32,10 @@ export default defineComponent({
 </template>
 
 <style lang="less" scoped>
-.workspace-layout {
-  position: relative;
+.el-header {
+  --el-header-padding: 0 32px;
+  --el-header-height: 70px;
+  border-bottom: 1px solid #E7E7E7;
 }
 
 .layout-work-container {
@@ -50,11 +47,10 @@ export default defineComponent({
     background-color: #EFF3F6;
     // 适配最低分辨率 1366
     min-width: 1100px;
-    padding: 15px;
+    padding: 16px;
 
     &-content {
-      background-color: #fff;
-      border-radius: 4px;
+      @apply bg-white rounded;
     }
   }
 }

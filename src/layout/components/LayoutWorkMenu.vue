@@ -8,7 +8,7 @@ const openedMenus = ['ai', 'virtual']
 <template>
   <el-menu
     :default-active="route.meta.menuPath || route.path" class="component layout-work-menu" router
-    :default-openeds="openedMenus"
+    :default-openeds="openedMenus" text-color="#666"
   >
     <el-sub-menu index="ai">
       <template #title>
@@ -51,7 +51,7 @@ const openedMenus = ['ai', 'virtual']
 
 <style lang="less" scoped>
 .layout-work-menu {
-  @apply h-full overflow-x-hidden overflow-y-auto border-0 py-3 px-2;
+  @apply h-full overflow-x-hidden overflow-y-auto border-0 py-4 px-2;
 
   .iconify {
     @apply mr-2;
@@ -70,11 +70,10 @@ const openedMenus = ['ai', 'virtual']
   }
 
   .el-menu-item {
-    @apply rounded my-2;
-
+    @apply rounded my-1;
     &.is-active {
-      --el-menu-active-color: #fff;
-      background-color: @color-primary;
+      --el-menu-active-color: @color-primary;
+     @apply bg-violet-100;
     }
   }
 }

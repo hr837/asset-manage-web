@@ -48,7 +48,7 @@ function onMessageClick(data: MessageQueryOutItem) {
     >
       <template #reference>
         <el-badge :is-dot="modelValue">
-          <icon-park-solid-remind class="text-gray-500 " />
+          <icon-park-solid-remind class="text-gray-500 h-5 w-5" />
         </el-badge>
       </template>
       <el-empty v-if="dataSet.length === 0" description="暂无消息" :image-size="60" />
