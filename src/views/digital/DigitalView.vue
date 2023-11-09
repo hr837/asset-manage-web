@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import DigitalTabs from './components/DigitalTabs.vue'
+import UploadPhoto from './components/UploadPhoto.vue'
 </script>
 
 <template>
@@ -8,24 +9,64 @@ import DigitalTabs from './components/DigitalTabs.vue'
       <DigitalTabs />
     </div>
     <div class="page-content">
-      <el-upload drag>
-        <icon-park-outline-upload-one />
-        <el-button type="primary">
-          上传照片
-        </el-button>
-      </el-upload>
+      <UploadPhoto />
       <div class="template-item">
         <div class="template-top">
-          <div class="top-content">
-            <div class="template-img">
-              123
+          <div class="template-top-content">
+            <div class="content-img">
+              <img class="template-img" src="/images/digital/templates/4.png" alt="4.png">
             </div>
             <div class="template-tag">
               Demo
             </div>
           </div>
         </div>
-        <div class="template-label">
+        <div class="template-bottom">
+          正方形
+        </div>
+      </div>
+      <div class="template-item">
+        <div class="template-top">
+          <div class="template-top-content">
+            <div class="content-img">
+              <img class="template-img" src="/images/digital/templates/4.png" alt="4.png">
+            </div>
+            <div class="template-tag">
+              Demo
+            </div>
+          </div>
+        </div>
+        <div class="template-bottom">
+          正方形
+        </div>
+      </div>
+      <div class="template-item">
+        <div class="template-top">
+          <div class="template-top-content">
+            <div class="content-img">
+              <img class="template-img" src="/images/digital/templates/4.png" alt="4.png">
+            </div>
+            <div class="template-tag">
+              Demo
+            </div>
+          </div>
+        </div>
+        <div class="template-bottom">
+          正方形
+        </div>
+      </div>
+      <div class="template-item">
+        <div class="template-top">
+          <div class="template-top-content">
+            <div class="content-img">
+              <img class="template-img" src="/images/digital/templates/4.png" alt="4.png">
+            </div>
+            <div class="template-tag">
+              Demo
+            </div>
+          </div>
+        </div>
+        <div class="template-bottom">
           正方形
         </div>
       </div>
@@ -35,7 +76,7 @@ import DigitalTabs from './components/DigitalTabs.vue'
 
 <style lang="less" scoped>
 .digital-view {
-  @apply flex flex-col p-4;
+  @apply flex flex-col;
 }
 
 .page-header {
@@ -46,7 +87,7 @@ import DigitalTabs from './components/DigitalTabs.vue'
   @apply p-4 grid grid-cols-4 gap-3;
 
   .template-item {
-    @apply flex flex-col items-center;
+    @apply text-gray-700;
 
     .template-top {
       background-color: #F8F4FF;
@@ -54,19 +95,27 @@ import DigitalTabs from './components/DigitalTabs.vue'
       width: 100%;
       padding-bottom: 56%;
       @apply rounded relative;
+
+      &-content {
+        @apply absolute inset-x-0 inset-y-0 flex flex-col items-center;
+      }
     }
 
-    .top-content {
-      @apply absolute inset-x-0 inset-y-0 flex flex-col items-center;
+    .content-img {
+      @apply w-1/2 pt-2 overflow-hidden;
     }
 
     .template-img {
-      @apply flex-1;
+      @apply h-full m-auto rounded-full object-cover object-center;
     }
 
     .template-tag {
       padding: 2px 4px;
       @apply text-gray-400 bg-gray-200 text-sm rounded self-start;
+    }
+
+    .template-bottom {
+      @apply self-start p-2;
     }
 
   }

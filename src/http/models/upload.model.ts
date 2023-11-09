@@ -16,10 +16,18 @@ export interface PreuploadInput {
    */
   parentId: number
 
+}
+
+export interface VideoPreuploadInput extends PreuploadInput {
   /** 是否自动转换 */
   auto: 0 | 1
   /** 视频时长 */
   duration: number
+}
+
+export interface ImagePreuploadInput extends PreuploadInput {
+  /** 生成语音的文本 */
+  text?: string
 }
 
 export interface PreuploadResponse {
@@ -62,6 +70,14 @@ export interface PartUploadInput {
    * 上传文件id
    */
   uploadFileId: string
+  /**
+   * 用途类型
+   *
+   * 0 视频动捕转换
+   *
+   * 1 照片生成视频
+   */
+  usetype?: '0' | '1'
 }
 
 export interface PartUploadResponse {

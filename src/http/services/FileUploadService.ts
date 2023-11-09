@@ -1,5 +1,5 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
-import type { CoverUploadInput, CoverUploadRes, PartUploadInput, PartUploadResponse, PreuploadInput, PreuploadResponse } from '../models/upload.model'
+import type { CoverUploadInput, CoverUploadRes, ImagePreuploadInput, PartUploadInput, PartUploadResponse, PreuploadResponse, VideoPreuploadInput } from '../models/upload.model'
 export class FileUploadService {
   // 请求实例
   private request = RequestService.getInstance()
@@ -8,13 +8,31 @@ export class FileUploadService {
    * 预上传-处理秒传
    */
   preUpload(
-    requestBody: PreuploadInput,
+    requestBody: VideoPreuploadInput,
     requestPlugins: RequestPlugin[] = [],
   ): Promise<PreuploadResponse> {
     // 请求数据
     return this.request.send(
       {
         path: '/api/file/preUpload',
+        method: RequestMethod.Post,
+        paramsBody: requestBody,
+      },
+      requestPlugins,
+    )
+  }
+
+  /**
+   * 图片预上传-处理秒传
+   */
+  imagePreUpload(
+    requestBody: ImagePreuploadInput,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<PreuploadResponse> {
+    // 请求数据
+    return this.request.send(
+      {
+        path: '/api/image/preUpload',
         method: RequestMethod.Post,
         paramsBody: requestBody,
       },
@@ -34,6 +52,8 @@ export class FileUploadService {
     form.append('segmentIndex', `${requestBody.segmentIndex}`)
     form.append('segmentSize', `${requestBody.segmentSize}`)
     form.append('file', requestBody.file)
+    form.append('usetype', requestBody.usetype ?? '0')
+
     // 请求数据
     return this.request.send(
       {
@@ -49,7 +69,7 @@ export class FileUploadService {
   }
 
   /**
-   * 分片上传
+   * 上传视频封面
    */
   coverUpload(
     requestBody: CoverUploadInput,
