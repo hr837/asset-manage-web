@@ -78,7 +78,7 @@ async function uploadParts() {
     return services.partUpload({
       file: item.part,
       segmentSize: item.size,
-      segmentIndex: item.index,
+      segmentIndex: item.index + 1,
       uploadFileId: item.fileId,
       usetype: '1',
     }).then((res) => {
