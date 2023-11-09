@@ -32,3 +32,14 @@ export const TagColors: Record<number, [string, string]> = {
   4: ['#FFECEC', '#E55151'],
   5: ['#E6FFE5', '#51AA32'],
 }
+
+/** 数字中心，默认的模板 */
+export const DefaultCards = [
+  { id: 'local-1', label: '圣诞老人', image: require('/public/images/digital/templates/santa.jpg') },
+  { id: 'local-2', label: '欧美', image: require('/public/images/digital/templates/US-woman.jpg') },
+  { id: 'local-3', label: '卡通少女1', image: require('/public/images/digital/templates/cartoon-girl1.jpg') },
+  { id: 'local-4', label: '卡通少女2', image: require('/public/images/digital/templates/cartoon-girl2.jpg') },
+  { id: 'local-5', label: '赛博少女', image: require('/public/images/digital/templates/girl.jpg') },
+  { id: 'local-6', label: '少年1', image: require('/public/images/digital/templates/juvenile1.jpg') },
+  { id: 'local-7', label: '少年2', image: require('/public/images/digital/templates/juvenile2.jpg') },
+]

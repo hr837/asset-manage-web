@@ -5,11 +5,13 @@ import type { FilePart } from '@/utils/file.util'
 import { getSliceFileMd5 } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 
+const emit = defineEmits<{ uploaded: [id: string, src: string] }>()
 interface filePartInfo extends FilePart {
   fileId: string
   uploaded: boolean
 }
 
+let successId = ''
 // 待上传的文件
 let uploadFile: File | null = null
 // 文件分片
@@ -39,8 +41,9 @@ const services = new FileUploadService()
 
 function uploadSuccess() {
   uploadRef.value!.clearFiles()
-  uploadFile = null
+  partList = []
   showDialog.value = false
+  emit('uploaded', successId, URL.createObjectURL(uploadFile!))
 }
 
 // 图片预上传
@@ -50,6 +53,7 @@ async function preUploadFile() {
       return
     uploadStatus.value = 'calc'
     uploadPrecent.value = 0
+    successId = ''
     const { md5, fileParts } = await getSliceFileMd5(uploadFile, ChunkSize, precent => uploadPrecent.value = precent)
     const { uploadFileId, fastUpload } = await services.imagePreUpload({
       fileSize: uploadFile.size,
@@ -57,6 +61,7 @@ async function preUploadFile() {
       parentId: 0,
       md5,
     })
+    successId = uploadFileId
     if (fastUpload) {
       uploadSuccess()
     }
@@ -90,7 +95,7 @@ async function uploadParts() {
     })
   })
   return Promise.all(uploadTask)
-    .then(() => { })
+    .then(uploadSuccess)
     .catch(() => {
       uploadStatus.value = 'fail'
     })

@@ -3,7 +3,6 @@ import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch
 import { ElMessage } from 'element-plus'
 import { type FilePart, getSliceFileMd5, getVideoSize } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
-import { FileChunkSize } from '@/views/asset-manage/composable/constant'
 import { getVideoDuration } from '@/utils/date.util'
 const props = defineProps<{
   /** 视频播放地址 */
@@ -95,6 +94,7 @@ const partList = ref<FilePartUpload[]>([])
 const uploadService = new FileUploadService()
 // 文件上传状态
 const uploadStatus = ref<'await' | 'calc' | 'part' | 'success' | 'fail'>('await')
+const FileChunkSize = 4194304
 
 /** 开始上传文件 */
 async function upload() {

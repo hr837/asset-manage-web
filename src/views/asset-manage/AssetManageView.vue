@@ -5,7 +5,6 @@ import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import AssetQeuryFilter from './components/AssetQueryFilter.vue'
-import { SessionKey_Asset_PLAY_PATH } from './composable/constant'
 import AssetDataList from './components/AssetDataList.vue'
 import type { AssetActionCommand, AssetInfo, RouteQeuryInfo } from '@/types/asset-info.type'
 import { AssetManageService } from '@/http/services/AssetManageService'
@@ -43,7 +42,6 @@ const queryModel = reactive<AssetQueryInput & { date?: string[] }>({
 
 // 从服务器获取页面数据
 function fetchData() {
-  sessionStorage.removeItem(SessionKey_Asset_PLAY_PATH)
   const queryData = { ...queryModel }
   delete queryData.date
   assetService.getList(queryData, [pageService, loadingService]).then(data => dataSet.value = data.rows).catch(() => { })
