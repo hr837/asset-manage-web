@@ -34,6 +34,15 @@ const routesConfig: Array<RouteRecordRaw> = [
       title: '数字中心',
     },
   },
+  {
+    path: '/photo-edit',
+    name: 'AssetPhotoEdit',
+    component: () => import('@/views/digital/DigitalEditView.vue'),
+    meta: {
+      title: '数字中心-编辑',
+      menuPath: '/digital',
+    },
+  },
 ]
 
 export default routesConfig

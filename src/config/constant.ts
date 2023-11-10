@@ -42,4 +42,5 @@ export const DefaultCards = [
   { id: 'local-5', label: '赛博少女', image: require('/public/images/digital/templates/girl.jpg') },
   { id: 'local-6', label: '少年1', image: require('/public/images/digital/templates/juvenile1.jpg') },
   { id: 'local-7', label: '少年2', image: require('/public/images/digital/templates/juvenile2.jpg') },
+  { id: 'local-8', label: '少年2', image: require('/public/images/login-front.png') },
 ]

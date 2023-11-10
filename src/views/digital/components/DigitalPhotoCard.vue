@@ -61,23 +61,23 @@ defineEmits<{ edit: [] }>()
       @apply overflow-hidden w-full flex-1;
 
       &.circle {
-        @apply w-1/2 pt-2;
+        width: calc(56% - 2rem);
+        padding-top: 0.5rem;
 
         .card-img {
-          @apply rounded-full h-full w-auto;
+          @apply rounded-full h-full w-full object-cover;
         }
       }
     }
   }
 
   .card-img {
-    @apply h-full w-full m-auto object-cover object-center;
+    @apply h-full w-full m-auto object-contain object-center;
     -webkit-user-drag: none;
   }
 
   .card-tag {
-    padding: 2px 4px;
-    @apply text-gray-400 bg-gray-200 text-sm rounded-e self-start;
+    @apply text-gray-400 bg-gray-200 text-sm rounded-e self-start h-6 leading-6 px-2;
   }
 
   .card-bottom {

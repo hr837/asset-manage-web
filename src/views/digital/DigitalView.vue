@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import DigitalTabs from './components/DigitalTabs.vue'
 import DigitalPhotoUpload from './components/DigitalPhotoUpload.vue'
 import DigitalPhotoCard from './components/DigitalPhotoCard.vue'
@@ -28,6 +29,11 @@ function onImageUpload(id: string, url: string) {
     ElMessage.error(msg ?? '照片人脸检测失败')
   })
 }
+
+const router = useRouter()
+function onPhotoEdit(id: string) {
+  router.push({ name: 'AssetPhotoEdit', query: { id } })
+}
 </script>
 
 <template>
@@ -36,10 +42,10 @@ function onImageUpload(id: string, url: string) {
       <DigitalTabs />
     </div>
     <div class="page-content">
-      <DigitalPhotoUpload @uploaded="onImageUpload" />
+      <DigitalPhotoUpload type="drag" @uploaded="onImageUpload" />
       <DigitalPhotoCard v-if="newPhoto.id" label="原始照片" :image="newPhoto.image" />
       <template v-for="item of DefaultCards " :key="item.label">
-        <DigitalPhotoCard local :label="item.label" :image="item.image" />
+        <DigitalPhotoCard local :label="item.label" :image="item.image" @edit="() => onPhotoEdit(item.id)" />
       </template>
     </div>
   </div>

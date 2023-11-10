@@ -5,6 +5,7 @@ import type { FilePart } from '@/utils/file.util'
 import { getSliceFileMd5 } from '@/utils/file.util'
 import { FileUploadService } from '@/http/services/FileUploadService'
 
+const props = defineProps<{ type: 'drag' | 'icon' }>()
 const emit = defineEmits<{ uploaded: [id: string, src: string] }>()
 interface filePartInfo extends FilePart {
   fileId: string
@@ -140,15 +141,20 @@ const progressStatus = computed(() => {
 </script>
 
 <template>
-  <div class="upload-photo">
+  <div class="upload-photo" :class="type">
     <el-upload
-      ref="uploadRef" drag :limit="1" :auto-upload="false" :show-file-list="false" accept=".png,.jpg"
-      @change="onUploadFileChange"
+      ref="uploadRef" :drag="type === 'drag'" :limit="1" :auto-upload="false" :show-file-list="false"
+      accept=".png,.jpg" @change="onUploadFileChange"
     >
-      <icon-park-outline-upload-one class="text-gray-200" />
-      <el-button type="primary">
-        上传照片
+      <el-button v-if="type === 'icon'" circle type="primary">
+        <icon-park-outline-picture-album />
       </el-button>
+      <template v-else>
+        <icon-park-outline-upload-one class="text-gray-200" />
+        <el-button type="primary">
+          上传照片
+        </el-button>
+      </template>
     </el-upload>
     <el-dialog
       title="照片上传处理" :model-value="showDialog" width="500px" :close-on-click-modal="false" :show-close="false"
@@ -185,6 +191,9 @@ const progressStatus = computed(() => {
       .iconify {
         @apply flex-1 h-full w-1/4;
       }
+    }
+    .el-button.is-circle{
+      @apply p-0 w-9 h-9 text-xl;
     }
   }
 }
