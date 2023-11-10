@@ -58,20 +58,20 @@ defineEmits<{ edit: [] }>()
     }
 
     .img-container {
-      @apply overflow-hidden flex-1;
+      @apply overflow-hidden w-full flex-1;
 
       &.circle {
         @apply w-1/2 pt-2;
 
         .card-img {
-          @apply rounded-full;
+          @apply rounded-full h-full w-auto;
         }
       }
     }
   }
 
   .card-img {
-    @apply h-full m-auto object-cover object-center;
+    @apply h-full w-full m-auto object-cover object-center;
     -webkit-user-drag: none;
   }
 

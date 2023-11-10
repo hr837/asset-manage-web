@@ -46,6 +46,12 @@ function uploadSuccess() {
   emit('uploaded', successId, URL.createObjectURL(uploadFile!))
 }
 
+function onCancelClick() {
+  uploadRef.value!.clearFiles()
+  partList = []
+  showDialog.value = false
+}
+
 // 图片预上传
 async function preUploadFile() {
   try {
@@ -155,9 +161,14 @@ const progressStatus = computed(() => {
         :percentage="uploadPrecent" :stroke-width="15" striped :show-text="false" :status="progressStatus"
         :striped-flow="stripedFlow"
       />
-      <el-button v-if="uploadStatus === 'fail'" type="primary" class="block mt-8 mx-auto" @click="onRetryClick">
-        重新上传
-      </el-button>
+      <div v-show="uploadStatus === 'fail'" class="mt-8 text-center">
+        <el-button @click="onCancelClick">
+          取消
+        </el-button>
+        <el-button type="primary" @click="onRetryClick">
+          重新上传
+        </el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
