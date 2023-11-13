@@ -164,7 +164,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
           <span> 视频时长：{{ duration }}</span>
           <span> 视频大小：{{ fileSize }}</span>
         </div>
-        <div class="info-aciton">
+        <el-button-group class="info-aciton">
           <el-button type="primary" plain @click="onDownloadMp4Click">
             下载MP4文件
           </el-button>
@@ -180,7 +180,7 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
           <el-button type="primary" plain @click="onDeleteClick">
             删除文件
           </el-button>
-        </div>
+        </el-button-group>
       </div>
 
       <div ref="videoWrap" class="video-wrapper">
@@ -224,16 +224,16 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
     @apply h-14 flex justify-between;
 
     .file-info {
-      @apply flex gap-8 text-sm text-gray-500;
+      @apply flex gap-6 text-sm text-gray-500;
     }
 
-    .info-aciton {
-      @apply text-right;
+    .info-aciton .el-button {
+      padding: 8px 10px;
     }
   }
 
   .video-wrapper {
-    @apply flex-1 overflow-hidden relative;
+    @apply flex-1 overflow-hidden relative cursor-default;
   }
 
   .fbx-player-container {
