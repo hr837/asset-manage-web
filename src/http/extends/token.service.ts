@@ -1,5 +1,5 @@
 import type { RequestPlugin, RequestSendOptions } from '@gopowerteam/request'
-import { useStore } from '@/store'
+import { getAuthorization } from '@/composables/http-header'
 
 export class TokenService implements RequestPlugin {
   /**
@@ -7,11 +7,11 @@ export class TokenService implements RequestPlugin {
    * @param options
    */
   public before(options: RequestSendOptions) {
-    const store = useStore()
-    if (store.user.token) {
+    const otherHeaders = getAuthorization()
+    if (otherHeaders.authorization) {
       options.headers = {
         ...options.headers,
-        Authorization: `token ${store.user.token}`,
+        ...otherHeaders,
       }
     }
   }
