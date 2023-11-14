@@ -1,28 +1,37 @@
 <script lang="ts" setup>
+import type { FormInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { FormRules } from './composable/form-help'
 import DigitalSoundSelect from './components/DigitalSoundSelect.vue'
 import DigitalPhotoUpload from './components/DigitalPhotoUpload.vue'
+import DigitalTextEditor from './components/DigitalTextEditor.vue'
+import DigitalSoundItem from './components/DigitalSoundItem.vue'
 import { DefaultCards } from '@/config/constant'
+import { ImageAssetService } from '@/http/services/ImageAssetService'
+import { getFilePath } from '@/utils/file.util'
 
 const route = useRoute()
 const router = useRouter()
 const showDialog = ref(false)
-
+const formRef = ref<FormInstance>()
 const imageUrl = ref('')
+const service = new ImageAssetService()
 
 const editModel = reactive({
   name: '照片1',
   shape: 'C',
-  sound: '',
-  textList: ['默认文案', ''],
+  soundId: '001',
+  textList: [],
 })
 
 function handleParamError() {
   ElMessage.error('页面参数错误')
   router.back()
 }
+
+const httpAssetId = ref('')
 
 onMounted(() => {
   const id = route.query.id as string
@@ -35,7 +44,33 @@ onMounted(() => {
       return handleParamError()
     imageUrl.value = item.image
   }
+  else {
+    httpAssetId.value = id
+    service.query(id).then((data) => {
+      imageUrl.value = getFilePath(data.sourceFileUrl, 'image')
+      // console.log(data)
+    }).catch(() => {
+      ElMessage.error('获取图片信息错误')
+    })
+  }
 })
+
+function onImageChanged(newId: string) {
+  router.push({ query: { id: newId } })
+  httpAssetId.value = newId
+}
+
+function onSoundSelectClick() {
+  //
+}
+
+function onSelectDialogClose() {
+  // TODO 从服务器获取新的语音文档
+}
+
+async function onSubmitClick() {
+  const result = await formRef.value?.validate().then(() => true).catch(() => false)
+}
 </script>
 
 <template>
@@ -48,16 +83,18 @@ onMounted(() => {
     </el-header>
     <el-main class="flex p-0">
       <div class="edit-photo">
-        <DigitalPhotoUpload type="icon" class="self-end" />
+        <el-tooltip content="替换照片" placement="top">
+          <DigitalPhotoUpload type="icon" class="self-end" :old-id="httpAssetId" @uploaded="onImageChanged" />
+        </el-tooltip>
         <div class="image-container">
           <div class="image-wrapper" :class="editModel.shape">
             <img class="edit-image" :src="imageUrl" alt="编辑照片">
           </div>
         </div>
       </div>
-      <el-form class="edit-form" label-position="top" :model="editModel">
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="editModel.name" placeholder="请输入名称" />
+      <el-form ref="formRef" class="edit-form" label-position="top" :model="editModel" size="large">
+        <el-form-item label="名称" prop="name" :rules="FormRules.name">
+          <el-input v-model="editModel.name" placeholder="请输入名称" maxlength="10" />
         </el-form-item>
         <el-form-item label="尺寸" prop="shape">
           <el-radio-group v-model="editModel.shape">
@@ -75,22 +112,33 @@ onMounted(() => {
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="声音" prop="sound">
-          <div>TODO</div>
+        <el-form-item prop="sound">
+          <template #label>
+            <div class="flex items-center gap-2">
+              <span>声音</span>
+              <el-tooltip content="更换声音" placement="right">
+                <icon-park-outline-refresh
+                  class="text-violet-500 cursor-pointer focus:outline-none"
+                  @click="showDialog = true"
+                />
+              </el-tooltip>
+            </div>
+          </template>
+          <DigitalSoundItem :id="editModel.soundId" />
         </el-form-item>
-        <el-form-item label="文案内容" prop="textList">
-          TODO
+        <el-form-item label="文案内容" prop="textList" :rules="FormRules.list as any">
+          <DigitalTextEditor v-model="editModel.textList" />
         </el-form-item>
       </el-form>
     </el-main>
     <el-footer class="flex justify-end items-center border-t">
       <el-button>仅保存</el-button>
-      <el-button type="primary">
+      <el-button type="primary" @click="onSubmitClick">
         开始生成
       </el-button>
     </el-footer>
-    <el-dialog v-model="showDialog" title="AI声音" width="800px">
-      <DigitalSoundSelect />
+    <el-dialog v-model="showDialog" title="AI声音" width="800px" @close="onSelectDialogClose">
+      <DigitalSoundSelect v-model="editModel.soundId" />
     </el-dialog>
   </el-container>
 </template>
@@ -134,5 +182,15 @@ onMounted(() => {
 
 .edit-form {
   @apply w-128 p-5;
+
+  :deep(.el-form-item) {
+    &__label {
+      @apply text-sm text-black/50;
+    }
+  }
+}
+
+:deep(.el-dialog__body) {
+  padding-top: 16px;
 }
 </style>

@@ -1,11 +1,16 @@
 <script lang="ts" setup>
-import { ElLoadingService, ElMessage } from 'element-plus'
+import { ElLoadingService, ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadInstance, UploadRawFile } from 'element-plus'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getAuthorization } from '@/composables/http-header'
 
-const props = defineProps<{ type: 'drag' | 'icon' }>()
-const emit = defineEmits<{ uploaded: [id: string, src: string] }>()
+const props = defineProps<{
+  /** 上传样式类型 */
+  type: 'drag' | 'icon'
+  /** 原始ID */
+  oldId?: string
+}>()
+const emit = defineEmits<{ uploaded: [id: string] }>()
 
 const uploadRef = ref<UploadInstance>()
 
@@ -35,19 +40,31 @@ function uploadError() {
 }
 
 // 上传成功向上发送事件
-function uploadSuccess(res: any) {
+function uploadSuccess(res: HttpResponseBase) {
   loadingInstance?.close()
   uploadRef.value!.clearFiles()
-
-  // emit('uploaded', successId, URL.createObjectURL(uploadFile!))
+  if (res.code !== '200')
+    ElMessageBox.alert(res.msg, '上传失败', { type: 'error' })
+  else
+    emit('uploaded', res.data.fileId)
 }
+
+const uploadAction = computed(() => props.oldId ? '/api/image/changImage' : '/api/image/upload')
+const extraData = computed(() => {
+  const data: any = {
+    parentId: 0,
+  }
+  if (props.oldId)
+    data.olduploadFileId = props.oldId
+  return data
+})
 </script>
 
 <template>
   <div class="upload-photo" :class="type">
     <el-upload
-      ref="uploadRef" :drag="type === 'drag'" :limit="1" action="/api/image/upload" :show-file-list="false"
-      accept=".png,.jpg" :on-success="uploadSuccess" :before-upload="onBeforUpload" :headers="getAuthorization()"
+      ref="uploadRef" :drag="type === 'drag'" :limit="1" :action="uploadAction" :show-file-list="false"
+      accept=".png,.jpg" :on-success="uploadSuccess" :before-upload="onBeforUpload" :headers="getAuthorization()" :data="extraData"
       :on-error="uploadError"
     >
       <el-button v-if="type === 'icon'" circle type="primary">

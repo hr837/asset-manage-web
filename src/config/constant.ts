@@ -44,3 +44,13 @@ export const DefaultCards = [
   { id: 'local-7', label: '少年2', image: require('/public/images/digital/templates/juvenile2.jpg') },
   { id: 'local-8', label: '少年2', image: require('/public/images/login-front.png') },
 ]
+
+/** 默认声音 */
+export const DefaultSounds = [
+  { id: '001', name: '清澈音', lang: 'CN', tags: ['可爱', '温柔', '甜美'], url: '/tmp/voice.m4a', type: 'female' },
+  { id: '002', name: '清澈音', lang: 'CN', tags: ['可爱', '温柔', '甜美'], url: '/tmp/voice.m4a', type: 'female' },
+  { id: '003', name: '清澈音', lang: 'CN', tags: ['可爱', '温柔', '甜美'], url: '/tmp/voice.m4a', type: 'female' },
+  { id: '004', name: '清澈音', lang: 'CN', tags: ['可爱', '温柔', '甜美'], url: '/tmp/voice.m4a', type: 'female' },
+  { id: '005', name: '清澈音', lang: 'CN', tags: ['可爱', '温柔', '甜美'], url: '/tmp/voice.m4a', type: 'female' },
+  { id: '006', name: '男低音', lang: 'CN', tags: ['磁性', '温暖', '刚强'], url: '/tmp/voice.m4a', type: 'male' },
+]

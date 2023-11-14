@@ -1,49 +1,30 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import DigitalTabs from './components/DigitalTabs.vue'
 import DigitalPhotoUpload from './components/DigitalPhotoUpload.vue'
 import DigitalPhotoCard from './components/DigitalPhotoCard.vue'
 import { DefaultCards } from '@/config/constant'
-import { ImageAssetService } from '@/http/services/ImageAssetService'
-import { LoadingService } from '@/http/extends/loading.service'
-
-const newPhoto = reactive({
-  id: '',
-  image: '',
-})
-
-const service = new ImageAssetService()
-const loadingStatus = ref(false)
-const loadingService = new LoadingService(loadingStatus)
-
-function onImageUpload(id: string, url: string) {
-  ElMessage.success('照片上传成功')
-  newPhoto.id = id
-  newPhoto.image = url
-
-  service.facedetect(id, [loadingService]).then(() => {
-    ElMessage.success('人脸检测完成，请开始制作')
-  }).catch(({ msg }) => {
-    ElMessage.error(msg ?? '照片人脸检测失败')
-  })
-}
 
 const router = useRouter()
+
 function onPhotoEdit(id: string) {
   router.push({ name: 'AssetPhotoEdit', query: { id } })
+}
+
+function onImageUpload(id: string) {
+  ElMessage.success('照片上传成功,请开始编辑')
+  onPhotoEdit(id)
 }
 </script>
 
 <template>
-  <div v-loading="loadingStatus" class="page digital-view" element-loading-text="人脸检测中...">
+  <div class="page digital-view">
     <div class="page-header">
       <DigitalTabs />
     </div>
     <div class="page-content">
       <DigitalPhotoUpload type="drag" @uploaded="onImageUpload" />
-      <DigitalPhotoCard v-if="newPhoto.id" label="原始照片" :image="newPhoto.image" />
       <template v-for="item of DefaultCards " :key="item.label">
         <DigitalPhotoCard local :label="item.label" :image="item.image" @edit="() => onPhotoEdit(item.id)" />
       </template>
