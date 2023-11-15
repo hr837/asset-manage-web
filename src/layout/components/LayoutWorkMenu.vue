@@ -71,9 +71,10 @@ const openedMenus = ['ai', 'virtual']
 
   .el-menu-item {
     @apply rounded my-1;
+
     &.is-active {
       --el-menu-active-color: @color-primary;
-     @apply bg-violet-100;
+      @apply bg-violet-100;
     }
   }
 }

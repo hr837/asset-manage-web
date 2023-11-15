@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import DigitalSoundPlayer from './DigitalSoundPlayer.vue'
-import { DefaultSounds } from '@/config/constant'
+import type { VoiceTempleteOutput } from '@/http/models/asset-image.model'
+import { getFilePath } from '@/utils/file.util'
 
-interface PropInterface {
-  /** 声音ID */
-  id: string
+interface PropInterface extends VoiceTempleteOutput {
   /** 是否可播放 */
   canPlay?: boolean
 }
@@ -13,34 +12,33 @@ const props = defineProps<PropInterface>()
 
 defineEmits<{ 'play': [] }>()
 
-const soundInfo = DefaultSounds.find(x => x.id === props.id)
-
-const langName = computed(() => soundInfo?.lang === 'CN' ? '中文' : '英文')
+const langName = computed(() => props.audioLanguage === 'zh' ? '中文' : '英文')
+const soundTags = computed(() => props.audioTag.split(','))
 </script>
 
 <template>
-  <div v-if="!!soundInfo" class="component digital-sound-item" :class="soundInfo.type">
+  <div class="component digital-sound-item" :class="audioSex">
     <div class="sound-avatar">
-      <icon-park-solid-avatar v-if="soundInfo.type === 'male'" />
+      <icon-park-solid-avatar v-if="audioSex === 'male'" />
       <icon-park-solid-women v-else />
     </div>
     <div class="flex-1 px-2">
       <div class="flex items-center gap-1">
         <div class="sound-name">
-          {{ soundInfo.name }}
+          {{ name }}
         </div>
         <div class="sound-lang">
           {{ langName }}
         </div>
       </div>
       <div class="flex gap-1 mt-2">
-        <div v-for="item of soundInfo.tags" :key="item" class="tag">
+        <div v-for="item of soundTags" :key="item" class="tag">
           {{ item }}
         </div>
       </div>
     </div>
     <div v-if="canPlay" class="sound-play">
-      <DigitalSoundPlayer :src="soundInfo.url" class="text-2xl" />
+      <DigitalSoundPlayer :src="getFilePath(url, 'audio', '/data/')" class="text-2xl" />
     </div>
   </div>
 </template>

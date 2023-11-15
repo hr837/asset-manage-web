@@ -43,6 +43,23 @@ const routesConfig: Array<RouteRecordRaw> = [
       menuPath: '/digital',
     },
   },
+  {
+    path: '/zone',
+    name: 'digital-zone',
+    component: () => import('@/views/digital/DigitalZoneView.vue'),
+    meta: {
+      title: '创作空间',
+    },
+  },
+  {
+    path: '/my-production',
+    name: 'digital-production',
+    component: () => import('@/views/digital/DigitalProductionView.vue'),
+    meta: {
+      title: '创作空间-我的作品',
+      menuPath: '/zone',
+    },
+  },
 ]
 
 export default routesConfig

@@ -36,17 +36,18 @@ export function fileSlice(file: Blob, chunkSize = 1048576) {
   return result
 }
 
-const AssetPrefix = '/asset/'
-type FileType = 'video' | 'fbx' | 'image' | 'bvh'
+type FileType = 'video' | 'fbx' | 'image' | 'bvh' | 'audio'
+type DirName = '/asset/' | '/data/'
 
 /**
  * 下载资源文件
  * @param path 文件服务器路径
  * @param fileName 文件名称
  * @param type 文件类型 video、fbx
+ * @param dir 服务器资源根目录
  */
-export function downloadFile(path: string, fileName: string, type: FileType) {
-  const url = getFilePath(path, type)
+export function downloadFile(path: string, fileName: string, type: FileType, dir: DirName = '/asset/') {
+  const url = getFilePath(path, type, dir)
   const link = document.createElement('a')
   link.href = url
   link.download = fileName
@@ -57,12 +58,15 @@ export function downloadFile(path: string, fileName: string, type: FileType) {
  * 获取资源文件在服务器的位置
  * @param relativePath 资源相对路径
  * @param type  资源类型
+ * @param dir 服务器资源根目录
  * @returns
  */
-export function getFilePath(relativePath: string, type: FileType) {
-  if (relativePath.startsWith(AssetPrefix))
+export function getFilePath(relativePath: string, type: FileType, dir: DirName = '/asset/') {
+  if (!relativePath)
+    return ''
+  if (relativePath.startsWith(dir))
     return relativePath
-  const arr = [AssetPrefix, type, relativePath]
+  const arr = [dir, type, relativePath]
   if (!/^\//.test(relativePath))
     arr.splice(2, 0, '/')
   return arr.join('')

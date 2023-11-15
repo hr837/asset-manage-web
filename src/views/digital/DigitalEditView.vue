@@ -1,16 +1,18 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FormRules } from './composable/form-help'
 import DigitalSoundSelect from './components/DigitalSoundSelect.vue'
 import DigitalPhotoUpload from './components/DigitalPhotoUpload.vue'
 import DigitalTextEditor from './components/DigitalTextEditor.vue'
 import DigitalSoundItem from './components/DigitalSoundItem.vue'
-import { DefaultCards } from '@/config/constant'
+import { getImages, getVoices } from './composable/default-data'
 import { ImageAssetService } from '@/http/services/ImageAssetService'
 import { getFilePath } from '@/utils/file.util'
+import type { VoiceTempleteOutput } from '@/http/models/asset-image.model'
+import type { ImageSource } from '@/types/digital-asset.type'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,7 +24,7 @@ const service = new ImageAssetService()
 const editModel = reactive({
   name: '照片1',
   shape: 'C',
-  soundId: '001',
+  soundId: '1001',
   textList: [],
 })
 
@@ -31,33 +33,40 @@ function handleParamError() {
   router.back()
 }
 
-const httpAssetId = ref('')
+const httpAssetId = ref<string | undefined>(undefined)
+const soundList = ref<VoiceTempleteOutput[]>([])
 
 onMounted(() => {
   const id = route.query.id as string
-  if (!id)
-    return handleParamError()
-
-  if (id.startsWith('local')) {
-    const item = DefaultCards.find(x => x.id === id)
-    if (!item)
-      return handleParamError()
-    imageUrl.value = item.image
+  const source = route.query.s as ImageSource
+  if (source === 'd') {
+    // 默认图片，尝试走缓存获取
+    getImages().then((data) => {
+      const item = data.find(x => x.id === id as string)
+      if (!item)
+        return handleParamError()
+      imageUrl.value = getFilePath(item.url, 'image', '/data/')
+    }).catch(handleParamError)
   }
   else {
-    httpAssetId.value = id
+    // 用户上传，走服务器资源获取
     service.query(id).then((data) => {
-      imageUrl.value = getFilePath(data.sourceFileUrl, 'image')
-      // console.log(data)
-    }).catch(() => {
-      ElMessage.error('获取图片信息错误')
-    })
+      httpAssetId.value = id
+      imageUrl.value = getFilePath(data.sourceFileUrl, 'image', '/data/')
+      editModel.name = data.name || '照片1'
+      editModel.soundId = '?'
+    }).catch(handleParamError)
   }
+  // 获取声音
+  getVoices().then(data => soundList.value = data).catch(() => ElMessage.error('声音列表获取失败'))
 })
 
 function onImageChanged(newId: string) {
   router.push({ query: { id: newId } })
   httpAssetId.value = newId
+  service.query(newId).then((data) => {
+    imageUrl.value = getFilePath(data.sourceFileUrl, 'image', '/data/')
+  }).catch(() => { ElMessage.error('获取图片失败') })
 }
 
 function onSoundSelectClick() {
@@ -71,6 +80,9 @@ function onSelectDialogClose() {
 async function onSubmitClick() {
   const result = await formRef.value?.validate().then(() => true).catch(() => false)
 }
+
+// 当前选择的声音
+const currentVoice = computed(() => soundList.value.find(x => x.id === editModel.soundId))
 </script>
 
 <template>
@@ -112,7 +124,7 @@ async function onSubmitClick() {
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item prop="sound">
+        <el-form-item v-if="currentVoice" prop="sound">
           <template #label>
             <div class="flex items-center gap-2">
               <span>声音</span>
@@ -124,10 +136,10 @@ async function onSubmitClick() {
               </el-tooltip>
             </div>
           </template>
-          <DigitalSoundItem :id="editModel.soundId" />
+          <DigitalSoundItem v-bind="currentVoice" />
         </el-form-item>
         <el-form-item label="文案内容" prop="textList" :rules="FormRules.list as any">
-          <DigitalTextEditor v-model="editModel.textList" />
+          <DigitalTextEditor v-if="currentVoice" v-model="editModel.textList" :audio-id="currentVoice.id" />
         </el-form-item>
       </el-form>
     </el-main>
@@ -138,7 +150,7 @@ async function onSubmitClick() {
       </el-button>
     </el-footer>
     <el-dialog v-model="showDialog" title="AI声音" width="800px" @close="onSelectDialogClose">
-      <DigitalSoundSelect v-model="editModel.soundId" />
+      <DigitalSoundSelect v-model="editModel.soundId" :source="soundList" />
     </el-dialog>
   </el-container>
 </template>
@@ -158,7 +170,7 @@ async function onSubmitClick() {
       @apply h-full;
 
       .edit-image {
-        @apply object-contain h-full;
+        @apply object-contain;
       }
     }
 
@@ -170,13 +182,13 @@ async function onSubmitClick() {
       padding-left: 50%;
 
       .edit-image {
-        @apply absolute inset-x-0 inset-y-0 w-full h-full object-cover rounded-full;
+        @apply absolute inset-x-0 inset-y-0 w-full object-cover object-top rounded-full;
       }
     }
   }
 
   .edit-image {
-    @apply object-center;
+    @apply object-center h-full;
   }
 }
 

@@ -1,14 +1,16 @@
 <script lang="ts" setup>
+import { getFilePath } from '@/utils/file.util'
+
 interface PropInterface {
   /** 卡片标题 */
   label: string
   /** 卡片图片 */
   image: string
-  /** 是否本地图片 */
-  local?: boolean
+  /** 是否默认图片 */
+  isDefault?: boolean
 }
 
-const props = defineProps<PropInterface>()
+defineProps<PropInterface>()
 
 defineEmits<{ edit: [] }>()
 </script>
@@ -17,10 +19,10 @@ defineEmits<{ edit: [] }>()
   <div class="component digital-photo-card">
     <div class="card-top">
       <div class="top-content">
-        <div class="img-container" :class="{ circle: local }">
-          <img class="card-img" :src="image" alt="4.png">
+        <div class="img-container" :class="{ circle: isDefault }">
+          <img class="card-img" :src="getFilePath(image, 'image', '/data/')" alt="4.png">
         </div>
-        <div v-if="local" class="card-tag">
+        <div v-if="isDefault" class="card-tag">
           Demo
         </div>
       </div>

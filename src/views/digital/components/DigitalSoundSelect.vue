@@ -1,46 +1,48 @@
 <script lang="ts" setup>
 import { reactive, ref, watch } from 'vue'
 import DigitalSoundItem from './DigitalSoundItem.vue'
-import { DefaultSounds } from '@/config/constant'
+import type { VoiceTempleteOutput } from '@/http/models/asset-image.model'
+import type { SoundLang, SoundType } from '@/types/digital-asset.type'
 
-defineProps<{ modelValue: string }>()
+const props = defineProps<{ modelValue: string; source: VoiceTempleteOutput[] }>()
 defineEmits<{ 'update:modelValue': [val: string] }>()
-
-const idList = ref<string[]>([])
+/** 声音过滤表单 */
+export type VoiceFilterModel = Pick<VoiceTempleteOutput, 'audioLanguage' | 'audioSex'>
 
 const formModel = reactive({
-  lang: 'CN',
-  type: '',
+  audioLanguage: 'zh' as SoundLang,
+  audioSex: 'all' as SoundType,
 })
 
+const filterData = ref<VoiceTempleteOutput[]>([])
+
 watch(() => formModel, () => {
-  idList.value = DefaultSounds.filter((x) => {
-    const c1 = x.lang === formModel.lang
-    const c2 = formModel.type ? x.type === formModel.type : true
+  filterData.value = props.source.filter((x) => {
+    const c1 = x.audioLanguage === formModel.audioLanguage
+    const c2 = formModel.audioSex === 'all' || x.audioSex === formModel.audioSex
     return c1 && c2
-  }).map(x => x.id)
-}
-, { immediate: true, deep: true })
+  })
+}, { immediate: true, deep: true })
 </script>
 
 <template>
-  <el-tabs class="component digital-sound-select" active-name="default">
+  <el-tabs class="component digital-sound-select" model-value="default">
     <el-tab-pane label="预设声音" name="default">
       <div class="sound-query">
-        <el-select v-model="formModel.lang">
-          <el-option label="中文" value="CN" />
-          <el-option label="英文" value="EN" />
+        <el-select v-model="formModel.audioLanguage">
+          <el-option label="中文" value="zh" />
+          <el-option label="英文" value="cn" />
         </el-select>
-        <el-select v-model="formModel.type">
-          <el-option label="全部" value="" />
+        <el-select v-model="formModel.audioSex">
+          <el-option label="全部" value="all" />
           <el-option label="男声" value="male" />
           <el-option label="女声" value="female" />
         </el-select>
       </div>
       <div class="sound-list">
-        <div v-for="id of idList" :key="id" class="sound-item-wrapper">
-          <DigitalSoundItem :id="id" can-play @click="$emit('update:modelValue', id)" />
-          <div v-if="modelValue === id" class="sound-item-checked">
+        <div v-for="item of filterData" :key="item.id" class="sound-item-wrapper">
+          <DigitalSoundItem v-bind="item" can-play @click="$emit('update:modelValue', item.id)" />
+          <div v-if="modelValue === item.id" class="sound-item-checked">
             <icon-park-outline-check />
           </div>
         </div>
