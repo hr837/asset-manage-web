@@ -38,7 +38,11 @@ getImages()
     <div class="page-content">
       <DigitalPhotoUpload type="drag" @uploaded="onImageUpload" />
       <template v-for="item of defaultImages " :key="item.id">
-        <DigitalPhotoCard is-default :label="item.name" :image="item.url" @edit="() => onPhotoEdit(item.id)" />
+        <DigitalPhotoCard is-default :label="item.name" :image="item.url">
+          <el-button class="card-edit" circle size="large" @click="() => onPhotoEdit(item.id)">
+            <icon-park-outline-edit />
+          </el-button>
+        </DigitalPhotoCard>
       </template>
     </div>
   </div>
@@ -55,5 +59,17 @@ getImages()
 
 .page-content {
   @apply p-4 grid grid-cols-4 gap-3;
+
+  .card-edit {
+    --el-button-size: 48px;
+    @apply absolute hidden top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/80 text-2xl;
+
+  }
+
+  .digital-photo-card:hover {
+    .card-edit {
+      @apply inline-flex;
+    }
+  }
 }
 </style>

@@ -6,4 +6,7 @@ export const FormRules = {
   list: [
     { type: 'array', required: true, min: 1, message: '请添加文案' },
   ],
+  sound: [
+    { required: true, message: '请选择声音' },
+  ],
 }

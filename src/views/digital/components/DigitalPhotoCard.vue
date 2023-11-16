@@ -11,8 +11,6 @@ interface PropInterface {
 }
 
 defineProps<PropInterface>()
-
-defineEmits<{ edit: [] }>()
 </script>
 
 <template>
@@ -26,12 +24,11 @@ defineEmits<{ edit: [] }>()
           Demo
         </div>
       </div>
-      <el-button class="card-edit" circle size="large" @click="$emit('edit')">
-        <icon-park-outline-edit />
-      </el-button>
+      <slot />
     </div>
     <div class="card-bottom">
       {{ label }}
+      <slot name="extra" />
     </div>
   </div>
 </template>
@@ -42,10 +39,6 @@ defineEmits<{ edit: [] }>()
 
   &:hover {
     box-shadow: 0px 38px 76px 0px rgba(157, 113, 255, 0.2), 0px 0px 20px 0px rgba(0, 0, 0, 0.04);
-
-    .card-edit {
-      display: inline-flex;
-    }
   }
 
   .card-top {
@@ -83,13 +76,7 @@ defineEmits<{ edit: [] }>()
   }
 
   .card-bottom {
-    @apply self-start p-2;
-  }
-
-  .card-edit {
-    --el-button-size: 48px;
-    @apply absolute hidden top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/80 text-2xl;
-
+    @apply self-start h-10 px-2 flex justify-between items-center;
   }
 
 }

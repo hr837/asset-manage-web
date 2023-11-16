@@ -11,8 +11,9 @@ import DigitalSoundItem from './components/DigitalSoundItem.vue'
 import { getImages, getVoices } from './composable/default-data'
 import { ImageAssetService } from '@/http/services/ImageAssetService'
 import { getFilePath } from '@/utils/file.util'
-import type { VoiceTempleteOutput } from '@/http/models/asset-image.model'
+import type { ImageEditInput, VoiceTempleteOutput } from '@/http/models/asset-image.model'
 import type { ImageSource } from '@/types/digital-asset.type'
+import { LoadingService } from '@/http/extends/loading.service'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,8 +36,13 @@ function handleParamError() {
 
 const httpAssetId = ref<string | undefined>(undefined)
 const soundList = ref<VoiceTempleteOutput[]>([])
+const backRoutePath = ref('/digital')
 
 onMounted(() => {
+  const back = router.options.history.state.back as string
+  if (back)
+    backRoutePath.value = back
+
   const id = route.query.id as string
   const source = route.query.s as ImageSource
   if (source === 'd') {
@@ -54,7 +60,7 @@ onMounted(() => {
       httpAssetId.value = id
       imageUrl.value = getFilePath(data.sourceFileUrl, 'image', '/data/')
       editModel.name = data.name || '照片1'
-      editModel.soundId = '?'
+      editModel.soundId = '1001'
     }).catch(handleParamError)
   }
   // 获取声音
@@ -69,26 +75,64 @@ function onImageChanged(newId: string) {
   }).catch(() => { ElMessage.error('获取图片失败') })
 }
 
-function onSoundSelectClick() {
-  //
-}
+// 当前选择的声音
+const currentVoice = computed(() => soundList.value.find(x => x.id === editModel.soundId))
+const loaidngStatus = ref(false)
+const loadingService = new LoadingService(loaidngStatus)
 
-function onSelectDialogClose() {
-  // TODO 从服务器获取新的语音文档
+function onSaveClick() {
+  const requestData: ImageEditInput = {
+    id: route.query.id as string,
+    name: editModel.name,
+    shape: editModel.shape,
+    audioId: currentVoice.value?.id ?? '',
+    text: editModel.textList.join('##'),
+    use_enhancer: 0,
+  }
+
+  service.imageEditSave(requestData, [loadingService])
+    .then((data) => {
+      ElMessage.success('保存成功')
+      router.push({ query: { id: data.fileId, s: 'u' } })
+    })
+    .catch(({ msg }) => {
+      ElMessage.error(msg ?? '图片编辑内容保存失败')
+    })
 }
 
 async function onSubmitClick() {
   const result = await formRef.value?.validate().then(() => true).catch(() => false)
-}
+  if (!result)
+    return
 
-// 当前选择的声音
-const currentVoice = computed(() => soundList.value.find(x => x.id === editModel.soundId))
+  if (!currentVoice.value) {
+    ElMessage.error('请选择声音')
+    return
+  }
+
+  const requestData: ImageEditInput = {
+    id: route.query.id as string,
+    name: editModel.name,
+    shape: editModel.shape,
+    audioId: currentVoice.value.id,
+    text: editModel.textList.join('##'),
+    use_enhancer: 1,
+  }
+
+  service.imageGenerateVideo(requestData, [loadingService])
+    .then((data) => {
+      console.log(data)
+    })
+    .catch(({ msg }) => {
+      ElMessage.error(msg ?? '图片生成视频任务失败')
+    })
+}
 </script>
 
 <template>
-  <el-container class="page digital-edit">
-    <el-header class="flex items-center border-b" style="--el-header-height:50px">
-      <RouterLink to="/digital">
+  <el-container v-loading="loaidngStatus" class="page digital-edit">
+    <el-header class="flex items-center border-b">
+      <RouterLink :to="backRoutePath">
         <icon-park-outline-arrow-left />
       </RouterLink>
       <span class="ml-4">照片编辑</span>
@@ -124,19 +168,17 @@ const currentVoice = computed(() => soundList.value.find(x => x.id === editModel
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="currentVoice" prop="sound">
+        <el-form-item prop="soundId" :rules="FormRules.sound" class="form-item--sound">
           <template #label>
-            <div class="flex items-center gap-2">
-              <span>声音</span>
-              <el-tooltip content="更换声音" placement="right">
-                <icon-park-outline-refresh
-                  class="text-violet-500 cursor-pointer focus:outline-none"
-                  @click="showDialog = true"
-                />
-              </el-tooltip>
-            </div>
+            <span>声音</span>
+            <el-tooltip content="更换声音" placement="right">
+              <icon-park-outline-refresh
+                class="text-violet-500 cursor-pointer focus:outline-none inline-block ml-2"
+                @click="showDialog = true"
+              />
+            </el-tooltip>
           </template>
-          <DigitalSoundItem v-bind="currentVoice" />
+          <DigitalSoundItem v-if="currentVoice" v-bind="currentVoice" />
         </el-form-item>
         <el-form-item label="文案内容" prop="textList" :rules="FormRules.list as any">
           <DigitalTextEditor v-if="currentVoice" v-model="editModel.textList" :audio-id="currentVoice.id" />
@@ -144,12 +186,16 @@ const currentVoice = computed(() => soundList.value.find(x => x.id === editModel
       </el-form>
     </el-main>
     <el-footer class="flex justify-end items-center border-t">
-      <el-button>仅保存</el-button>
-      <el-button type="primary" @click="onSubmitClick">
-        开始生成
+      <el-button @click="onSaveClick">
+        仅保存
       </el-button>
+      <el-tooltip content="生成会说话的照片">
+        <el-button type="primary" @click="onSubmitClick">
+          开始生成
+        </el-button>
+      </el-tooltip>
     </el-footer>
-    <el-dialog v-model="showDialog" title="AI声音" width="800px" @close="onSelectDialogClose">
+    <el-dialog v-model="showDialog" title="AI声音" width="800px">
       <DigitalSoundSelect v-model="editModel.soundId" :source="soundList" />
     </el-dialog>
   </el-container>
