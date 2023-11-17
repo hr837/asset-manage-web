@@ -224,11 +224,11 @@ const canTransform = computed(() => assetData.status === 1 || assetData.status =
     @apply h-14 flex justify-between;
 
     .file-info {
-      @apply flex gap-6 text-sm text-gray-500;
+      @apply flex gap-4 text-sm text-gray-500;
     }
 
     .info-aciton .el-button {
-      padding: 8px 10px;
+      padding: 8px;
     }
   }
 
