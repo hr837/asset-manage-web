@@ -3,6 +3,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import DigitalSoundPlayer from './DigitalSoundPlayer.vue'
 import { ImageAssetService } from '@/http/services/ImageAssetService'
+import { getFilePath } from '@/utils/file.util'
 
 /** 文本声音 */
 interface TextSound {
@@ -83,7 +84,7 @@ const disabled = computed(() => props.modelValue.length > 6)
 <template>
   <div class="component digital-text-editor">
     <div v-for="(item, index) of textSoundList" :key="`text-${index}`" class="digital-text-item">
-      <DigitalSoundPlayer v-if="item.status === 'success'" class="icon-play text-violet-500" src="/tmp/voice.m4a" />
+      <DigitalSoundPlayer v-if="item.status === 'success'" class="icon-play text-violet-500" :src="getFilePath(item.url!, 'audio', '/data/')" />
       <icon-park-outline-refresh v-else-if="item.status === 'loading'" class="icon-loading text-gray-300 animate-spin" />
       <el-tooltip v-else content="生成失败" placement="left">
         <icon-park-outline-info class="icon-error text-red-500" />
