@@ -1,4 +1,4 @@
-export type PhotoSize = 'O' | 'S' | 'C' | 'L'
+export type PhotoShape = 'O' | 'S' | 'C' | 'L'
 export type SoundLang = 'zh' | 'en'
 export type SoundType = 'male' | 'female' | 'all'
 

@@ -12,7 +12,7 @@ import { getImages, getVoices } from './composable/default-data'
 import { ImageAssetService } from '@/http/services/ImageAssetService'
 import { getFilePath } from '@/utils/file.util'
 import type { ImageEditInput, VoiceTempleteOutput } from '@/http/models/asset-image.model'
-import type { ImageSource } from '@/types/digital-asset.type'
+import type { ImageSource, PhotoShape } from '@/types/digital-asset.type'
 import { LoadingService } from '@/http/extends/loading.service'
 
 const route = useRoute()
@@ -24,49 +24,70 @@ const service = new ImageAssetService()
 
 const editModel = reactive({
   name: '照片1',
-  shape: 'C',
-  soundId: '1001',
-  textList: [],
+  shape: 'C' as PhotoShape,
+  soundId: '',
+  textList: [] as string[],
 })
-
-function handleParamError() {
-  ElMessage.error('页面参数错误')
-  router.back()
-}
 
 const httpAssetId = ref<string | undefined>(undefined)
 const soundList = ref<VoiceTempleteOutput[]>([])
 const backRoutePath = ref('/digital')
+// 当前选择的声音
+const currentVoice = computed(() => soundList.value.find(x => x.id === editModel.soundId))
+const loaidngStatus = ref(false)
+const loadingService = new LoadingService(loaidngStatus)
 
-onMounted(() => {
+// 获取路由参数，加载页面数据
+onMounted(async () => {
   const back = router.options.history.state.back as string
   if (back)
     backRoutePath.value = back
 
+  loaidngStatus.value = true
   const id = route.query.id as string
   const source = route.query.s as ImageSource
-  if (source === 'd') {
-    // 默认图片，尝试走缓存获取
-    getImages().then((data) => {
-      const item = data.find(x => x.id === id as string)
+
+  try {
+    // 先获取声音
+    soundList.value = await getVoices().catch(() => {
+      throw new Error('声音列表获取失败')
+    })
+    editModel.soundId = soundList.value[0].id
+
+    if (source === 'd') {
+      // 获取页面参数对应的默认图片
+      const defualtImages = await getImages().catch(() => {
+        throw new Error('获取图片失败')
+      })
+      const item = defualtImages.find(x => x.id === id as string)
       if (!item)
-        return handleParamError()
+        throw new Error('页面参数错误')
       imageUrl.value = getFilePath(item.url, 'image', '/data/')
-    }).catch(handleParamError)
-  }
-  else {
-    // 用户上传，走服务器资源获取
-    service.query(id).then((data) => {
+    }
+    else {
+      // 获取服务器图片资产信息并反显
+      const data = await service.query(id).catch(() => {
+        throw new Error('页面参数错误')
+      })
       httpAssetId.value = id
       imageUrl.value = getFilePath(data.sourceFileUrl, 'image', '/data/')
-      editModel.name = data.name || '照片1'
-      editModel.soundId = '1001'
-    }).catch(handleParamError)
+      editModel.name = data.name
+      editModel.soundId = data.audioId
+      editModel.shape = data.shape
+      editModel.textList = data.text.split('##', 0)
+    }
   }
-  // 获取声音
-  getVoices().then(data => soundList.value = data).catch(() => ElMessage.error('声音列表获取失败'))
+  catch (error: any) {
+    ElMessage.error(error.message)
+    // 发生错误，就返回上一个页面
+    router.back()
+  }
+  finally {
+    loaidngStatus.value = false
+  }
 })
 
+// 用户再次更改图片，需要从服务器重新获取图片展示
 function onImageChanged(newId: string) {
   router.push({ query: { id: newId } })
   httpAssetId.value = newId
@@ -75,11 +96,7 @@ function onImageChanged(newId: string) {
   }).catch(() => { ElMessage.error('获取图片失败') })
 }
 
-// 当前选择的声音
-const currentVoice = computed(() => soundList.value.find(x => x.id === editModel.soundId))
-const loaidngStatus = ref(false)
-const loadingService = new LoadingService(loaidngStatus)
-
+// 用户点击保存，不校验数据完整性
 function onSaveClick() {
   const requestData: ImageEditInput = {
     id: route.query.id as string,
@@ -100,6 +117,7 @@ function onSaveClick() {
     })
 }
 
+// 用户提交生成任务，校验表单并生成
 async function onSubmitClick() {
   const result = await formRef.value?.validate().then(() => true).catch(() => false)
   if (!result)
@@ -120,8 +138,9 @@ async function onSubmitClick() {
   }
 
   service.imageGenerateVideo(requestData, [loadingService])
-    .then((data) => {
-      console.log(data)
+    .then(() => {
+      ElMessage.success('开始生成')
+      router.push('/zone')
     })
     .catch(({ msg }) => {
       ElMessage.error(msg ?? '图片生成视频任务失败')
@@ -168,17 +187,13 @@ async function onSubmitClick() {
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item prop="soundId" :rules="FormRules.sound" class="form-item--sound">
-          <template #label>
-            <span>声音</span>
-            <el-tooltip content="更换声音" placement="right">
-              <icon-park-outline-refresh
-                class="text-violet-500 cursor-pointer focus:outline-none inline-block ml-2"
-                @click="showDialog = true"
-              />
-            </el-tooltip>
+        <el-form-item prop="soundId" label="声音" :rules="FormRules.sound" class="form-item--sound">
+          <template v-if="currentVoice">
+            <DigitalSoundItem class="flex-1 !rounded-r-none" v-bind="currentVoice" />
+            <div class="sound-change" @click="showDialog = true">
+              <icon-park-outline-right class="text-2xl " />
+            </div>
           </template>
-          <DigitalSoundItem v-if="currentVoice" v-bind="currentVoice" />
         </el-form-item>
         <el-form-item label="文案内容" prop="textList" :rules="FormRules.list as any">
           <DigitalTextEditor v-if="currentVoice" v-model="editModel.textList" :audio-id="currentVoice.id" />
@@ -195,7 +210,7 @@ async function onSubmitClick() {
         </el-button>
       </el-tooltip>
     </el-footer>
-    <el-dialog v-model="showDialog" title="AI声音" width="800px">
+    <el-dialog v-model="showDialog" title="AI声音" width="800">
       <DigitalSoundSelect v-model="editModel.soundId" :source="soundList" />
     </el-dialog>
   </el-container>
@@ -245,10 +260,20 @@ async function onSubmitClick() {
     &__label {
       @apply text-sm text-black/50;
     }
+
+    &.form-item--sound .el-form-item__content {
+      align-items: stretch;
+
+      .sound-change {
+        @apply inline-flex items-center border border-gray-100 border-l-0 px-1 rounded-r cursor-pointer text-gray-300 hover:text-gray-400 hover:bg-gray-100;
+      }
+    }
   }
 }
 
-:deep(.el-dialog__body) {
-  padding-top: 16px;
+.digital-edit {
+  :deep(.el-dialog__body) {
+    padding-top: 16px;
+  }
 }
 </style>

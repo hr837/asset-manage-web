@@ -57,7 +57,7 @@ watch(() => formModel, () => {
 
 <style lang="less" scoped>
 .sound-list {
-  @apply grid grid-cols-2 gap-4;
+  @apply grid grid-cols-2 auto-rows-min gap-4 h-128 overflow-auto;
 
   .sound-item-wrapper {
     @apply relative;

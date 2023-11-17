@@ -1,4 +1,5 @@
 import type { AssetStatus } from '@/types/common-enum'
+import type { PhotoShape } from '@/types/digital-asset.type'
 
 /** 默认图片 */
 export interface ImageTempleteOutput {
@@ -36,7 +37,7 @@ export interface ImageEditInput {
   /** 资产名称 */
   name: string
   /** 图片形状 */
-  shape: string
+  shape: PhotoShape
   /**
    * 输入的文本
    */
@@ -74,7 +75,7 @@ export interface QueryImageListInput {
 
 export interface QueryImageListOutput {
   /** 声音ID */
-  audioId: number
+  audioId: string
   /**
    * 资产文件id
    */
@@ -95,4 +96,14 @@ export interface QueryImageListOutput {
    * 资产状态（1.仅上传-2.排队中-3.转换中-4.转换失败-5.转换完成）
    */
   status: AssetStatus
+  shape: PhotoShape
+  /** 用户输入的文案，分段标识‘##’ */
+  text: string
+  /** 视频文件相对路径 */
+  videoFileUrl: string
+}
+
+export interface GenAudioOutput {
+  /** 生成的声音 */
+  audioUrl: string
 }

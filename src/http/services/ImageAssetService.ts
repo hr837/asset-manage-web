@@ -1,8 +1,7 @@
 import { RequestMethod, type RequestPlugin, RequestService } from '@gopowerteam/request'
 import type { PreuploadResponse } from '../models/upload.model'
-import type { AssetQueryOutItem } from '../models/asset.model'
 import type { PageResonse } from '../models/page.model'
-import type { GenAduioInput, ImageEditInput, ImageEditOutput, ImageTempleteOutput, QueryImageListInput, QueryImageListOutput, VoiceTempleteOutput } from '../models/asset-image.model'
+import type { GenAduioInput, GenAudioOutput, ImageEditInput, ImageEditOutput, ImageTempleteOutput, QueryImageListInput, QueryImageListOutput, VoiceTempleteOutput } from '../models/asset-image.model'
 export class ImageAssetService {
   // 请求实例
   private request = RequestService.getInstance()
@@ -34,7 +33,7 @@ export class ImageAssetService {
   query(
     assetId: string,
     requestPlugins: RequestPlugin[] = [],
-  ): Promise<AssetQueryOutItem> {
+  ): Promise<QueryImageListOutput> {
     // 请求数据
     return this.request.send(
       {
@@ -88,7 +87,7 @@ export class ImageAssetService {
   genAudio(
     requestBody: GenAduioInput,
     requestPlugins: RequestPlugin[] = [],
-  ): Promise<AssetQueryOutItem> {
+  ): Promise<GenAudioOutput> {
     // 请求数据
     return this.request.send(
       {
@@ -146,6 +145,23 @@ export class ImageAssetService {
         path: '/api/image/list',
         method: RequestMethod.Get,
         paramsQuery: requestBody,
+      },
+      requestPlugins,
+    )
+  }
+
+  /** 删除资产 */
+  delete(
+    assetId: string,
+    requestPlugins: RequestPlugin[] = [],
+  ): Promise<ImageEditOutput> {
+    return this.request.send(
+      {
+        path: '/api/image/delete',
+        method: RequestMethod.Post,
+        paramsBody: {
+          id: assetId,
+        },
       },
       requestPlugins,
     )

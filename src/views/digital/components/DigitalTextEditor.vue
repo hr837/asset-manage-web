@@ -28,6 +28,18 @@ const service = new ImageAssetService()
 
 const textSoundList = ref<TextSound[]>([])
 
+function genItemTextVioce(item: TextSound) {
+  return service.genAudio({
+    text: item.text,
+    audio_id: props.audioId,
+  }).then((data) => {
+    item.url = getFilePath(data.audioUrl, 'audio', '/data/')
+    item.status = 'success'
+  }).catch(() => {
+    item.status = 'fail'
+  })
+}
+
 function onInputKeyEnter() {
   const text = inputText.value.trim()
   if (!text)
@@ -37,22 +49,7 @@ function onInputKeyEnter() {
     ElMessage.error('已存在相同文案')
     return
   }
-  const newItem = reactive<TextSound>({ text, status: 'loading' })
-  textSoundList.value.push(newItem)
   emit('update:modelValue', [...props.modelValue, text])
-  service.genAudio({
-    text,
-    audio_id: props.audioId,
-  }).then((data) => {
-    if (data)
-      newItem.status = 'success'
-
-    else
-      newItem.status = 'fail'
-  }).catch(() => {
-    newItem.status = 'fail'
-    ElMessage.error('生成语音失败')
-  })
   inputText.value = ''
 }
 
@@ -63,20 +60,26 @@ function onTextDel(index: number) {
   emit('update:modelValue', list)
 }
 
+// 全量更新声音
 watch(() => props.audioId, () => {
-  textSoundList.value.forEach((item) => {
-    item.status = 'loading'
-    return service.genAudio({
-      text: item.text,
-      audio_id: props.audioId,
-    }).then((data) => {
-      if (data)
-        item.status = 'success'
-      else
-        item.status = 'fail'
-    }).catch(() => item.status = 'fail')
-  })
+  Promise
+    .all(textSoundList.value.map(genItemTextVioce))
+    .catch(() => ElMessage.error('生成声音失败'))
 })
+
+// 更新新增的声音
+watch(() => props.modelValue, (list: string[]) => {
+  if (!list.length)
+    return
+  // 过滤出内容不一致的
+  const newTextList = list.filter(text => textSoundList.value.findIndex(x => x.text === text) === -1)
+  const taskList = newTextList.map((text) => {
+    const newItem = reactive<TextSound>({ text, status: 'loading' })
+    textSoundList.value.push(newItem)
+    return genItemTextVioce(newItem)
+  })
+  Promise.all(taskList).catch(() => ElMessage.error('生成声音失败'))
+}, { immediate: true, deep: true })
 
 const disabled = computed(() => props.modelValue.length > 6)
 </script>
@@ -84,7 +87,7 @@ const disabled = computed(() => props.modelValue.length > 6)
 <template>
   <div class="component digital-text-editor">
     <div v-for="(item, index) of textSoundList" :key="`text-${index}`" class="digital-text-item">
-      <DigitalSoundPlayer v-if="item.status === 'success'" class="icon-play text-violet-500" :src="getFilePath(item.url!, 'audio', '/data/')" />
+      <DigitalSoundPlayer v-if="item.status === 'success'" class="icon-play text-violet-500" :src="item.url!" />
       <icon-park-outline-refresh v-else-if="item.status === 'loading'" class="icon-loading text-gray-300 animate-spin" />
       <el-tooltip v-else content="生成失败" placement="left">
         <icon-park-outline-info class="icon-error text-red-500" />
@@ -95,8 +98,8 @@ const disabled = computed(() => props.modelValue.length > 6)
       <icon-park-solid-close-one class="text-red-500 icon-del" @click="onTextDel(index)" />
     </div>
     <el-input
-      v-if="!disabled" v-model="inputText" type="textarea" placeholder="请输入声音文案"
-      @keydown.prevent.enter="onInputKeyEnter"
+      v-if="!disabled" v-model="inputText" type="textarea" placeholder="请输入声音文案，并按Enter键确定内容"
+      @keydown.prevent.enter="onInputKeyEnter" @blur="onInputKeyEnter"
     />
   </div>
 </template>
