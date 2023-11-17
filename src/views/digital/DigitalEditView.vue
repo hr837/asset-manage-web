@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { FormInstance } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FormRules } from './composable/form-help'
@@ -26,7 +26,7 @@ const editModel = reactive({
   name: '照片1',
   shape: 'C' as PhotoShape,
   soundId: '',
-  textList: [] as string[],
+  textList: ['大家好，我是特赛发的虚拟人，很高兴认识你'],
 })
 
 const httpAssetId = ref<string | undefined>(undefined)
@@ -74,7 +74,8 @@ onMounted(async () => {
       editModel.name = data.name
       editModel.soundId = data.audioId
       editModel.shape = data.shape
-      editModel.textList = data.text.split('##', 0)
+      if (data.text)
+        editModel.textList = data.text.split('##')
     }
   }
   catch (error: any) {
@@ -96,21 +97,27 @@ function onImageChanged(newId: string) {
   }).catch(() => { ElMessage.error('获取图片失败') })
 }
 
-// 用户点击保存，不校验数据完整性
-function onSaveClick() {
+function getRequestData(use_enhancer = 0) {
   const requestData: ImageEditInput = {
     id: route.query.id as string,
     name: editModel.name,
     shape: editModel.shape,
     audioId: currentVoice.value?.id ?? '',
     text: editModel.textList.join('##'),
-    use_enhancer: 0,
+    use_enhancer,
   }
+  return requestData
+}
 
-  service.imageEditSave(requestData, [loadingService])
+// 用户点击保存，不校验数据完整性
+function onSaveClick() {
+  const requestData = getRequestData()
+  return service.imageEditSave(requestData, [loadingService])
     .then((data) => {
-      ElMessage.success('保存成功')
       router.push({ query: { id: data.fileId, s: 'u' } })
+      ElMessageBox.alert('编辑内容已经保存到”创作空间“中，您可以在”草稿箱“中继续编辑或直接合成', '保存成功', {
+        confirmButtonText: '好的',
+      })
     })
     .catch(({ msg }) => {
       ElMessage.error(msg ?? '图片编辑内容保存失败')
@@ -128,33 +135,39 @@ async function onSubmitClick() {
     return
   }
 
-  const requestData: ImageEditInput = {
-    id: route.query.id as string,
-    name: editModel.name,
-    shape: editModel.shape,
-    audioId: currentVoice.value.id,
-    text: editModel.textList.join('##'),
-    use_enhancer: 1,
-  }
-
+  const requestData = getRequestData(1)
   service.imageGenerateVideo(requestData, [loadingService])
     .then(() => {
-      ElMessage.success('开始生成')
-      router.push('/zone')
+      ElMessageBox.alert('视频正在”创作空间“模块进行合成，需要一些时间，您可以在”我的作品“查看最新状态。', '合成任务开始', {
+        confirmButtonText: '好的',
+      }).then(() => router.replace(backRoutePath.value))
     })
     .catch(({ msg }) => {
       ElMessage.error(msg ?? '图片生成视频任务失败')
     })
+}
+
+function onBackClick() {
+  ElMessageBox.confirm('是否将编辑作品放入草稿箱中？', '返回提示')
+    .then(() => {
+      const requestData = getRequestData()
+      return service.imageEditSave(requestData, [loadingService])
+    })
+    .then(() => {
+      ElMessage.success('作品已保存')
+      router.replace(backRoutePath.value)
+    })
+    .catch(() => router.replace(backRoutePath.value))
 }
 </script>
 
 <template>
   <el-container v-loading="loaidngStatus" class="page digital-edit">
     <el-header class="flex items-center border-b">
-      <RouterLink :to="backRoutePath">
+      <el-button link @click="onBackClick">
         <icon-park-outline-arrow-left />
-      </RouterLink>
-      <span class="ml-4">照片编辑</span>
+      </el-button>
+      <span class="ml-1">照片编辑</span>
     </el-header>
     <el-main class="flex p-0">
       <div class="edit-photo">
@@ -204,14 +217,14 @@ async function onSubmitClick() {
       <el-button @click="onSaveClick">
         仅保存
       </el-button>
-      <el-tooltip content="生成会说话的照片">
+      <el-tooltip content="合成会说话的照片">
         <el-button type="primary" @click="onSubmitClick">
-          开始生成
+          开始合成
         </el-button>
       </el-tooltip>
     </el-footer>
     <el-dialog v-model="showDialog" title="AI声音" width="800">
-      <DigitalSoundSelect v-model="editModel.soundId" :source="soundList" />
+      <DigitalSoundSelect v-model="editModel.soundId" :source="soundList" @update:model-value="showDialog = false" />
     </el-dialog>
   </el-container>
 </template>

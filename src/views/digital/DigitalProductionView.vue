@@ -44,7 +44,7 @@ function onItemAction(command: string, id: string) {
         ...item,
         use_enhancer: 1,
       }).then(() => {
-        ElMessage.success('开始生成')
+        ElMessage.success('开始合成')
         return fetchData()
       }).catch(({ msg }) => ElMessage.error(msg ?? '生成任务创建失败'))
       break
