@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { defineProps, withDefaults } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 withDefaults(defineProps<PropType>(), {
   collapse: false,
 })
-
+const router = useRouter()
 const route = useRoute()
 
 interface PropType {
@@ -32,6 +32,26 @@ interface PropType {
       </template>
     </el-menu-item>
   </el-menu>
+
+  <div v-if="!collapse" class="member">
+    <div class="member-title">
+      免费会员
+    </div>
+    <div class="member-grade">
+      <div class="member-grade-left">
+        <img src="@/assets/images/diamond.png" alt="">
+        355
+      </div>
+      <el-button type="primary" class="member-grade-right" plain round @click="() => router.push('/member')">
+        充值
+      </el-button>
+    </div>
+    <div class="member-plan">
+      <el-button type="primary" @click="() => router.push('/member')">
+        升级计划
+      </el-button>
+    </div>
+  </div>
 </template>
 
 <style lang="less" scoped>
@@ -57,6 +77,54 @@ interface PropType {
       @apply text-white rounded-lg;
       background-color: @color-primary;
     }
+  }
+}
+.member{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 16px;
+  width: 192px;
+  height: 192px;
+  background: #fff;
+  box-shadow: 0px 0px 20px 1px rgba(0,0,0,0.05), 0px 38px 76px 0px rgba(150,119,247,0.1);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  &-title{
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 19px;
+  }
+  &-grade{
+    width: 100%;
+    margin: 24px 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    &-left{
+      display:flex;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+      img{
+        width:16px;
+        height:16px;
+        margin-right: 8px;
+      }
+    }
+    &-right{
+      width:48px;
+      height:22px;
+      font-size:12px;
+    }
+  }
+  &-plan{
+    width:100%;text-align: center;
   }
 }
 </style>

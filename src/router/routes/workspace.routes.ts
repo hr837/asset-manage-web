@@ -26,6 +26,14 @@ const routesConfig: Array<RouteRecordRaw> = [
       menuPath: '/index',
     },
   },
+  {
+    path: '/member',
+    name: 'member',
+    component: () => import('@/views/member/MemberPlan.vue'),
+    meta: {
+      title: '计划&价格',
+    },
+  },
 ]
 
 export default routesConfig
