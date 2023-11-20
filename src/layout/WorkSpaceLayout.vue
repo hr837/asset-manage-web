@@ -2,11 +2,13 @@
 import { defineComponent } from 'vue'
 import LayoutWorkMenu from './components/LayoutWorkMenu.vue'
 import LayoutHeader from './components/LayoutHeader.vue'
+import MemberCard from './components/MemberCard.vue'
 export default defineComponent({
   name: 'WorkSpaceLayout',
   components: {
     LayoutWorkMenu,
     LayoutHeader,
+    MemberCard,
   },
 })
 </script>
@@ -17,8 +19,9 @@ export default defineComponent({
       <LayoutHeader />
     </el-header>
     <el-container class="layout-work-container">
-      <el-aside class="overflow-hidden" width="240px">
+      <el-aside class="flex flex-col overflow-hidden" width="240px">
         <LayoutWorkMenu />
+        <MemberCard />
       </el-aside>
       <el-main class="layout-work-container-main">
         <router-view v-slot="{ Component, route }" class="layout-work-container-main-content">

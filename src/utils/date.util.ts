@@ -39,3 +39,14 @@ export function getVideoDuration(inputSeconds: number) {
   else
     return `${seconds}s`
 }
+
+/** 计算剩余秒数 */
+export function getTimeDown(seconds: number) {
+  if (!seconds)
+    return ''
+  const d = dayjs.duration(seconds, 's')
+  if (d.minutes() > 0)
+    return d.format('mm:ss')
+  else
+    return d.format('ss')
+}
