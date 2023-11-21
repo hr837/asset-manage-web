@@ -1,24 +1,38 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import MemberLeveTable from './components/MemberLeveTable.vue'
+import { computed, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
+import MemberLevelTable from './components/MemberLevelTable.vue'
 import MemberPriceCard from './components/MemberPriceCard.vue'
 import { MemberPriceMonthly, MemberPriceQuarterly, MemberPriceYearly, RechargePrice } from './composable/constant'
 import MemberDiamondRecharge from './components/MemberDiamondRecharge.vue'
 import MemberPayment from './components/MemberPayment.vue'
+import { useUserStore } from '@/store/user.store'
 
-const myDiamondCount = ref(355)
-const payAmount = ref(0)
+const userStore = useUserStore()
+const myDiamondCount = computed(() => userStore.diamondCount)
 
 const dialogShow = reactive({
   rechrnge: false,
   subscribe: false,
 })
 
+const payInfo = reactive({
+  diamond: 0,
+  amount: 0,
+})
+
 function onUserCharge(sku: string) {
-  console.log(sku)
   dialogShow.rechrnge = false
-  myDiamondCount.value = RechargePrice.find(x => x.sku === sku)!.price
+  const item = RechargePrice.find(x => x.sku === sku)!
+  payInfo.amount = item.price
+  payInfo.diamond = item.diamond
   dialogShow.subscribe = true
+}
+
+function onPaySuccess() {
+  ElMessage.success('充值成功')
+  payInfo.amount = 0
+  userStore.increaseDiamond(payInfo.diamond)
 }
 </script>
 
@@ -41,13 +55,13 @@ function onUserCharge(sku: string) {
       </el-tabs>
       <!-- vip等级区分 -->
       <div class="px-4">
-        <MemberLeveTable />
+        <MemberLevelTable />
       </div>
 
       <!-- 钻石充值弹窗 -->
       <MemberDiamondRecharge v-model="dialogShow.rechrnge" :balance="myDiamondCount" @charge="onUserCharge" />
       <!-- 支付弹窗 -->
-      <MemberPayment v-model="dialogShow.subscribe" :amount="payAmount" />
+      <MemberPayment v-model="dialogShow.subscribe" :amount="payInfo.amount" @success="onPaySuccess" />
       <!-- </el-dialog> -->
     </el-main>
     <el-footer class="border-t flex justify-end items-center">

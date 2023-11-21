@@ -14,6 +14,7 @@ interface State {
   subMenuList: MenuData[]
   /** 用户数据过期时间 */
   expiration: number
+  diamondCount: number
 }
 
 /** 初始化state */
@@ -23,6 +24,7 @@ const initialState = (): State => {
     token: '',
     subMenuList: [],
     expiration: 0,
+    diamondCount: 355,
   }
 }
 
@@ -40,6 +42,15 @@ export const useUserStore = defineStore('user', {
     },
     updateUserInfo(user: { id: string; name: string }) {
       this.id = user.id
+    },
+    increaseDiamond(val: number) {
+      this.diamondCount += val
+    },
+    decreaseDiamond(val: number) {
+      if (val > this.diamondCount)
+        this.diamondCount = 0
+      else
+        this.diamondCount -= val
     },
   },
   getters: {

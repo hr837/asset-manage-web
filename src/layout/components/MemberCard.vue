@@ -1,5 +1,11 @@
 <script lang="ts" setup>
+import { computed, ref } from 'vue'
+import CountUp from 'vue-countup-v3'
+import { useUserStore } from '@/store/user.store'
 
+const userStore = useUserStore()
+const startValue = ref(userStore.diamondCount)
+const userDiamondCount = computed(() => userStore.diamondCount)
 </script>
 
 <template>
@@ -10,7 +16,8 @@
     <div class="member-grade">
       <icon-local-diamond />
       <div class="diamond-count font-semibold text-2xl">
-        355
+        <!-- {{ userDiamondCount }} -->
+        <CountUp :start-val="startValue" :end-val="userDiamondCount" @finished="startValue = userDiamondCount" />
       </div>
       <div class="flex-1 text-right">
         <RouterLink to="/member">
